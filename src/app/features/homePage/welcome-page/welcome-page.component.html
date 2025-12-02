@@ -1,0 +1,141 @@
+<div class="min-h-screen bg-cyan-400 font-sans">
+    <!-- Header -->
+    <header class="flex items-center justify-between px-4 py-3 bg-cyan-200/80 backdrop-blur-sm sticky top-0 z-50">
+        <button class="p-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+        </button>
+        <div class="text-xl font-bold">Sanity</div>
+        <a href="#" class="text-sm font-medium hover:primary">Iniciar sesión</a>
+    </header>
+
+    <main class="px-4 pb-12">
+        <!-- Hero Section -->
+        <section class="text-center py-8">
+            <div class="mb-4 flex justify-center">
+                <div class="p-3 rounded-full border-2 border-white text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-3xl font-bold mb-2">Tu salud mental,<br>simplificada</h1>
+            <p class="text-sm mb-8 max-w-md mx-auto">
+                Sanity es tu compañero integral para la salud mental. Registra tu estado de ánimo, chatea con Euphoria
+                nuestro agente de IA y conéctate con profesionales.
+            </p>
+        </section>
+
+        <!-- Actividades personalizadas -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold mb-4">Actividades personalizadas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div *ngFor="let item of features" class="bg-transparent">
+                    <div class="bg-orange-100 rounded-xl p-4 mb-3 flex justify-center items-center aspect-square">
+                        <img [src]="item.image" alt="" class="w-3/4 h-3/4 object-cover rounded shadow-md">
+                    </div>
+                    <h3 class="font-bold mb-1">{{ item.title }}</h3>
+                    <p class="text-xs leading-relaxed">{{ item.description }}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Servicios profesionales -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold mb-4">Servicios profesionales</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div *ngFor="let item of professionalServices" class="bg-transparent">
+                    <div class="bg-orange-200 rounded-xl p-4 mb-3 flex justify-center items-center aspect-square">
+                        <img [src]="item.image" alt="" class="w-3/4 h-3/4 object-cover rounded shadow-md">
+                    </div>
+                    <h3 class="font-bold mb-1">{{ item.title }}</h3>
+                    <p class="text-xs leading-relaxed">{{ item.description }}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hábitos saludables -->
+        <section class="mb-12">
+            <h2 class="text-xl font-bold mb-4">Hábitos saludables</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div *ngFor="let item of healthyHabits" class="bg-transparent">
+                    <div class="bg-orange-100 rounded-xl overflow-hidden mb-3 aspect-square relative">
+                        <img [src]="item.image" alt="" class="w-full h-full object-cover">
+                    </div>
+                    <h3 class="font-bold mb-1">{{ item.title }}</h3>
+                    <p class="text-xs leading-relaxed">{{ item.description }}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ¿Por qué elegir Sanity? -->
+        <section class="mb-12">
+            <h2 class="text-xl font-bold mb-6">¿Por qué elegir Sanity?</h2>
+            <div class="space-y-6">
+                <div class="flex gap-4">
+                    <div class="bg-white p-3 rounded-lg h-12 w-12 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm">Soporte inteligente</h3>
+                        <p class="text-xs">Nuestro agente de IA está disponible las 24 horas del día, los 7 días de la
+                            semana para...</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="bg-white p-3 rounded-lg h-12 w-12 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm">Privacidad y seguridad</h3>
+                        <p class="text-xs">Tus datos están encriptados y protegidos con los más altos estándares de
+                            seguridad.</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="bg-white p-3 rounded-lg h-12 w-12 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm">Enfoque científico</h3>
+                        <p class="text-xs">Nuestros métodos se basan en las últimas investigaciones en salud mental.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer / CTA -->
+        <section class="text-center pb-8">
+            <h2 class="text-xl font-bold mb-6">Comienza tu transformación hoy</h2>
+            <div class="space-y-3 mb-8">
+                <app-button variant="primary" [fullWidth]="true">Registrarse</app-button>
+                <app-button variant="secondary" [fullWidth]="true">Iniciar sesión</app-button>
+            </div>
+
+            <div class="space-y-4 text-sm text-white/80">
+                <a href="#" class="block hover:text-white">Contáctanos</a>
+                <a href="#" class="block hover:text-white">Términos y condiciones</a>
+                <a href="#" class="block hover:text-white">Política de privacidad</a>
+                <div class="pt-4 text-xs opacity-60">© 2024 Sanity. Todos los derechos reservados.</div>
+            </div>
+        </section>
+    </main>
+</div>
