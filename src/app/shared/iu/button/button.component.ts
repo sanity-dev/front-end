@@ -35,10 +35,10 @@ export class ButtonComponent {
         let variantClasses = '';
         switch (this.variant) {
             case 'primary':
-                variantClasses = 'bg-cyan-500 text-white hover:bg-cyan-600 focus:ring-cyan-500';
+                variantClasses = 'bg-sky-500 text-white hover:bg-sky-600 focus:ring-sky-500';
                 break;
             case 'secondary':
-                variantClasses = 'bg-orange-200 hover:bg-orange-300 focus:ring-orange-200';
+                variantClasses = 'bg-white hover:bg-orange-300 focus:ring-orange-200';
                 break;
             case 'outline':
                 variantClasses = 'border border-gray-300 bg-transparent hover:bg-gray-50 focus:ring-gray-500';

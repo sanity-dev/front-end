@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-cyan-400 font-sans">
+<div class="min-h-screen font-sans">
     <!-- Header -->
     <header class="flex items-center justify-between px-4 py-3 bg-cyan-200/80 backdrop-blur-sm sticky top-0 z-50">
         <button class="p-2">
@@ -14,17 +14,13 @@
     <main class="px-4 pb-12">
         <!-- Hero Section -->
         <section class="text-center py-8">
-            <div class="mb-4 flex justify-center">
-                <div class="p-3 rounded-full border-2 border-white text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-8 h-8">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
-                    </svg>
+            <div class="flex justify-center">
+                <div class=" text-white">
+                    <img src="assets/icons/SanityLogoWhite.png" alt="sanityLogo">
                 </div>
             </div>
             <h1 class="text-3xl font-bold mb-2">Tu salud mental,<br>simplificada</h1>
-            <p class="text-sm mb-8 max-w-md mx-auto">
+            <p class="text-sm mb-4 max-w-md mx-auto">
                 Sanity es tu compañero integral para la salud mental. Registra tu estado de ánimo, chatea con Euphoria
                 nuestro agente de IA y conéctate con profesionales.
             </p>
@@ -35,8 +31,8 @@
             <h2 class="text-xl font-bold mb-4">Actividades personalizadas</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div *ngFor="let item of features" class="bg-transparent">
-                    <div class="bg-orange-100 rounded-xl p-4 mb-3 flex justify-center items-center aspect-square">
-                        <img [src]="item.image" alt="" class="w-3/4 h-3/4 object-cover rounded shadow-md">
+                    <div class="bg-orange-100 rounded-xl overflow-hidden mb-3 aspect-square relative">
+                        <img [src]="item.image" alt="" class="w-full h-full object-cover">
                     </div>
                     <h3 class="font-bold mb-1">{{ item.title }}</h3>
                     <p class="text-xs leading-relaxed">{{ item.description }}</p>
@@ -49,8 +45,8 @@
             <h2 class="text-xl font-bold mb-4">Servicios profesionales</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div *ngFor="let item of professionalServices" class="bg-transparent">
-                    <div class="bg-orange-200 rounded-xl p-4 mb-3 flex justify-center items-center aspect-square">
-                        <img [src]="item.image" alt="" class="w-3/4 h-3/4 object-cover rounded shadow-md">
+                    <div class="bg-orange-100 rounded-xl overflow-hidden mb-3 aspect-square relative">
+                        <img [src]="item.image" alt="" class="w-full h-full object-cover">
                     </div>
                     <h3 class="font-bold mb-1">{{ item.title }}</h3>
                     <p class="text-xs leading-relaxed">{{ item.description }}</p>
@@ -125,7 +121,7 @@
         <!-- Footer / CTA -->
         <section class="text-center pb-8">
             <h2 class="text-xl font-bold mb-6">Comienza tu transformación hoy</h2>
-            <div class="space-y-3 mb-8">
+            <div class="flex flex-col gap-3 mb-8">
                 <app-button variant="primary" [fullWidth]="true">Registrarse</app-button>
                 <app-button variant="secondary" [fullWidth]="true">Iniciar sesión</app-button>
             </div>
