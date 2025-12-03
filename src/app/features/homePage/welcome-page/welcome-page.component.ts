@@ -14,7 +14,7 @@ export class WelcomePageComponent {
         {
             title: 'Diario interactivo',
             description: 'Reflexiona sobre tu día con nuestro diario intuitivo. Registra tu estado de ánimo, identifica patrones y obtén información sobre tu bienestar mental.',
-            image: 'https://images.unsplash.com/photo-1517842645767-c639042777db?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' // Placeholder
+            image: 'https://images.unsplash.com/photo-1650848200302-22e62d26a75a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
         },
         {
             title: 'Agente de IA',
@@ -32,7 +32,7 @@ export class WelcomePageComponent {
         {
             title: 'Servicios de asesoramiento',
             description: 'Accede a servicios de asesoramiento profesional adaptados a tus necesidades. Encuentra al consejero adecuado y comienza tu viaje hacia una mejor salud mental.',
-            image: 'https://images.unsplash.com/photo-1581056771107-24ca5f033842?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' // Placeholder
+            image: 'https://plus.unsplash.com/premium_photo-1664378616928-dc6842677183?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
         }
     ];
 
@@ -48,4 +48,26 @@ export class WelcomePageComponent {
             image: 'https://images.unsplash.com/photo-1532883130016-f3d311140ba8?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
         }
     ];
+    isMenuOpen = false;
+
+    menuItems = [
+        { label: 'Inicio', id: 'hero' },
+        { label: 'Actividades', id: 'features' },
+        { label: 'Servicios', id: 'services' },
+        { label: 'Hábitos', id: 'habits' },
+        { label: 'Nosotros', id: 'why-sanity' },
+        { label: 'Únete', id: 'cta' }
+    ];
+
+    toggleMenu() {
+        this.isMenuOpen = !this.isMenuOpen;
+    }
+
+    scrollToSection(sectionId: string) {
+        this.isMenuOpen = false;
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
 }

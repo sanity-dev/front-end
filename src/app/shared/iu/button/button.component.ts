@@ -30,7 +30,7 @@ export class ButtonComponent {
 
     getClasses(): string {
         const baseClasses =
-            'inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
+            'inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
 
         let variantClasses = '';
         switch (this.variant) {
