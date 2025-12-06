@@ -1,11 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ButtonComponent } from '../../../shared/iu/button/button.component';
+import { HeaderComponent } from '../../../../shared/components/header/header.component';
+import { SectionComponent } from '../../components/section/section.component';
+import { InfoSectionComponent } from '../../components/info-section/info-section.component';
+import { FooterComponent } from '../../../../shared/components/footer/footer.component';
 
 @Component({
     selector: 'app-welcome-page',
     standalone: true,
-    imports: [CommonModule, ButtonComponent],
+    imports: [CommonModule, HeaderComponent, SectionComponent, InfoSectionComponent, FooterComponent],
     templateUrl: './welcome-page.component.html',
     styleUrls: ['./welcome-page.component.css']
 })
@@ -48,7 +51,24 @@ export class WelcomePageComponent {
             image: 'https://images.unsplash.com/photo-1532883130016-f3d311140ba8?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
         }
     ];
-    isMenuOpen = false;
+
+    whySanityItems = [
+        {
+            title: 'Soporte inteligente',
+            description: 'Nuestro agente de IA está disponible las 24 horas del día, los 7 días de la semana para brindarte apoyo inmediato cuando más lo necesitas.',
+            iconPath: 'M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
+        },
+        {
+            title: 'Privacidad y seguridad',
+            description: 'Tus datos están encriptados y protegidos con los más altos estándares de seguridad. Tu privacidad es nuestra prioridad.',
+            iconPath: 'M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z'
+        },
+        {
+            title: 'Enfoque científico',
+            description: 'Nuestros métodos se basan en las últimas investigaciones en salud mental y psicología positiva para garantizar resultados efectivos.',
+            iconPath: 'M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5'
+        }
+    ];
 
     menuItems = [
         { label: 'Inicio', id: 'hero' },
@@ -59,12 +79,7 @@ export class WelcomePageComponent {
         { label: 'Únete', id: 'cta' }
     ];
 
-    toggleMenu() {
-        this.isMenuOpen = !this.isMenuOpen;
-    }
-
     scrollToSection(sectionId: string) {
-        this.isMenuOpen = false;
         const element = document.getElementById(sectionId);
         if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
