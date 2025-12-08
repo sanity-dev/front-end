@@ -4,18 +4,7 @@
 
     <main class="px-4 pb-12">
         <!-- Hero Section -->
-        <section id="hero" class="text-center py-8 scroll-mt-22">
-            <div class="flex justify-center">
-                <div class="text-white w-20 h-20">
-                    <img src="assets/icons/LogoSanityBlue2.png" alt="sanityLogo">
-                </div>
-            </div>
-            <h1 class="text-3xl font-bold mb-2 mt-4 text-secondary-background">Tu salud mental,<br>simplificada</h1>
-            <p class="text-base mb-4 max-w-md mx-auto text-[#1d1d1d]">
-                Sanity es tu compañero integral para la salud mental. Registra tu estado de ánimo, chatea con Euphoria
-                nuestro agente de IA y conéctate con profesionales.
-            </p>
-        </section>
+        <app-hero [title]="heroTitle" [description]="heroDescription"></app-hero>
 
         <!-- Actividades personalizadas -->
         <app-section id="features" class="scroll-mt-22" title="Actividades personalizadas" [items]="features">

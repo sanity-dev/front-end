@@ -4,15 +4,19 @@ import { HeaderComponent } from '../../../../shared/components/header/header.com
 import { SectionComponent } from '../../components/section/section.component';
 import { InfoSectionComponent } from '../../components/info-section/info-section.component';
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
+import { HeroComponent } from '../../../../shared/iu/hero/hero.component';
 
 @Component({
     selector: 'app-welcome-page',
     standalone: true,
-    imports: [CommonModule, HeaderComponent, SectionComponent, InfoSectionComponent, FooterComponent],
+    imports: [CommonModule, HeaderComponent, SectionComponent, InfoSectionComponent, FooterComponent, HeroComponent],
     templateUrl: './welcome-page.component.html',
     styleUrls: ['./welcome-page.component.css']
 })
 export class WelcomePageComponent {
+    heroTitle = 'Tu salud mental,<br>simplificada';
+    heroDescription = 'Sanity es tu compañero integral para la salud mental. Registra tu estado de ánimo, chatea con Euphoria nuestro agente de IA y conéctate con profesionales.';
+
     features = [
         {
             title: 'Diario interactivo',
