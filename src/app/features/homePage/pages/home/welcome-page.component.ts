@@ -4,7 +4,7 @@ import { HeaderComponent } from '../../../../shared/components/header/header.com
 import { SectionComponent } from '../../components/section/section.component';
 import { InfoSectionComponent } from '../../components/info-section/info-section.component';
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
-import { HeroComponent } from '../../../../shared/iu/hero/hero.component';
+import { HeroComponent } from '../../../../shared/ui/hero/hero.component';
 
 @Component({
     selector: 'app-welcome-page',

@@ -24,8 +24,8 @@ export interface InfoSectionItem {
                     </svg>
                 </div>
                 <div>
-                    <h3 class="font-bold text-sm text-[#1d1d1d]">{{ item.title }}</h3>
-                    <p class="text-xs text-[#1d1d1d]">{{ item.description }}</p>
+                    <h3 class="font-bold text-sm text-text-primary">{{ item.title }}</h3>
+                    <p class="text-xs text-text-primary">{{ item.description }}</p>
                 </div>
             </div>
         </div>

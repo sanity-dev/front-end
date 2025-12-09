@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-button',
@@ -23,9 +24,14 @@ export class ButtonComponent {
     @Input() variant: 'primary' | 'outline' | 'ghost' | 'secondary' = 'primary';
     @Input() fullWidth: boolean = false;
     @Input() disabled: boolean = false;
+    @Input() route: string | null = null;
+
+    constructor(private router: Router) { }
 
     onClick(event: MouseEvent) {
-        // Event bubbling is handled by the parent
+        if (this.route) {
+            this.router.navigate([this.route]);
+        }
     }
 
     getClasses(): string {

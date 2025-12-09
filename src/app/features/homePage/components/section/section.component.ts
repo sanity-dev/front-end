@@ -20,7 +20,7 @@ export interface SectionItem {
                     <img [src]="item.image" [alt]="item.title" class="w-full h-full object-cover">
                 </div>
                 <h3 class="font-bold mb-1 text-secondary-background text-lg">{{ item.title }}</h3>
-                <p class="text-base leading-relaxed text-[#1d1d1d]">{{ item.description }}</p>
+                <p class="text-base leading-relaxed text-text-primary">{{ item.description }}</p>
             </div>
         </div>
     </section>
