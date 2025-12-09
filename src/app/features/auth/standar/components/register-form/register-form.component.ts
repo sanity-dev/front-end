@@ -14,7 +14,7 @@ import { ButtonComponent } from '../../../../../shared/ui/button/button.componen
           type="text"
           formControlName="name"
           placeholder="Nombre"
-          class="border-sky-500 border-b-2 bg-secondary-background/20 rounded-md w-full px-4 py-3 focus:ring-2 focus:ring-sky-500 text-gray-800 placeholder-gray-500"
+          class="border-sky-500 border-b-2 bg-white rounded-md w-full px-4 py-3 focus:ring-2 focus:ring-sky-500 text-gray-800 placeholder-gray-500"
         />
         <div *ngIf="registerForm.get('name')?.invalid && (registerForm.get('name')?.dirty || registerForm.get('name')?.touched)" class="text-red-500 text-xs mt-1">
           <div *ngIf="registerForm.get('name')?.errors?.['required']">El nombre es requerido.</div>
@@ -25,7 +25,7 @@ import { ButtonComponent } from '../../../../../shared/ui/button/button.componen
           type="email"
           formControlName="email"
           placeholder="Correo electrónico"
-          class="border-sky-500 border-b-2 bg-secondary-background/20 rounded-md w-full px-4 py-3 focus:ring-2 focus:ring-sky-500 text-gray-800 placeholder-gray-500"
+          class="border-sky-500 border-b-2 bg-white rounded-md w-full px-4 py-3 focus:ring-2 focus:ring-sky-500 text-gray-800 placeholder-gray-500"
         />
         <div *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)" class="text-red-500 text-xs mt-1">
           <div *ngIf="registerForm.get('email')?.errors?.['required']">El correo es requerido.</div>
@@ -37,7 +37,7 @@ import { ButtonComponent } from '../../../../../shared/ui/button/button.componen
           type="password"
           formControlName="password"
           placeholder="Contraseña"
-          class="border-sky-500 border-b-2 bg-secondary-background/20 rounded-md w-full px-4 py-3 focus:ring-2 focus:ring-sky-500 text-gray-800 placeholder-gray-500"
+          class="border-sky-500 border-b-2 bg-white rounded-md w-full px-4 py-3 focus:ring-2 focus:ring-sky-500 text-gray-800 placeholder-gray-500"
         />
         <div *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)" class="text-red-500 text-xs mt-1">
           <div *ngIf="registerForm.get('password')?.errors?.['required']">La contraseña es requerida.</div>
@@ -51,7 +51,7 @@ import { ButtonComponent } from '../../../../../shared/ui/button/button.componen
           type="password"
           formControlName="confirmPassword"
           placeholder="Confirmar contraseña"
-          class="border-sky-500 border-b-2 bg-secondary-background/20 rounded-md w-full px-4 py-3 focus:ring-2 focus:ring-sky-500 text-gray-800 placeholder-gray-500"
+          class="border-sky-500 border-b-2 bg-white rounded-md w-full px-4 py-3 focus:ring-2 focus:ring-sky-500 text-gray-800 placeholder-gray-500"
         />
         <div *ngIf="registerForm.get('confirmPassword')?.invalid && (registerForm.get('confirmPassword')?.dirty || registerForm.get('confirmPassword')?.touched)" class="text-red-500 text-xs mt-1">
           <div *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Confirme su contraseña.</div>
