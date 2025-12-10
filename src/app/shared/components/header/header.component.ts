@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MobileMenuComponent } from '../mobile-menu/mobile-menu.component';
 
 @Component({
     selector: 'app-header',
     standalone: true,
-    imports: [CommonModule, MobileMenuComponent],
+    imports: [CommonModule, MobileMenuComponent, RouterLink],
     template: `
     <header
         class="flex items-center px-4 py-3 bg-secondary-background/80 backdrop-blur-sm sticky top-0 z-50"
@@ -23,8 +24,8 @@ import { MobileMenuComponent } from '../mobile-menu/mobile-menu.component';
             (itemClick)="handleItemClick($event)">
         </app-mobile-menu>
 
-        <div class="text-xl font-bold text-[#f5f5f5] ml-8"><a href="#">{{ title }}</a></div>
-        <a href="#" class="text-base font-medium hover:primary text-[#f5f5f5]">{{ actionLabel }}</a>
+        <div class="text-xl font-bold text-[#f5f5f5] ml-8"><a routerLink="/">{{ title }}</a></div>
+        <a [routerLink]="actionRoute" class="text-base font-medium hover:primary text-[#f5f5f5] cursor-pointer">{{ actionLabel }}</a>
     </header>
   `,
     styles: []
@@ -34,6 +35,7 @@ export class HeaderComponent {
     @Input() disableMenuButton: boolean = false;
     @Input() title: string = 'Sanity';
     @Input() actionLabel: string = 'Iniciar sesión';
+    @Input() actionRoute: string = '/login';
     @Input() justifyClass: string = 'justify-between';
     @Output() navigate = new EventEmitter<string>();
 

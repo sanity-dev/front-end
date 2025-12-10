@@ -11,7 +11,7 @@ import { ButtonComponent } from '../../ui/button/button.component';
         <h2 class="text-xl font-bold mb-6 text-text-primary">Comienza tu transformación hoy</h2>
         <div class="flex flex-col gap-3 mb-8">
             <app-button variant="primary" [fullWidth]="true" route="/register">Registrarse</app-button>
-            <app-button variant="secondary" [fullWidth]="true">Iniciar sesión</app-button>
+            <app-button variant="secondary" [fullWidth]="true" route="/login">Iniciar sesión</app-button>
         </div>
 
         <div class="space-y-4 text-sm text-text-primary">
