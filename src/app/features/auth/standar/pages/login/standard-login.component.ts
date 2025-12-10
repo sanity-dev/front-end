@@ -5,24 +5,24 @@ import { HeaderComponent } from '../../../../../shared/components/header/header.
 import { LoginFormComponent } from '../../components/login-form/login-form.component';
 
 @Component({
-    selector: 'app-standard-login',
-    standalone: true,
-    imports: [CommonModule, HeroComponent, HeaderComponent, LoginFormComponent],
-    template: `
-    <div class="min-h-screen flex flex-col items-center">
-      <div class="w-full max-w-md"> 
+  selector: 'app-standard-login',
+  standalone: true,
+  imports: [CommonModule, HeroComponent, HeaderComponent, LoginFormComponent],
+  template: `
+    <div class="min-h-screen flex flex-col">
         <app-header [disableMenuButton]="true" ></app-header>
-        <div class="px-4 pb-12">
-          <app-hero
-            title="Bienvenido de nuevo"
-            description=""
-          ></app-hero>
+        <div class="w-full max-w-md mx-auto flex flex-col justify-center"> 
+            <div class="px-4 pb-12">
+            <app-hero
+                title="Bienvenido de nuevo"
+                description=""
+            ></app-hero>
 
-          <app-login-form></app-login-form>
+            <app-login-form></app-login-form>
+            </div>
         </div>
-      </div>
     </div>
   `,
-    styles: []
+  styles: []
 })
 export class StandardLoginComponent { }

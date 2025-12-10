@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
     <div
         class="bg-secondary-background shadow-lg py-4 px-6 flex flex-col gap-4 border-t border-white/10 animate-fade-in">
         <button *ngFor="let item of items" (click)="onItemClick(item.id)"
-            class="text-left text-[#f5f5f5] text-lg font-medium hover:text-orange-200 transition-colors py-2 border-b border-white/5 last:border-0">
+            class="text-left text-[#f5f5f5] text-lg font-medium hover:text-orange-200 transition-colors py-2 border-b border-white/5 last:border-0 cursor-pointer">
             {{ item.label }}
         </button>
     </div>
