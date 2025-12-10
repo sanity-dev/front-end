@@ -6,7 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "build:gh": "ng build --configuration production --base-href /front-end/",
+    "deploy:gh": "npx angular-cli-ghpages --dir=dist/sanity-front/browser --branch=gh-pages",
+    "deploy": "npm run build:gh && npm run deploy:gh"
   },
   "prettier": {
     "printWidth": 100,
@@ -40,6 +43,7 @@
     "@angular/cli": "^20.2.2",
     "@angular/compiler-cli": "^20.2.0",
     "@types/jasmine": "~5.1.0",
+    "angular-cli-ghpages": "^2.0.3",
     "jasmine-core": "~5.9.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
