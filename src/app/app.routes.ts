@@ -8,5 +8,7 @@ import { StandardLoginComponent } from './features/auth/standar/pages/login/stan
 export const routes: Routes = [
     { path: '', component: WelcomePageComponent },
     { path: 'register', component: StandardRegisterComponent },
-    { path: 'login', component: StandardLoginComponent }
+    { path: 'login', component: StandardLoginComponent },
+    { path: 'emergency/confirm', loadComponent: () => import('./features/emergency/pages/confirm/confirm-emergency.component').then(m => m.ConfirmEmergencyComponent) },
+    { path: 'emergency/sent', loadComponent: () => import('./features/emergency/pages/sent/alert-sent.component').then(m => m.AlertSentComponent) }
 ];
