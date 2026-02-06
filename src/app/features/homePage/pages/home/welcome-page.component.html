@@ -1,0 +1,29 @@
+<div class="min-h-screen font-sans">
+    <app-header [menuItems]="menuItems" (navigate)="scrollToSection($event)">
+    </app-header>
+
+    <main class="px-4 pb-12">
+        <!-- Hero Section -->
+        <app-hero [title]="heroTitle" [description]="heroDescription"></app-hero>
+
+        <!-- Actividades personalizadas -->
+        <app-section id="features" class="scroll-mt-22" title="Actividades personalizadas" [items]="features">
+        </app-section>
+
+        <!-- Servicios profesionales -->
+        <app-section id="services" class="scroll-mt-22" title="Servicios profesionales" [items]="professionalServices">
+        </app-section>
+
+        <!-- Hábitos saludables -->
+        <app-section id="habits" class="scroll-mt-22" title="Hábitos saludables" [items]="healthyHabits">
+        </app-section>
+
+        <!-- ¿Por qué elegir Sanity? -->
+        <app-info-section id="why-sanity" class="mb-12 scroll-mt-22" title="¿Por qué elegir Sanity?"
+            [items]="whySanityItems">
+        </app-info-section>
+
+        <!-- Footer / CTA -->
+        <app-footer id="cta" class="scroll-mt-22"></app-footer>
+    </main>
+</div>
