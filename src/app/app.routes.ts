@@ -3,7 +3,7 @@ import { JournalEntryComponent } from './features/journal-entry/journal-entry.co
 import { AnalyticsComponent } from './features/analytics/analytics.component';
 
 export const routes: Routes = [
-    { path: '', component: JournalEntryComponent },
+    { path: 'diario', component: JournalEntryComponent },
     { path: 'analytics', component: AnalyticsComponent },
     { path: 'analisis', redirectTo: 'analytics' }
 ];

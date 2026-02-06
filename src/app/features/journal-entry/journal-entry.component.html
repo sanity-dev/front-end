@@ -1,50 +1,58 @@
-<div class="min-h-screen bg-gradient-to-b from-[#94cbf8] to-[#2d82b5] flex flex-col font-sans text-[#1e293b]">
+<div class="min-h-screen bg-[#f5f5f5] flex flex-col font-sans text-primary-font">
   <!-- Header -->
-  <header class="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 bg-[#94cbf8]">
-    <button class="p-2 rounded-full hover:bg-white/20 transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
+  <header class="flex items-center justify-between px-4 sm:px-6 md:px-8 py-4 bg-secondary-background">
+    <button class="p-2 rounded-full hover:bg-white-sanity/20 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        class="w-5 h-5 sm:w-6 sm:h-6 text-white">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
       </svg>
     </button>
-    <h1 class="text-base sm:text-lg md:text-xl font-semibold">Sanity</h1>
+    <h1 class="text-base sm:text-lg md:text-xl font-semibold text-white">Sanity</h1>
     <div class="w-9 sm:w-10"></div> <!-- Spacer for centering -->
   </header>
 
   <!-- Main Content -->
   <main class="flex-1 px-4 sm:px-6 md:px-8 lg:px-12 pb-24 sm:pb-28 overflow-y-auto max-w-4xl mx-auto w-full">
     <!-- Text Area Card -->
-    <div class="bg-[#f1f5f9] rounded-xl p-3 sm:p-4 md:p-5 shadow-sm mb-5 sm:mb-6 min-h-[140px] sm:min-h-[160px] md:min-h-[180px] mt-4 sm:mt-6">
-      <textarea 
-        class="w-full h-full bg-transparent border-none resize-none focus:ring-0 text-xs sm:text-sm md:text-base leading-relaxed placeholder-gray-500"
-        placeholder="Hoy me sentí más tranquilo después de meditar."
-      >Hoy me sentí más tranquilo después de meditar.</textarea>
+    <div
+      class="bg-white rounded-xl p-3 sm:p-4 md:p-5 shadow-sm mb-5 sm:mb-6 min-h-[140px] sm:min-h-[160px] md:min-h-[180px] mt-4 sm:mt-6">
+      <textarea
+        class="w-full h-full bg-transparent border-none resize-none focus:ring-0 text-xs sm:text-sm md:text-base leading-relaxed placeholder-gray-500 text-text-primary"
+        placeholder="Hoy me sentí más tranquilo después de meditar.">Hoy me sentí más tranquilo después de meditar.</textarea>
     </div>
 
     <!-- Actions -->
     <div class="flex gap-4 sm:gap-6 md:gap-8 mb-6 sm:mb-8 justify-start">
       <div class="flex flex-col items-center gap-1.5 sm:gap-2">
-        <button class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-700">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+        <button
+          class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-white-sanity transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 text-primary-font">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
           </svg>
         </button>
-        <span class="text-[10px] sm:text-xs md:text-sm font-medium text-gray-800">Añadir foto</span>
+        <span class="text-[10px] sm:text-xs md:text-sm font-medium text-primary-font">Añadir foto</span>
       </div>
       <div class="flex flex-col items-center gap-1.5 sm:gap-2">
-        <button class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-700">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
+        <button
+          class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-white-sanity transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 text-primary-font">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
           </svg>
         </button>
-        <span class="text-[10px] sm:text-xs md:text-sm font-medium text-gray-800">Grabar</span>
+        <span class="text-[10px] sm:text-xs md:text-sm font-medium text-primary-font">Grabar</span>
       </div>
     </div>
 
     <!-- Emotions -->
     <div class="mb-6 sm:mb-8">
-      <h2 class="text-sm sm:text-base md:text-lg font-bold mb-2 sm:mb-3 text-gray-900">Emociones Detectadas</h2>
+      <h2 class="text-sm sm:text-base md:text-lg font-bold mb-2 sm:mb-3 text-primary-font">Emociones Detectadas</h2>
       <div class="flex gap-2 sm:gap-3 flex-wrap">
-        <span *ngFor="let emotion of emotions" class="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#f1f5f9] rounded-lg text-xs sm:text-sm md:text-base font-medium text-gray-800 shadow-sm">
+        <span *ngFor="let emotion of emotions"
+          class="px-3 py-1.5 sm:px-4 sm:py-2 bg-white rounded-lg text-xs sm:text-sm md:text-base font-medium text-primary-font shadow-sm border border-white-sanity/50">
           {{ emotion }}
         </span>
       </div>
@@ -52,17 +60,21 @@
 
     <!-- History -->
     <div>
-      <h2 class="text-sm sm:text-base md:text-lg font-bold mb-3 sm:mb-4 text-gray-900">Historial de Entradas</h2>
+      <h2 class="text-sm sm:text-base md:text-lg font-bold mb-3 sm:mb-4 text-primary-font">Historial de Entradas</h2>
       <div class="flex flex-col gap-3 sm:gap-4">
-        <div *ngFor="let item of history" class="flex gap-3 sm:gap-4 items-center">
-          <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-[#f1f5f9] rounded-xl flex items-center justify-center shrink-0 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-700">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
+        <div *ngFor="let item of history" class="flex gap-3 sm:gap-4 items-center bg-white/50 p-2 rounded-xl">
+          <div
+            class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 text-primary-font">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
             </svg>
           </div>
           <div class="flex flex-col flex-1 min-w-0">
-            <span class="text-xs sm:text-sm md:text-base text-gray-900 font-medium line-clamp-1">{{ item.text }}</span>
-            <span class="text-[10px] sm:text-xs text-gray-400">{{ item.date }}</span>
+            <span class="text-xs sm:text-sm md:text-base text-text-primary font-medium line-clamp-1">{{ item.text
+              }}</span>
+            <span class="text-[10px] sm:text-xs text-primary-font/70">{{ item.date }}</span>
           </div>
         </div>
       </div>
@@ -70,9 +82,10 @@
   </main>
 
   <!-- Footer -->
-  <footer class="fixed bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-[#2d82b5] to-transparent">
+  <footer class="fixed bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-third-background to-transparent">
     <div class="max-w-4xl mx-auto">
-      <button class="w-full py-2.5 sm:py-3 md:py-3.5 bg-[#1da1f2] text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold shadow-lg hover:bg-[#1a91da] transition-colors">
+      <button
+        class="w-full py-2.5 sm:py-3 md:py-3.5 bg-secondary-background text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold shadow-lg hover:bg-third-background transition-colors">
         Guardar
       </button>
     </div>
