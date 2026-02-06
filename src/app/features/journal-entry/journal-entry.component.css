@@ -1,0 +1,81 @@
+/* Responsive enhancements and custom media queries */
+
+/* Ensure proper touch targets on mobile devices */
+@media (max-width: 640px) {
+  button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Optimize textarea for different screen sizes */
+textarea {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Tablet landscape optimization */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .main-content {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Desktop optimization - limit max width for better readability */
+@media (min-width: 1024px) {
+  .journal-container {
+    max-width: 800px;
+  }
+}
+
+/* Improve scrolling on iOS devices */
+@supports (-webkit-touch-callout: none) {
+  main {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  svg {
+    shape-rendering: geometricPrecision;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+  .min-h-screen {
+    min-height: auto;
+  }
+  
+  main {
+    padding-bottom: 5rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  footer {
+    display: none;
+  }
+  
+  main {
+    padding-bottom: 0;
+  }
+}
+
+/* Dark mode support (optional, for future implementation) */
+@media (prefers-color-scheme: dark) {
+  /* Add dark mode styles here if needed in the future */
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
