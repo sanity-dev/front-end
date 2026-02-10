@@ -22,8 +22,8 @@ import { RegisterFormComponent } from '../../components/register-form/register-f
             <app-register-form></app-register-form>
 
             <div class="mt-8 text-center text-text-primary space-y-2">
-                <a href="#" class="block hover:underline font-semibold">Soy terapeuta</a>
-                <a routerLink="/login" class="block hover:underline text-sm opacity-90 cursor-pointer">
+                <a href="#" class="block underline font-semibold">Soy terapeuta</a>
+                <a routerLink="/login" class="block underline text-sm opacity-90 cursor-pointer">
                 ¿Ya tienes una cuenta? <span class="font-semibold">Iniciar sesión</span>
                 </a>
             </div>
