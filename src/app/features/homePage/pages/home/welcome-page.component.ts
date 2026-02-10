@@ -1,15 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeaderComponent } from '../../../../shared/components/header/header.component';
+import { HeaderComponent } from '../../../../layout/header/header.component';
 import { SectionComponent } from '../../components/section/section.component';
 import { InfoSectionComponent } from '../../components/info-section/info-section.component';
-import { FooterComponent } from '../../../../shared/components/footer/footer.component';
-import { HeroComponent } from '../../../../shared/ui/hero/hero.component';
+import { FooterComponent } from '../../../../layout/footer/footer.component';
+import { HeroComponent } from '../../../../shared/components/hero/hero.component';
+import { IconComponent } from '../../../../shared/components/icon/icon';
+
+
 
 @Component({
     selector: 'app-welcome-page',
     standalone: true,
-    imports: [CommonModule, HeaderComponent, SectionComponent, InfoSectionComponent, FooterComponent, HeroComponent],
+    imports: [CommonModule, HeaderComponent, SectionComponent, InfoSectionComponent, FooterComponent, HeroComponent, IconComponent],
     templateUrl: './welcome-page.component.html',
     styleUrls: ['./welcome-page.component.css']
 })

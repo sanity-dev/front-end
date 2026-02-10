@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeroComponent } from '../../../../../shared/ui/hero/hero.component';
-import { HeaderComponent } from '../../../../../shared/components/header/header.component';
+import { HeroComponent } from '../../../../../shared/components/hero/hero.component';
+import { HeaderComponent } from '../../../../../layout/header/header.component';
 import { LoginFormComponent } from '../../components/login-form/login-form.component';
 
 @Component({

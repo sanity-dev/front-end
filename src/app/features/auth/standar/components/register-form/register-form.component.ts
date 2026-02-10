@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ButtonComponent } from '../../../../../shared/ui/button/button.component';
-import { GoogleButtonComponent } from '../../../../../shared/ui/google-button/google-button.component';
-import { InputComponent } from '../../../../../shared/ui/input/input.component';
+import { ButtonComponent } from '../../../../../shared/components/button/button.component';
+import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
+import { InputComponent } from '../../../../../shared/components/input/input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
 
 @Component({
