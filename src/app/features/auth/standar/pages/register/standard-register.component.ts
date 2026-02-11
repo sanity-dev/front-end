@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { HeroComponent } from '../../../../../shared/ui/hero/hero.component';
-import { HeaderComponent } from '../../../../../shared/components/header/header.component';
+import { HeroComponent } from '../../../../../shared/components/hero/hero.component';
+import { HeaderComponent } from '../../../../../layout/header/header.component';
 import { RegisterFormComponent } from '../../components/register-form/register-form.component';
 
 @Component({

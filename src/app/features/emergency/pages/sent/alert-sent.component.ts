@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BottomNavComponent } from '../../../../shared/components/bottom-nav/bottom-nav.component';
-import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import { ButtonComponent } from '../../../../shared/components/button/button.component';
 
 @Component({
     selector: 'app-alert-sent',
