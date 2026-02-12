@@ -1,28 +1,29 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { HeroComponent } from '../../../../../shared/components/hero/hero.component';
 import { HeaderComponent } from '../../../../../layout/header/header.component';
-import { RegisterFormComponent } from '../../components/register-form/register-form.component';
+import { TherapistRegisterFormComponent } from '../../components/register-form/register-form.component';
+import { HeroComponent } from '../../../../../shared/components/hero/hero.component';
 
 @Component({
-  selector: 'app-standard-register',
-  standalone: true,
-  imports: [CommonModule, HeroComponent, HeaderComponent, RegisterFormComponent, RouterLink],
-  template: `
-    <div class="min-h-screen flex flex-col">
+    selector: 'app-therapist-register',
+    standalone: true,
+    imports: [CommonModule, RouterLink, HeaderComponent, TherapistRegisterFormComponent, HeroComponent],
+    template: `
+     <div class="min-h-screen flex flex-col">
         <app-header [disableMenuButton]="true"></app-header>
         <div class="w-full max-w-md mx-auto flex flex-col justify-center"> 
             <div class="px-4 pb-12">
             <app-hero
-                title="Registarse"
+                title="Crea tu cuenta profesional"
                 description=""
             ></app-hero>
 
-            <app-register-form></app-register-form>
+            <app-therapist-register-form></app-therapist-register-form>
+
 
             <div class="mt-8 text-center text-text-primary space-y-2">
-                <a routerLink="/therapist-register"  class="block underline font-semibold text-xl text-secondary-background">Soy terapeuta</a>
+                
                 <a routerLink="/login" class="block text-sm opacity-90 cursor-pointer">
                 ¿Ya tienes una cuenta? <span class="font-semibold text-secondary-background">Iniciar sesión</span>
                 </a>
@@ -31,6 +32,6 @@ import { RegisterFormComponent } from '../../components/register-form/register-f
         </div>
     </div>
   `,
-
+    styles: []
 })
-export class StandardRegisterComponent { }
+export class TherapistRegisterComponent { }

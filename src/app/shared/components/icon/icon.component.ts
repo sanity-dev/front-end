@@ -42,10 +42,19 @@ export class IconComponent {
       .get(`assets/icons/${this.name}.svg`, { responseType: 'text' })
       .subscribe(svg => {
 
-        const cleanedSvg = svg
+        let cleanedSvg = svg
           .replace(/width="[^"]*"/g, '')
           .replace(/height="[^"]*"/g, '')
-          .replace(/fill="[^"]*"/g, 'fill="currentColor"');
+          .replace(/viewBox="[^"]*"/g, 'viewBox="0 0 24 24"')
+          .replace(/transform="[^"]*"/g, '');
+
+        // Si el ícono tiene "White" en el nombre, cambiar todos los colores a blanco
+        if (this.name.includes('White')) {
+          cleanedSvg = cleanedSvg
+            .replace(/fill="[^"]*"/g, 'fill="#FFFFFF"')
+            .replace(/stroke="[^"]*"/g, 'stroke="#FFFFFF"')
+            .replace(/<path(?!\s+fill)/g, '<path fill="#FFFFFF"');
+        }
 
         this.svgContent =
           this.sanitizer.bypassSecurityTrustHtml(cleanedSvg);
