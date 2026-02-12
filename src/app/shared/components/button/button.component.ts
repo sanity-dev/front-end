@@ -44,7 +44,7 @@ export class ButtonComponent {
                 variantClasses = 'bg-sky-500 text-white hover:bg-sky-600 focus:ring-sky-500';
                 break;
             case 'secondary':
-                variantClasses = 'bg-white hover:bg-orange-300 focus:ring-orange-200';
+                variantClasses = 'border-[0.065rem] border-[#d1d9e0] bg-gray-100 text-gray-800 hover:bg-orange-300 focus:ring-orange-200';
                 break;
             case 'outline':
                 variantClasses = 'border border-gray-300 bg-transparent hover:bg-gray-50 focus:ring-gray-500';

@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../../shared/components/button/button.component';
 import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
 import { InputComponent } from '../../../../../shared/components/input/input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-register-form',
+  selector: 'app-therapist-register-form',
   standalone: true,
   imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent],
   template: `
@@ -19,16 +19,17 @@ import { AuthService } from '../../../../../core/services/auth.service';
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
         <app-input
           type="text"
           formControlName="name"
-          placeholder="Nombre"
+          placeholder="Nombre completo"
         ></app-input>
         <div *ngIf="registerForm.get('name')?.invalid && (registerForm.get('name')?.dirty || registerForm.get('name')?.touched)" class="text-red-500 text-xs mt-1">
           <div *ngIf="registerForm.get('name')?.errors?.['required']">El nombre es requerido.</div>
         </div>
       </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
         <app-input
@@ -41,6 +42,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
           <div *ngIf="registerForm.get('email')?.errors?.['email']">Ingrese un correo válido.</div>
         </div>
       </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
         <app-input
@@ -55,6 +57,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
           <div *ngIf="registerForm.get('password')?.errors?.['missingUppercase']">Debe contener al menos una letra mayúscula.</div>
         </div>
       </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
         <app-input
@@ -68,6 +71,60 @@ import { AuthService } from '../../../../../core/services/auth.service';
         </div>
       </div>
 
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Número de documento</label>
+        <app-input
+          type="text"
+          formControlName="documentNumber"
+          placeholder="Número de documento"
+        ></app-input>
+        <div *ngIf="registerForm.get('documentNumber')?.invalid && (registerForm.get('documentNumber')?.dirty || registerForm.get('documentNumber')?.touched)" class="text-red-500 text-xs mt-1">
+          <div *ngIf="registerForm.get('documentNumber')?.errors?.['required']">El número de documento es requerido.</div>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Especialidad</label>
+        <select
+          formControlName="specialty"
+          class="border-[0.065rem] border-[#d1d9e0] rounded-md w-full px-4 py-3 focus:ring-2 focus:ring-sky-500 text-gray-800 transition-all outline-none bg-white"
+        >
+          <option value="" disabled>Selecciona una especialidad</option>
+          <option value="anxiety">Ansiedad</option>
+          <option value="depression">Depresión</option>
+          <option value="relationships">Problemas de relación</option>
+          <option value="other">Otra</option>
+        </select>
+        <div *ngIf="registerForm.get('specialty')?.invalid && (registerForm.get('specialty')?.dirty || registerForm.get('specialty')?.touched)" class="text-red-500 text-xs mt-1">
+          <div *ngIf="registerForm.get('specialty')?.errors?.['required']">Selecciona una especialidad.</div>
+        </div>
+      </div>
+
+      <div *ngIf="registerForm.get('specialty')?.value === 'other'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Otra especialidad</label>
+        <app-input
+          type="text"
+          formControlName="otherSpecialty"
+          placeholder="Especifica tu especialidad"
+        ></app-input>
+        <div *ngIf="registerForm.get('otherSpecialty')?.invalid && (registerForm.get('otherSpecialty')?.dirty || registerForm.get('otherSpecialty')?.touched)" class="text-red-500 text-xs mt-1">
+          <div *ngIf="registerForm.get('otherSpecialty')?.errors?.['required']">Especifica tu especialidad.</div>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Número de teléfono</label>
+        <app-input
+          type="tel"
+          formControlName="phoneNumber"
+          placeholder="Número de teléfono"
+        ></app-input>
+        <div *ngIf="registerForm.get('phoneNumber')?.invalid && (registerForm.get('phoneNumber')?.dirty || registerForm.get('phoneNumber')?.touched)" class="text-red-500 text-xs mt-1">
+          <div *ngIf="registerForm.get('phoneNumber')?.errors?.['required']">El número de teléfono es requerido.</div>
+          <div *ngIf="registerForm.get('phoneNumber')?.errors?.['pattern']">Ingrese un número de teléfono válido.</div>
+        </div>
+      </div>
+
       <div class="pt-4 space-y-3">
         <app-button
           type="submit"
@@ -78,21 +135,24 @@ import { AuthService } from '../../../../../core/services/auth.service';
         >
           {{ isLoading ? 'Registrando...' : 'Registrarse' }}
         </app-button>
+        
         <div class="relative flex items-center gap-4">
           <div class="flex-1 border-t border-gray-300"></div>
           <span class="text-gray-400 text-sm font-medium">O</span>
           <div class="flex-1 border-t border-gray-300"></div>
         </div>
+        
         <app-google-button
           text="Registrarse con Google"
           (onClick)="handleGoogleLogin()"
         ></app-google-button>
       </div>
+    
     </form>
   `,
   styles: []
 })
-export class RegisterFormComponent {
+export class TherapistRegisterFormComponent {
   registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
@@ -111,7 +171,11 @@ export class RegisterFormComponent {
         this.specialCharValidator,
         this.uppercaseValidator
       ]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', Validators.required],
+      documentNumber: ['', Validators.required],
+      specialty: ['', Validators.required],
+      otherSpecialty: [''],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{7,}$/)]]
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -137,12 +201,10 @@ export class RegisterFormComponent {
       confirmPassword.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
     } else {
-      // Clear error if it was set by this validator
       if (confirmPassword.hasError('passwordMismatch')) {
         const errors = confirmPassword.errors;
         if (errors) {
           delete errors['passwordMismatch'];
-          // If no other errors, setErrors(null)
           if (Object.keys(errors).length === 0) {
             confirmPassword.setErrors(null);
           } else {
@@ -159,13 +221,17 @@ export class RegisterFormComponent {
       this.isLoading = true;
       this.errorMessage = '';
 
-      const { confirmPassword, ...registerData } = this.registerForm.value;
+      const { confirmPassword, otherSpecialty, ...registerData } = this.registerForm.value;
 
-      this.authService.register(registerData).subscribe({
+      // Si la especialidad es "other", usar otherSpecialty
+      if (registerData.specialty === 'other') {
+        registerData.specialty = otherSpecialty;
+      }
+
+      this.authService.registerTherapist(registerData).subscribe({
         next: (response) => {
-          console.log('Registro exitoso', response);
+          console.log('Registro de terapeuta exitoso', response);
           this.isLoading = false;
-          // Redirige al dashboard o página principal
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {
@@ -188,7 +254,7 @@ export class RegisterFormComponent {
 
     // @ts-ignore
     const client = google.accounts.oauth2.initTokenClient({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID', // Reemplaza con tu Client ID real
+      client_id: 'YOUR_GOOGLE_CLIENT_ID',
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {

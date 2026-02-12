@@ -5,14 +5,13 @@ import { SectionComponent } from '../../components/section/section.component';
 import { InfoSectionComponent } from '../../components/info-section/info-section.component';
 import { FooterComponent } from '../../../../layout/footer/footer.component';
 import { HeroComponent } from '../../../../shared/components/hero/hero.component';
-import { IconComponent } from '../../../../shared/components/icon/icon';
 
 
 
 @Component({
     selector: 'app-welcome-page',
     standalone: true,
-    imports: [CommonModule, HeaderComponent, SectionComponent, InfoSectionComponent, FooterComponent, HeroComponent, IconComponent],
+    imports: [CommonModule, HeaderComponent, SectionComponent, InfoSectionComponent, FooterComponent, HeroComponent],
     templateUrl: './welcome-page.component.html',
     styleUrls: ['./welcome-page.component.css']
 })

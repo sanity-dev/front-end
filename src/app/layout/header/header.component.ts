@@ -9,7 +9,7 @@ import { MobileMenuComponent } from '../mobile-menu/mobile-menu.component';
     imports: [CommonModule, MobileMenuComponent, RouterLink],
     template: `
     <header
-        class="flex items-center px-4 py-3 bg-secondary-background/80 backdrop-blur-sm sticky top-0 z-50"
+        class="flex items-center px-4 py-3 bg-linear-to-r from-secondary-background/80 to-blue-800/80 backdrop-blur-sm sticky top-0 z-50"
         [ngClass]="justifyClass">
         <button class="p-2 cursor-pointer" (click)="toggleMenu()" [disabled]="disableMenuButton" [class.opacity-50]="disableMenuButton" [class.cursor-not-allowed]="disableMenuButton">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
