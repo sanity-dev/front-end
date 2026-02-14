@@ -83,23 +83,6 @@ import { AuthService } from '../../../../../core/services/auth.service';
         </div>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Especialidad</label>
-        <select
-          formControlName="specialty"
-          class="border-[0.065rem] border-[#d1d9e0] rounded-md w-full px-4 py-3 focus:ring-2 focus:ring-sky-500 text-gray-800 transition-all outline-none bg-white"
-        >
-          <option value="" disabled>Selecciona una especialidad</option>
-          <option value="anxiety">Ansiedad</option>
-          <option value="depression">Depresión</option>
-          <option value="relationships">Problemas de relación</option>
-          <option value="other">Otra</option>
-        </select>
-        <div *ngIf="registerForm.get('specialty')?.invalid && (registerForm.get('specialty')?.dirty || registerForm.get('specialty')?.touched)" class="text-red-500 text-xs mt-1">
-          <div *ngIf="registerForm.get('specialty')?.errors?.['required']">Selecciona una especialidad.</div>
-        </div>
-      </div>
-
       <div *ngIf="registerForm.get('specialty')?.value === 'other'">
         <label class="block text-sm font-medium text-gray-700 mb-1">Otra especialidad</label>
         <app-input
