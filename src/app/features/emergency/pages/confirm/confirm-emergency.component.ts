@@ -3,29 +3,17 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BottomNavComponent } from '../../../../shared/components/bottom-nav/bottom-nav.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-icons.component';
 
 @Component({
     selector: 'app-confirm-emergency',
     standalone: true,
-    imports: [CommonModule, BottomNavComponent, ButtonComponent],
+    imports: [CommonModule, BottomNavComponent, ButtonComponent, HeaderWithIconsComponent],
     template: `
     <div class="min-h-screen bg-[#60a5fa] relative font-sans text-[#1e293b]">
-      <!-- Status Bar Area (simulated) -->
-      <div class="h-6 w-full"></div>
-
-      <!-- Main Content Container with rounded top and simulated phone border -->
-      <div class="bg-blue-400 min-h-screen flex flex-col relative pt-16">
-
+    
          <!-- Header -->
-        <div class="bg-white/10 backdrop-blur-md border-b border-white/20 flex justify-between items-center px-6 py-4 fixed top-0 left-0 right-0 z-10 pt-8">
-             <div class="w-6"></div> <!-- Spacer for alignment -->
-             <h1 class="text-lg font-semibold text-[#1e293b]">Confirmar Emergencia</h1>
-             <button (click)="cancel()" class="text-[#1e293b] focus:outline-none p-1 rounded-full hover:bg-black/5 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-             </button>
-        </div>
+        <app-header-with-icons [centerText]="'Sanity'" (back)="onBack()" (notificationClick)="onNotif()"></app-header-with-icons>
 
         <!-- Content Card -->
         <div class="px-6 mt-8 flex flex-col items-center text-center">
@@ -59,7 +47,7 @@ import { ButtonComponent } from '../../../../shared/components/button/button.com
          <!-- Bottom Navigation -->
         <app-bottom-nav></app-bottom-nav>
       </div>
-    </div>
+    
   `,
     styles: [`
     /* Override specific styles for this page to match the design exactly */
@@ -98,5 +86,17 @@ export class ConfirmEmergencyComponent {
 
     cancel() {
         this.router.navigate(['/']);
+    }
+
+    onBack() {
+        this.cancel();
+    }
+
+    onNotif() {
+        // Navigate to notifications screen if exists; otherwise no-op or log
+        this.router.navigate(['/notifications']).catch(() => {
+            // If route doesn't exist, stay here — could show a toast instead
+            console.warn('Navigation to /notifications failed or route not found');
+        });
     }
 }
