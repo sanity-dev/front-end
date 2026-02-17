@@ -1,13 +1,14 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { BottomNavComponent } from '../../shared/components/bottom-nav/bottom-nav.component';
 
 Chart.register(...registerables);
 
 @Component({
     selector: 'app-analytics',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, BottomNavComponent],
     templateUrl: './analytics.component.html',
     styleUrl: './analytics.component.css'
 })
@@ -50,14 +51,15 @@ export class AnalyticsComponent implements OnInit {
                 labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
                 datasets: [{
                     data: [30, 45, 35, 50, 40, 65, 45],
-                    borderColor: '#ffffff',
-                    backgroundColor: 'transparent',
+                    borderColor: '#4C9EEB',
+                    backgroundColor: 'rgba(76, 158, 235, 0.1)',
+                    fill: true,
                     borderWidth: 3,
                     tension: 0.4,
                     pointRadius: 0,
                     pointHoverRadius: 6,
-                    pointHoverBackgroundColor: '#ffffff',
-                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBackgroundColor: '#4C9EEB',
+                    pointHoverBorderColor: '#4C9EEB',
                     pointHoverBorderWidth: 2
                 }]
             },
@@ -69,10 +71,10 @@ export class AnalyticsComponent implements OnInit {
                     legend: { display: false },
                     tooltip: {
                         enabled: true,
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        titleColor: '#1e293b',
-                        bodyColor: '#1e293b',
-                        borderColor: '#ffffff',
+                        backgroundColor: 'rgba(76, 158, 235, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#4C9EEB',
                         borderWidth: 1
                     }
                 },
@@ -80,7 +82,7 @@ export class AnalyticsComponent implements OnInit {
                     x: {
                         border: { display: false },
                         grid: { display: false },
-                        ticks: { color: '#ffffff', font: { size: 10 } }
+                        ticks: { color: '#6b7280', font: { size: 10 } }
                     },
                     y: {
                         display: false,
@@ -101,7 +103,7 @@ export class AnalyticsComponent implements OnInit {
                 labels: ['Felicidad', 'Tristeza', 'Enojo', 'Ansiedad'],
                 datasets: [{
                     data: [55, 45, 35, 50],
-                    backgroundColor: '#ffffff',
+                    backgroundColor: ['#4C9EEB', '#60a5fa', '#93c5fd', '#3b82f6'],
                     borderRadius: 8,
                     barThickness: 40
                 }]
@@ -118,7 +120,7 @@ export class AnalyticsComponent implements OnInit {
                     x: {
                         border: { display: false },
                         grid: { display: false },
-                        ticks: { color: '#ffffff', font: { size: 10 } }
+                        ticks: { color: '#6b7280', font: { size: 10 } }
                     },
                     y: {
                         display: false,
@@ -139,7 +141,7 @@ export class AnalyticsComponent implements OnInit {
                 labels: ['Baja', 'Media', 'Alta'],
                 datasets: [{
                     data: [85, 45, 25],
-                    backgroundColor: '#ffffff',
+                    backgroundColor: ['#4C9EEB', '#60a5fa', '#93c5fd'],
                     borderRadius: 8,
                     barThickness: 30
                 }]
@@ -161,7 +163,7 @@ export class AnalyticsComponent implements OnInit {
                     y: {
                         border: { display: false },
                         grid: { display: false },
-                        ticks: { color: '#ffffff', font: { size: 11 } }
+                        ticks: { color: '#6b7280', font: { size: 11 } }
                     }
                 }
             }
