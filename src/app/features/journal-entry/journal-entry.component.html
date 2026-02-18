@@ -17,8 +17,9 @@
     <div
       class="bg-white rounded-xl p-3 sm:p-4 md:p-5 shadow-sm mb-5 sm:mb-6 min-h-[8.75rem] sm:min-h-[10rem] md:min-h-[11.25rem] mt-4 sm:mt-6">
       <textarea
+        [(ngModel)]="nuevoContenido"
         class="w-full h-full bg-transparent border-none resize-none focus:ring-0 text-xs sm:text-sm md:text-base leading-relaxed placeholder-gray-500 text-text-primary"
-        placeholder="Hoy me sentí más tranquilo después de meditar.">Hoy me sentí más tranquilo después de meditar.</textarea>
+        placeholder="Hoy me sentí más tranquilo después de meditar."></textarea>
     </div>
 
     <!-- Actions -->
@@ -62,7 +63,7 @@
     <div>
       <h2 class="text-sm sm:text-base md:text-lg font-bold mb-3 sm:mb-4 text-primary-font">Historial de Entradas</h2>
       <div class="flex flex-col gap-3 sm:gap-4">
-        <div *ngFor="let item of history" class="flex gap-3 sm:gap-4 items-center bg-white/50 p-2 rounded-xl">
+        <div *ngFor="let item of diarios" class="flex gap-3 sm:gap-4 items-center bg-white/50 p-2 rounded-xl">
           <div
             class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -72,9 +73,8 @@
             </svg>
           </div>
           <div class="flex flex-col flex-1 min-w-0">
-            <span class="text-xs sm:text-sm md:text-base text-text-primary font-medium line-clamp-1">{{ item.text
-              }}</span>
-            <span class="text-[.625rem] sm:text-xs text-primary-font/70">{{ item.date }}</span>
+            <span class="text-xs sm:text-sm md:text-base text-text-primary font-medium line-clamp-1">{{ item.contenido }}</span>
+            <span class="text-[.625rem] sm:text-xs text-primary-font/70">{{ item.fechaCreacion | date:'fullDate' }}</span>
           </div>
         </div>
       </div>
@@ -85,6 +85,7 @@
   <footer class="fixed bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-third-background to-transparent">
     <div class="max-w-4xl mx-auto">
       <button
+        (click)="guardar()"
         class="w-full py-2.5 sm:py-3 md:py-3.5 bg-secondary-background text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold shadow-lg hover:bg-third-background transition-colors">
         Guardar
       </button>
