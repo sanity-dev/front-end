@@ -7,40 +7,18 @@ canvas {
 }
 
 /* Card hover effects */
-.bg-white\/10 {
+.bg-white {
   transition: all 0.3s ease;
 }
 
-.bg-white\/10:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+.bg-white:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
 /* Filter button active state */
-button.bg-white {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Bottom nav animations */
-nav button {
-  position: relative;
-}
-
-nav button::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 2px;
-  background-color: white;
-  transition: width 0.3s ease;
-}
-
-nav button:hover::after,
-nav button.text-white::after {
-  width: 60%;
+button.bg-secondary-background {
+  box-shadow: 0 2px 8px rgba(76, 158, 235, 0.3);
 }
 
 /* Responsive adjustments */
@@ -51,7 +29,7 @@ nav button.text-white::after {
 }
 
 @media (min-width: 768px) {
-  .bg-white\/10 {
+  .bg-white {
     padding: 1.5rem;
   }
 }
@@ -63,12 +41,8 @@ nav button.text-white::after {
 
 /* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
-  .bg-white\/10,
+  .bg-white,
   button {
-    transition: none;
-  }
-  
-  nav button::after {
     transition: none;
   }
 }
