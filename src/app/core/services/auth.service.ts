@@ -22,9 +22,8 @@ export interface TherapistRegisterPayload {
   email: string;
   password: string;
   documentNumber: string;
-  specialty: string;
   phoneNumber: string;
-  otherSpecialty?: string;
+  professionalLicenseNumber: string;
 }
 
 export interface AuthResponse {
@@ -102,15 +101,11 @@ export class AuthService {
       nombre: data.name,
       correo: data.email,
       contraseña: data.password,
-      numeroDocumento: data.documentNumber,
-      especialidad: data.specialty,
+      cedula: data.documentNumber,
+      tarjetaProfesional: data.professionalLicenseNumber,
       telefono: data.phoneNumber,
       tipoUsuario: 'terapeuta'
     };
-
-    if (data.otherSpecialty) {
-      payload.especialidadOtra = data.otherSpecialty;
-    }
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register-therapist`, payload).pipe(
       tap((response) => {

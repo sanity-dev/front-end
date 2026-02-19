@@ -74,7 +74,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Número de documento</label>
         <app-input
-          type="text"
+          type="number"
           formControlName="documentNumber"
           placeholder="Número de documento"
         ></app-input>
@@ -82,23 +82,23 @@ import { AuthService } from '../../../../../core/services/auth.service';
           <div *ngIf="registerForm.get('documentNumber')?.errors?.['required']">El número de documento es requerido.</div>
         </div>
       </div>
-
-      <div *ngIf="registerForm.get('specialty')?.value === 'other'">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Otra especialidad</label>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Número de tarjeta profesional</label>
         <app-input
           type="text"
-          formControlName="otherSpecialty"
-          placeholder="Especifica tu especialidad"
+          formControlName="professionalLicenseNumber"
+          placeholder="Número de tarjeta profesional"
         ></app-input>
-        <div *ngIf="registerForm.get('otherSpecialty')?.invalid && (registerForm.get('otherSpecialty')?.dirty || registerForm.get('otherSpecialty')?.touched)" class="text-red-500 text-xs mt-1">
-          <div *ngIf="registerForm.get('otherSpecialty')?.errors?.['required']">Especifica tu especialidad.</div>
+        <div *ngIf="registerForm.get('professionalLicenseNumber')?.invalid && (registerForm.get('professionalLicenseNumber')?.dirty || registerForm.get('professionalLicenseNumber')?.touched)" class="text-red-500 text-xs mt-1">
+          <div *ngIf="registerForm.get('professionalLicenseNumber')?.errors?.['required']">El número de tarjeta profesional es requerido.</div>
         </div>
       </div>
-
+      
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Número de teléfono</label>
         <app-input
-          type="tel"
+          type="number"
           formControlName="phoneNumber"
           placeholder="Número de teléfono"
         ></app-input>
@@ -156,8 +156,7 @@ export class TherapistRegisterFormComponent {
       ]],
       confirmPassword: ['', Validators.required],
       documentNumber: ['', Validators.required],
-      specialty: ['', Validators.required],
-      otherSpecialty: [''],
+      professionalLicenseNumber: ['', Validators.required],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{7,}$/)]]
     }, { validators: this.passwordMatchValidator });
   }
@@ -204,12 +203,7 @@ export class TherapistRegisterFormComponent {
       this.isLoading = true;
       this.errorMessage = '';
 
-      const { confirmPassword, otherSpecialty, ...registerData } = this.registerForm.value;
-
-      // Si la especialidad es "other", usar otherSpecialty
-      if (registerData.specialty === 'other') {
-        registerData.specialty = otherSpecialty;
-      }
+      const { confirmPassword, ...registerData } = this.registerForm.value;
 
       this.authService.registerTherapist(registerData).subscribe({
         next: (response) => {
