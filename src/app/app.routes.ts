@@ -49,6 +49,10 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./features/auth/therapist/pages/register/therapist-register.component')
                 .then(m => m.TherapistRegisterComponent)
+    },
+    {
+        path: 'users/therapist',
+        loadChildren: () => import('./features/users/therapist/therapist.routes').then(m => m.THERAPIST_ROUTES)
     }
 
 ];
