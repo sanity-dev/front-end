@@ -10,17 +10,17 @@ import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-
     standalone: true,
     imports: [CommonModule, BottomNavComponent, ButtonComponent, HeaderWithIconsComponent],
     template: `
-    <div class="min-h-screen bg-[#60a5fa] relative font-sans text-[#1e293b]">
+    <div class="min-h-screen relative font-sans text-text-primary">
     
          <!-- Header -->
-        <app-header-with-icons [centerText]="'Sanity'" (back)="onBack()" (notificationClick)="onNotif()"></app-header-with-icons>
+        <app-header-with-icons [centerText]="'Confirmar Emergencia'" [disableBack]="false" [disableNotification]="false" ></app-header-with-icons>
 
       <!-- Content Card -->
       <div class="px-6 mt-12 flex flex-col items-center text-center pb-20">
           <h2 class="text-2xl font-bold mb-4 text-text-primary">
               ¿Estás seguro de que<br>quieres enviar la alerta de<br>emergencia?
           </h2>
-          <p class="text-gray-500 text-sm mb-12 leading-relaxed max-w-xs">
+          <p class="text-text-primary text-sm mb-12 leading-relaxed max-w-xs">
               Esta acción notificará inmediatamente a tus<br>contactos de emergencia y al equipo de soporte<br>de Sanity.
           </p>
 
@@ -30,7 +30,7 @@ import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-
                   [fullWidth]="true"
                   (click)="confirm()"
                   class="shadow-none rounded-xl"
-              >Sí, Enviar</app-button>
+              >Enviar</app-button>
 
               <app-button
                   variant="secondary"
@@ -41,9 +41,10 @@ import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-
           </div>
       </div>
 
-       <!-- Bottom Navigation -->
-      <app-bottom-nav></app-bottom-nav>
+         <!-- Bottom Navigation -->
+        <app-bottom-nav></app-bottom-nav>
     </div>
+    
   `,
     styles: [`
     :host ::ng-deep app-button[variant="primary"] button {
@@ -79,16 +80,4 @@ export class ConfirmEmergencyComponent {
         this.router.navigate(['/']);
     }
 
-    onBack() {
-        this.cancel();
-    }
-
-    onNotif() {
-        // Navigate to notifications screen if exists; otherwise no-op or log
-        this.router.navigate(['/notifications']).catch(() => {
-            // If route doesn't exist, stay here — could show a toast instead
-            console.warn('Navigation to /notifications failed or route not found');
-        });
-    }
 }
-
