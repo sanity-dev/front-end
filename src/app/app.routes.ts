@@ -53,6 +53,12 @@ export const routes: Routes = [
     {
         path: 'users/therapist',
         loadChildren: () => import('./features/users/therapist/therapist.routes').then(m => m.THERAPIST_ROUTES)
+    },
+    {
+        path: 'forgot-password',
+        loadChildren: () =>
+            import('./features/reset-password/reset-password.routes')
+                .then(m => m.RESET_PASSWORD_ROUTES)
     }
 
 ];

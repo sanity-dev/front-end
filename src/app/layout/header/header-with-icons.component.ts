@@ -9,13 +9,13 @@ import { CommonModule, Location } from '@angular/common';
     <header
         class="flex items-center px-4 py-3 bg-linear-to-r from-secondary-background/80 to-blue-800/80 backdrop-blur-sm sticky top-0 z-50">
 
-        <button class="p-2" (click)="onBack()" [disabled]="disableBack" [class.opacity-50]="disableBack">
+        <button class="p-2 cursor-pointer" (click)="onBack()" [disabled]="disableBack" [class.opacity-50]="disableBack">
             <img src="assets/icons/flechaBlack.svg" alt="back" class="w-6 h-6" />
         </button>
 
         <div class="flex-1 text-center text-xl font-bold text-[#f5f5f5]">{{ centerText }}</div>
 
-        <button class="p-2" (click)="onNotification()" [disabled]="disableNotification" [class.opacity-50]="disableNotification">
+        <button class="p-2 cursor-pointer" (click)="onNotification()" [disabled]="disableNotification" [class.opacity-50]="disableNotification">
             <img src="assets/icons/notificacionBlack.svg" alt="notifications" class="w-6 h-6" />
         </button>
 

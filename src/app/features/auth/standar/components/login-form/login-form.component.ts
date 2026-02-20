@@ -44,7 +44,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
       </div>
 
       <div class="flex justify-start">
-        <a href="#" class="text-sm text-gray-400 hover:text-gray-600">¿Olvidaste tu contraseña?</a>
+        <a routerLink="/forgot-password" class="text-sm text-text-secondary hover:text-gray-600">¿Olvidaste tu contraseña?</a>
       </div>
 
       <div class="pt-2 space-y-4">
