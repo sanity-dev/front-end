@@ -13,7 +13,7 @@ import { CommonModule, Location } from '@angular/common';
             <img src="assets/icons/flechaBlack.svg" alt="back" class="w-6 h-6" />
         </button>
 
-        <div class="flex-1 text-center text-xl font-bold text-[#f5f5f5]">{{ centerText }}</div>
+        <div class="flex-1 text-center text-lg font-semibold text-white">{{ centerText }}</div>
 
         <button class="p-2" (click)="onNotification()" [disabled]="disableNotification" [class.opacity-50]="disableNotification">
             <img src="assets/icons/notificacionBlack.svg" alt="notifications" class="w-6 h-6" />
