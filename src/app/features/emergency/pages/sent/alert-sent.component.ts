@@ -3,22 +3,16 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BottomNavComponent } from '../../../../shared/components/bottom-nav/bottom-nav.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { HeaderWithIconsComponent } from "../../../../layout/header/header-with-icons.component";
 
 @Component({
     selector: 'app-alert-sent',
     standalone: true,
-    imports: [CommonModule, BottomNavComponent, ButtonComponent],
+    imports: [CommonModule, BottomNavComponent, ButtonComponent, HeaderWithIconsComponent],
     template: `
     <div class="min-h-screen relative font-sans text-text-primary">
       <!-- Header -->
-      <header
-        class="flex items-center justify-end px-4 sm:px-6 py-4 bg-linear-to-r from-secondary-background/80 to-blue-800/80 backdrop-blur-sm sticky top-0 z-10">
-          <button (click)="goHome()" class="text-[#f5f5f5] focus:outline-none p-1 rounded-full hover:bg-white/20 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-            </svg>
-          </button>
-      </header>
+        <app-header-with-icons [centerText]="'Confirmar Emergencia'" [disableBack]="false" [disableNotification]="false" ></app-header-with-icons>
 
       <!-- Content -->
       <div class="px-6 flex flex-col items-center text-center mt-8 pb-20">
@@ -40,14 +34,14 @@ import { ButtonComponent } from '../../../../shared/components/button/button.com
                   [fullWidth]="true"
                   (click)="goHome()"
                   class="shadow-none rounded-xl"
-              >Volver a Inicio</app-button>
+              >Volver al inicio</app-button>
 
               <app-button
                   variant="secondary"
                   [fullWidth]="true"
                   (click)="contactOther()"
                    class="shadow-none rounded-xl"
-              >Contactar Otro Recurso</app-button>
+              >Contactar otro recurso</app-button>
           </div>
       </div>
 

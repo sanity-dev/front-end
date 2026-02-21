@@ -36,16 +36,22 @@ export interface AuthResponse {
   message?: string;
 }
 
+export interface ForgotPasswordResponse {
+  message?: string;
+  success?: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthService {
   private apiUrl = 'http://localhost:8080/api/auth'; // Cambia la URL según tu backend
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
 
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Inicia sesión con email y contraseña
@@ -130,7 +136,12 @@ export class AuthService {
       })
     );
   }
-
+  /**
+    * envia enlace para recuperar contraseña
+    */
+  forgotPassword(email: string): Observable<ForgotPasswordResponse> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { correo: email });
+  }
   /**
    * Cierra la sesión
    */

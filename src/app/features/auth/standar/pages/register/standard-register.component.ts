@@ -15,7 +15,7 @@ import { RegisterFormComponent } from '../../components/register-form/register-f
         <div class="w-full max-w-md mx-auto flex flex-col justify-center"> 
             <div class="px-4 pb-12">
             <app-hero
-                title="Registarse"
+                title="Registrarse"
                 description=""
             ></app-hero>
 

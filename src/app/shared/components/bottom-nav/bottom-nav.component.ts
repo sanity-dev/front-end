@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { IconComponent } from '../icon/icon.component';
@@ -36,7 +36,7 @@ interface NavItem {
   styles: []
 })
 export class BottomNavComponent implements OnInit {
-  items: NavItem[] = [
+  @Input() items: NavItem[] = [
     { label: 'Inicio', icon: 'home', route: '/dashboard' },
     { label: 'Diario', icon: 'diario', route: '/journal-entry' },
     { label: 'EuphorIA', icon: 'agente', route: '/euphoria' },
@@ -46,7 +46,7 @@ export class BottomNavComponent implements OnInit {
 
   currentRoute: string = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     // Establecer la ruta inicial
@@ -61,7 +61,7 @@ export class BottomNavComponent implements OnInit {
   }
 
   isActive(route: string): boolean {
-    return this.currentRoute.includes(route.split('/')[1]);
+    return this.currentRoute === route || this.currentRoute.startsWith(route + '/');
   }
 
   navigate(route: string): void {
@@ -70,12 +70,12 @@ export class BottomNavComponent implements OnInit {
 
   getIconName(icon: string, isActive: boolean): string {
     const colorSuffix = isActive ? 'Black' : 'White';
-    
+
     // Caso especial para home (blackHome/whiteHome)
     if (icon === 'home') {
       return isActive ? 'blackHome' : 'whiteHome';
     }
-    
+
     // Para otros iconos: diarioBlack, diarioWhite, etc.
     return icon + colorSuffix;
   }
