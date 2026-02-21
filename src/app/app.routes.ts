@@ -14,7 +14,7 @@ export const routes: Routes = [
     { path: 'diario', component: JournalEntryComponent },
     { path: 'analytics', component: AnalyticsComponent },
     { path: 'analisis', redirectTo: 'analytics' }, 
-    { path: 'diary/chat', component: ChatComponent }
+    { path: 'diary/chat', component: ChatComponent },
 
 
     {
@@ -58,6 +58,7 @@ export const routes: Routes = [
             import('./features/auth/therapist/pages/register/therapist-register.component')
                 .then(m => m.TherapistRegisterComponent)
     },
+
     { 
   path: 'diary/chat', 
   loadComponent: () => 
