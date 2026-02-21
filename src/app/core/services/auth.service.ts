@@ -17,6 +17,15 @@ export interface RegisterPayload {
   tipoUsuario?: string;
 }
 
+export interface TherapistRegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  documentNumber: string;
+  phoneNumber: string;
+  professionalLicenseNumber: string;
+}
+
 export interface AuthResponse {
   token?: string;
   user?: {
@@ -74,6 +83,31 @@ export class AuthService {
     if (data.tipoUsuario) payload.tipoUsuario = data.tipoUsuario;
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload).pipe(
+      tap((response) => {
+        if (response.token) {
+          this.setToken(response.token);
+          this.isAuthenticatedSubject.next(true);
+        }
+      })
+    );
+  }
+
+  /**
+   * Registra un nuevo terapeuta
+   */
+  registerTherapist(data: TherapistRegisterPayload): Observable<AuthResponse> {
+    // Mapear a los campos que espera el backend
+    const payload: any = {
+      nombre: data.name,
+      correo: data.email,
+      contraseña: data.password,
+      cedula: data.documentNumber,
+      tarjetaProfesional: data.professionalLicenseNumber,
+      telefono: data.phoneNumber,
+      tipoUsuario: 'terapeuta'
+    };
+
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register-therapist`, payload).pipe(
       tap((response) => {
         if (response.token) {
           this.setToken(response.token);
