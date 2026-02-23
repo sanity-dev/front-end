@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
     imports: [CommonModule],
     template: `
     <div
-        class="bg-gradient-to-b from-secondary-background to-slate-900 shadow-2xl py-6 px-4 flex flex-col gap-1 animate-fade-in backdrop-blur-sm">
+        class="bg-linear-to-b from-secondary-background to-slate-900 shadow-2xl py-6 px-4 flex flex-col gap-1 animate-fade-in backdrop-blur-sm">
         <button 
             *ngFor="let item of items; let last = last" 
             (click)="onItemClick(item.id)"
