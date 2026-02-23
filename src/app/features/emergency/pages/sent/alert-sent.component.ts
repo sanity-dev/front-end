@@ -19,7 +19,7 @@ import { HeaderWithIconsComponent } from "../../../../layout/header/header-with-
           <h1 class="text-2xl font-bold mb-4 text-text-primary">
               ¡Alerta de emergencia<br>enviada con éxito!
           </h1>
-          <p class="text-gray-500 text-sm mb-12 leading-relaxed">
+          <p class="text-text-primary text-sm mb-12 leading-relaxed">
               Tu contacto de emergencia ha sido notificado.<br>La ayuda está en camino.
           </p>
 

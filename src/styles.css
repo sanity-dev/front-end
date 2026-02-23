@@ -5,6 +5,7 @@ body {
     background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
 }
 
+
 @theme {
     --color-primary-navbar: #2C3E50;
     --color-secondary-background: #4C9EEB;

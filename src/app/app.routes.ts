@@ -59,6 +59,14 @@ export const routes: Routes = [
         loadChildren: () =>
             import('./features/reset-password/reset-password.routes')
                 .then(m => m.RESET_PASSWORD_ROUTES)
-    }
+    },
+    {
+        path: 'euphoria/chat',
+        loadComponent: () =>
+            import('./features/diary/components/chat.component')
+                .then(m => m.ChatComponent)
+    },
+
 
 ];
+
