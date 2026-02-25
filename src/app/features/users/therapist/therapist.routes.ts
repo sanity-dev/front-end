@@ -23,6 +23,12 @@ export const THERAPIST_ROUTES: Routes = [
                 loadComponent: () => import('./pages/verification/verification.component').then(m => m.VerificationComponent)
             },
             {
+                path: 'dashboard',
+                loadComponent: () =>
+                    import('./dashboard/therapist-dashboard.component')
+                        .then(m => m.TherapistDashboardComponent)
+            },
+            {
                 path: '',
                 redirectTo: 'welcome',
                 pathMatch: 'full'

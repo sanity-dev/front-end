@@ -4,6 +4,8 @@ import { AnalyticsComponent } from './features/analytics/analytics.component';
 import { WelcomePageComponent } from './features/homePage/pages/home/welcome-page.component';
 import { StandardRegisterComponent } from './features/auth/standar/pages/register/standard-register.component';
 import { StandardLoginComponent } from './features/auth/standar/pages/login/standard-login.component';
+import { StandardUserLayoutComponent } from './layout/standard-user-layout/standard-user-layout.component';
+import { TherapistLayoutComponent } from './layout/therapist-layout/therapist-layout.component';
 
 export const routes: Routes = [
     { path: '', component: WelcomePageComponent },
@@ -65,6 +67,18 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./features/diary/components/chat.component')
                 .then(m => m.ChatComponent)
+    },
+    {
+        path: 'user',
+        component: StandardUserLayoutComponent,
+        children: [
+            {
+                path: 'dashboard',
+                loadComponent: () =>
+                    import('./features/users/standar/dashboard/standard-dashboard.component')
+                        .then(m => m.StandardDashboardComponent)
+            }
+        ]
     },
 
 
