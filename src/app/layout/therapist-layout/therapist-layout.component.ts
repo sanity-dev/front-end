@@ -11,7 +11,7 @@ import { HeaderWithIconsComponent } from '../header/header-with-icons.component'
     template: `
     <div class="flex flex-col min-h-screen bg-gray-50">
       <!-- Header -->
-      <app-header-with-icons centerText="Verificación" [disableBack]="false" [disableNotification]="true" />
+      <app-header-with-icons centerText="Sanity" [disableBack]="false" [disableNotification]="false" />
 
       <!-- Main Content -->
       <main class="flex-1 pb-18">
@@ -29,7 +29,7 @@ export class TherapistLayoutComponent {
     navItems = [
         { label: 'Inicio', icon: 'home', route: '/users/therapist/welcome' },
         { label: 'Agenda', icon: 'agenda', route: '/users/therapist/agenda' },
-        { label: 'Mensajes', icon: 'mensaje', route: '/users/therapist/messages' },
+        { label: 'Pacientes', icon: 'pacientes', route: '/users/therapist/patients' },
         { label: 'Servicios', icon: 'servicio', route: '/users/therapist/services' },
         { label: 'Perfil', icon: 'usuario', route: '/users/therapist/profile' }
     ];
