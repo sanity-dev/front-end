@@ -207,7 +207,6 @@ export class TherapistRegisterFormComponent {
 
       this.authService.registerTherapist(registerData).subscribe({
         next: (response) => {
-          console.log('Registro de terapeuta exitoso', response);
           this.isLoading = false;
           this.router.navigate(['/dashboard']);
         },
@@ -237,7 +236,6 @@ export class TherapistRegisterFormComponent {
         if (response.access_token) {
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
-              console.log('Registro con Google exitoso', authResponse);
               this.router.navigate(['/dashboard']);
             },
             error: (error) => {

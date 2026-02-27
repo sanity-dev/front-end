@@ -8,10 +8,10 @@ import { AuthService } from '../../core/services/auth.service';
 import { HeaderWithIconsComponent } from '../../layout/header/header-with-icons.component';
 
 @Component({
-    selector: 'app-forgot-password-form',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, ButtonComponent, InputComponent, HeaderWithIconsComponent],
-    template: `
+  selector: 'app-forgot-password-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, InputComponent, HeaderWithIconsComponent],
+  template: `
     <div class="flex flex-col min-h-screen ">
 
      <!-- Header -->
@@ -72,59 +72,59 @@ import { HeaderWithIconsComponent } from '../../layout/header/header-with-icons.
       </div>
     </div>
   `,
-    styles: []
+  styles: []
 })
 export class ForgotPasswordFormComponent {
-    forgotPasswordForm: FormGroup;
-    isLoading = false;
-    errorMessage = '';
-    successMessage = '';
+  forgotPasswordForm: FormGroup;
+  isLoading = false;
+  errorMessage = '';
+  successMessage = '';
 
-    constructor(
-        private fb: FormBuilder,
-        private authService: AuthService,
-        private router: Router
-    ) {
-        this.forgotPasswordForm = this.fb.group({
-            email: ['', [Validators.required, Validators.email]]
-        });
-    }
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.forgotPasswordForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
+  }
 
-    onSubmit() {
-        if (this.forgotPasswordForm.valid) {
-            this.isLoading = true;
-            this.errorMessage = '';
-            this.successMessage = '';
+  onSubmit() {
+    if (this.forgotPasswordForm.valid) {
+      this.isLoading = true;
+      this.errorMessage = '';
+      this.successMessage = '';
 
-            const { email } = this.forgotPasswordForm.value;
+      const { email } = this.forgotPasswordForm.value;
 
-            this.authService.forgotPassword(email).subscribe({
-                next: () => {
-                    this.isLoading = false;
-                    this.router.navigate(['/forgot-password/confirmation']);
+      this.authService.forgotPassword(email).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.router.navigate(['/forgot-password/confirmation']);
 
-                },
-                error: (error) => {
-                    this.isLoading = false;
-                    this.errorMessage = error.error?.message || 'Ocurrió un error. Intenta nuevamente.';
-                }
-            });
-        } else {
-            this.forgotPasswordForm.markAllAsTouched();
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error.error?.message || 'Ocurrió un error. Intenta nuevamente.';
         }
+      });
+    } else {
+      this.forgotPasswordForm.markAllAsTouched();
     }
-    cancel() {
-        this.router.navigate(['/']);
-    }
-    onBack() {
-        this.cancel();
-    }
+  }
+  cancel() {
+    this.router.navigate(['/']);
+  }
+  onBack() {
+    this.cancel();
+  }
 
-    onNotif() {
-        // Navigate to notifications screen if exists; otherwise no-op or log
-        this.router.navigate(['/notifications']).catch(() => {
-            // If route doesn't exist, stay here — could show a toast instead
+  onNotif() {
+    // Navigate to notifications screen if exists; otherwise no-op or log
+    this.router.navigate(['/notifications']).catch(() => {
+      // If route doesn't exist, stay here — could show a toast instead
             console.warn('Navigation to /notifications failed or route not found');
-        });
-    }
+    });
+  }
 }

@@ -74,11 +74,24 @@ export const routes: Routes = [
         children: [
             {
                 path: 'dashboard',
+                data: { headerText: 'Sanity' },
                 loadComponent: () =>
                     import('./features/users/standar/dashboard/standard-dashboard.component')
                         .then(m => m.StandardDashboardComponent)
+            },
+            {
+                path: 'profile',
+                data: { headerText: 'Perfil' },
+                loadComponent: () =>
+                    import('./features/users/standar/profile/standard-profile.component')
+                        .then(m => m.StandardProfileComponent)
             }
         ]
+    },
+    {
+        path: 'profile',
+        redirectTo: 'user/profile',
+        pathMatch: 'full'
     },
 
 
