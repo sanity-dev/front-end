@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 
 // ============================================
 // INTERFACES
@@ -11,6 +11,8 @@ export interface DocumentUploadResponse {
     success: boolean;
     message: string;
     documentId?: string;
+    verificationStatus?: string;
+    motivoRechazo?: string;
 }
 
 export interface VerificationStatus {
@@ -20,6 +22,7 @@ export interface VerificationStatus {
         type: string;
         status: string;
         uploadedAt?: string;
+        motivoRechazo?: string;
     }[];
 }
 
@@ -37,7 +40,7 @@ export class DocumentService {
     constructor(private http: HttpClient) { }
 
     /**
-     * Sube un documento al backend
+     * Sube un documento al backend (incluye verificación automática con Vision API)
      * @param file - Archivo a subir (PDF, JPG, PNG)
      * @param documentType - Tipo: 'tarjeta_profesional', 'titulos', 'identificacion'
      */
@@ -46,7 +49,6 @@ export class DocumentService {
         formData.append('file', file);
         formData.append('documentType', documentType);
 
-        // No se envía Content-Type, el navegador lo asigna automáticamente con el boundary para multipart
         return this.http.post<DocumentUploadResponse>(
             `${this.apiUrl}/upload`,
             formData
