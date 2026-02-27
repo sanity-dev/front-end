@@ -51,7 +51,6 @@ export class DocumentService {
             `${this.apiUrl}/upload`,
             formData
         ).pipe(
-            tap(response => console.log(`✅ Documento '${documentType}' subido:`, response)),
             catchError(this.handleError.bind(this))
         );
     }
@@ -63,7 +62,6 @@ export class DocumentService {
         return this.http.get<VerificationStatus>(
             `${this.apiUrl}/verification-status`
         ).pipe(
-            tap(response => console.log('✅ Estado de verificación:', response)),
             catchError(this.handleError.bind(this))
         );
     }
