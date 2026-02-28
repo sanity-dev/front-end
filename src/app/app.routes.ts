@@ -85,6 +85,13 @@ export const routes: Routes = [
                 loadComponent: () =>
                     import('./features/users/standar/profile/standard-profile.component')
                         .then(m => m.StandardProfileComponent)
+            },
+            {
+                path: 'settings',
+                data: { headerText: 'Configuración' },
+                loadComponent: () =>
+                    import('./features/users/standar/settings/settings-account-standar.component')
+                        .then(m => m.ConfiguracionComponent)
             }
         ]
     },
