@@ -1,0 +1,109 @@
+{
+  "info": {
+    "name": "Sanity API",
+    "_postman_id": "sanity-api-collection",
+    "description": "Colección para probar endpoints del backend Sanity",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "personaId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"correo\": \"juan@example.com\",\n  \"contraseña\": \"P@ssword123\",\n  \"telefono\": \"3001234567\",\n  \"cedula\": \"12345678\",\n  \"tipoUsuario\": \"USUARIO\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/register"
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"correo\": \"juan@example.com\",\n  \"contraseña\": \"P@ssword123\"\n}" },
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    },
+    {
+      "name": "Auth - Google Login",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"token\": \"GOOGLE_ID_TOKEN\"\n}" },
+        "url": "{{baseUrl}}/api/auth/google"
+      }
+    },
+    {
+      "name": "Auth - Register Therapist",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ana Terapeuta\",\n  \"correo\": \"ana@ejemplo.com\",\n  \"contraseña\": \"P@ssword123\",\n  \"cedula\": \"87654321\",\n  \"tarjetaProfesional\": \"TP-12345\",\n  \"telefono\": \"3119876543\",\n  \"tipoUsuario\": \"TERAPEUTA\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/register-therapist"
+      }
+    },
+    {
+      "name": "Personas - Get All",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/personas" }
+    },
+    {
+      "name": "Personas - Get By Id",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/personas/{{personaId}}" }
+    },
+    {
+      "name": "Personas - Update Basica",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Nombre Actualizado\",\n  \"correo\": \"nuevo@correo.com\",\n  \"contraseña\": \"NewP@ss123\",\n  \"telefono\": \"3000000000\",\n  \"cedula\": \"99999999\"\n}"
+        },
+        "url": "{{baseUrl}}/api/personas/{{personaId}}/basica"
+      }
+    },
+    {
+      "name": "Personas - Update Usuario",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"contactoEmergencia\": \"María\",\n  \"telefonoContactoEmergencia\": \"3201112233\"\n}" },
+        "url": "{{baseUrl}}/api/personas/{{personaId}}/usuario"
+      }
+    },
+    {
+      "name": "Personas - Update Terapeuta",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tarjetaProfesional\": \"TP-UPDATED-123\",\n  \"certificadoTituloProfesional\": \"BASE64_OR_URL\",\n  \"certificadoExpLaboral\": \"BASE64_OR_URL\",\n  \"certificadoEspecializacionMaestria\": \"BASE64_OR_URL\"\n}"
+        },
+        "url": "{{baseUrl}}/api/personas/{{personaId}}/terapeuta"
+      }
+    },
+    {
+      "name": "Personas - Delete",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/api/personas/{{personaId}}" }
+    }
+  ]
+}
