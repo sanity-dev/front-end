@@ -4,25 +4,13 @@ import { AnalyticsComponent } from './features/analytics/analytics.component';
 import { WelcomePageComponent } from './features/homePage/pages/home/welcome-page.component';
 import { StandardRegisterComponent } from './features/auth/standar/pages/register/standard-register.component';
 import { StandardLoginComponent } from './features/auth/standar/pages/login/standard-login.component';
-<<<<<<< HEAD
 import { StandardNotificationComponent } from './features/notifications/standard-notification.component';
-=======
 import { StandardUserLayoutComponent } from './layout/standard-user-layout/standard-user-layout.component';
 import { TherapistLayoutComponent } from './layout/therapist-layout/therapist-layout.component';
->>>>>>> 66496bd31736919b1841436a693eebf9408c7a5c
 
 export const routes: Routes = [
     { path: '', component: WelcomePageComponent },
     { path: 'login', component: StandardLoginComponent },
-<<<<<<< HEAD
-    { path: 'emergency/confirm', loadComponent: () => import('./features/emergency/pages/confirm/confirm-emergency.component').then(m => m.ConfirmEmergencyComponent) },
-    { path: 'emergency/sent', loadComponent: () => import('./features/emergency/pages/sent/alert-sent.component').then(m => m.AlertSentComponent) },
-    { path: 'diario', component: JournalEntryComponent },
-    { path: 'notificaciones', component: StandardNotificationComponent },
-    { path: 'analytics', component: AnalyticsComponent },
-    { path: 'analisis', redirectTo: 'analytics' }
-=======
-
     {
         path: 'emergency/confirm',
         loadComponent: () =>
@@ -105,8 +93,7 @@ export const routes: Routes = [
         redirectTo: 'user/profile',
         pathMatch: 'full'
     },
-
-
->>>>>>> 66496bd31736919b1841436a693eebf9408c7a5c
+    { path: 'notificaciones', component: StandardNotificationComponent },
+    { path: 'analisis', redirectTo: 'analytics' }
 ];
 
