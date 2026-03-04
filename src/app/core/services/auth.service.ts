@@ -28,10 +28,16 @@ export interface TherapistRegisterPayload {
 
 export interface AuthResponse {
   token?: string;
-  user?: {
-    id: string;
-    email: string;
-    name: string;
+  tipo?: string;
+  persona?: {
+    idPersona: number;
+    nombre: string;
+    correo: string;
+    telefono: string;
+    cedula: string;
+    tipoUsuario: string;
+    fotoPerfilUrl: string | null;
+    tarjetaProfesional?: string;
   };
   message?: string;
 }
@@ -57,7 +63,6 @@ export class AuthService {
    * Inicia sesión con email y contraseña
    */
   login(credentials: LoginPayload): Observable<AuthResponse> {
-    // Mapear a los campos que espera el backend: correo, contraseña
     const payload = {
       correo: credentials.email,
       contraseña: credentials.password
@@ -67,6 +72,9 @@ export class AuthService {
       tap((response) => {
         if (response.token) {
           this.setToken(response.token);
+          if (response.persona?.tipoUsuario) {
+            localStorage.setItem('userType', response.persona.tipoUsuario);
+          }
           this.isAuthenticatedSubject.next(true);
         }
       })
@@ -169,6 +177,7 @@ export class AuthService {
    */
   private removeToken(): void {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userType');
   }
 
   /**
@@ -183,5 +192,26 @@ export class AuthService {
    */
   isAuthenticated(): boolean {
     return this.hasToken();
+  }
+
+  /**
+   * Obtiene el tipo de usuario almacenado
+   */
+  getUserType(): string | null {
+    return localStorage.getItem('userType');
+  }
+
+  /**
+   * Retorna la URL de redirección según el tipo de usuario
+   */
+  getRedirectUrl(): string {
+    const userType = this.getUserType();
+    switch (userType?.toUpperCase()) {
+      case 'TERAPEUTA':
+        return '/users/therapist/dashboard';
+      case 'USUARIO':
+      default:
+        return '/user/dashboard';
+    }
   }
 }

@@ -5,10 +5,10 @@ import { HeaderWithIconsComponent } from "../../layout/header/header-with-icons.
 
 
 @Component({
-    selector: 'app-forgot-password-confirmation',
-    standalone: true,
-    imports: [ButtonComponent, HeaderWithIconsComponent],
-    template: `
+  selector: 'app-forgot-password-confirmation',
+  standalone: true,
+  imports: [ButtonComponent, HeaderWithIconsComponent],
+  template: `
     <div class="flex flex-col min-h-screen ">
      <!-- Header -->
      <app-header-with-icons [centerText]="'Restablecer contraseña'" [disableBack]="false" [disableNotification]="false"></app-header-with-icons>
@@ -41,26 +41,26 @@ import { HeaderWithIconsComponent } from "../../layout/header/header-with-icons.
 
     </div>
   `,
-    styles: []
+  styles: []
 })
 export class ForgotPasswordConfirmationComponent {
-    private router = inject(Router);
+  private router = inject(Router);
 
-    goToLogin() {
-        this.router.navigate(['/login']);
-    }
-    cancel() {
-        this.router.navigate(['/']);
-    }
-    onBack() {
-        this.cancel();
-    }
+  goToLogin() {
+    this.router.navigate(['/login']);
+  }
+  cancel() {
+    this.router.navigate(['/']);
+  }
+  onBack() {
+    this.cancel();
+  }
 
-    onNotif() {
-        // Navigate to notifications screen if exists; otherwise no-op or log
-        this.router.navigate(['/notifications']).catch(() => {
-            // If route doesn't exist, stay here — could show a toast instead
+  onNotif() {
+    // Navigate to notifications screen if exists; otherwise no-op or log
+    this.router.navigate(['/notifications']).catch(() => {
+      // If route doesn't exist, stay here — could show a toast instead
             console.warn('Navigation to /notifications failed or route not found');
-        });
-    }
+    });
+  }
 }

@@ -1,23 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from '../header/header.component';
+import { RouterOutlet, ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BottomNavComponent } from '../../shared/components/bottom-nav/bottom-nav.component';
+import { HeaderWithIconsComponent } from "../header/header-with-icons.component";
+import { filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-standard-user-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, HeaderComponent, BottomNavComponent],
+  imports: [CommonModule, RouterOutlet, BottomNavComponent, HeaderWithIconsComponent],
   template: `
     <div class="flex flex-col min-h-screen bg-gray-50">
       <!-- Header -->
-      <app-header
-        [title]="'Sanity'"
-        [actionLabel]="'Perfil'"
-        [actionRoute]="'/profile'"
-        [menuItems]="menuItems"
-        (navigate)="handleNavigation($event)"
-      />
+      <app-header-with-icons [centerText]="headerText" [disableBack]="false" [disableNotification]="false" />
 
       <!-- Main Content -->
       <main class="flex-1 pb-24">
@@ -31,16 +26,18 @@ import { BottomNavComponent } from '../../shared/components/bottom-nav/bottom-na
   styles: []
 })
 export class StandardUserLayoutComponent {
-  menuItems = [
-    { label: 'Inicio', id: 'dashboard' },
-    { label: 'Diario', id: 'journal-entry' },
-    { label: 'EuphorIA', id: 'euphoria' },
-    { label: 'Servicios', id: 'services' },
-    { label: 'Perfil', id: 'profile' }
-  ];
+  headerText = 'Sanity';
 
-  handleNavigation(id: string): void {
-    // Manejar la navegación si es necesario
-    console.log('Navegando a:', id);
+  constructor(private router: Router, private route: ActivatedRoute) {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(() => {
+        let child = this.route.firstChild;
+        while (child?.firstChild) {
+          child = child.firstChild;
+        }
+        return child?.snapshot.data?.['headerText'] || 'Sanity';
+      })
+    ).subscribe(text => this.headerText = text);
   }
 }

@@ -11,7 +11,7 @@ import { ButtonComponent } from '../../../../../shared/components/button/button.
     <div class="flex flex-col h-full bg-linear-to-b from-[#8d8d8d] to-[#ffffff]/50">
       <!-- Illustration Area -->
       <div class="flex-1 overflow-hidden rounded-b-[3rem] mb-6">
-           <img class="w-100 h-80 object-cover" src="assets/images/onbording2.svg" alt="Ilustración" />
+           <img class="w-full h-full object-cover" src="assets/images/onbording2.svg" alt="Ilustración" />
       </div>
 
       <!-- Content Area -->

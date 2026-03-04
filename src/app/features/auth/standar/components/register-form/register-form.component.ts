@@ -18,6 +18,11 @@ import { AuthService } from '../../../../../core/services/auth.service';
         {{ errorMessage }}
       </div>
 
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded text-sm font-medium">
+        {{ successMessage }}
+      </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
         <app-input
@@ -96,6 +101,7 @@ export class RegisterFormComponent {
   registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -163,10 +169,11 @@ export class RegisterFormComponent {
 
       this.authService.register(registerData).subscribe({
         next: (response) => {
-          console.log('Registro exitoso', response);
           this.isLoading = false;
-          // Redirige al dashboard o página principal
-          this.router.navigate(['/dashboard']);
+          this.successMessage = '¡Registro exitoso! Redirigiendo al inicio de sesión...';
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
         },
         error: (error) => {
           console.error('Error en el registro', error);
@@ -194,7 +201,6 @@ export class RegisterFormComponent {
         if (response.access_token) {
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
-              console.log('Registro con Google exitoso', authResponse);
               this.router.navigate(['/dashboard']);
             },
             error: (error) => {

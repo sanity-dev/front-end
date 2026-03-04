@@ -4,6 +4,8 @@ import { AnalyticsComponent } from './features/analytics/analytics.component';
 import { WelcomePageComponent } from './features/homePage/pages/home/welcome-page.component';
 import { StandardRegisterComponent } from './features/auth/standar/pages/register/standard-register.component';
 import { StandardLoginComponent } from './features/auth/standar/pages/login/standard-login.component';
+import { StandardUserLayoutComponent } from './layout/standard-user-layout/standard-user-layout.component';
+import { TherapistLayoutComponent } from './layout/therapist-layout/therapist-layout.component';
 
 export const routes: Routes = [
     { path: '', component: WelcomePageComponent },
@@ -72,6 +74,31 @@ export const routes: Routes = [
         loadChildren: () =>
             import('./features/services/services.routes')
                 .then(m => m.SERVICES_ROUTES)
+                },
+    {
+        path: 'user',
+        component: StandardUserLayoutComponent,
+        children: [
+            {
+                path: 'dashboard',
+                data: { headerText: 'Sanity' },
+                loadComponent: () =>
+                    import('./features/users/standar/dashboard/standard-dashboard.component')
+                        .then(m => m.StandardDashboardComponent)
+            },
+            {
+                path: 'profile',
+                data: { headerText: 'Perfil' },
+                loadComponent: () =>
+                    import('./features/users/standar/profile/standard-profile.component')
+                        .then(m => m.StandardProfileComponent)
+            }
+        ]
+    },
+    {
+        path: 'profile',
+        redirectTo: 'user/profile',
+        pathMatch: 'full'
     },
 
 
