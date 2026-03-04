@@ -81,7 +81,10 @@ export const routes: Routes = [
             },
             {
                 path: 'profile',
-                data: { headerText: 'Perfil' },
+                data: {
+                    headerText: 'Perfil',
+                    headerRightIcon: 'settings'
+                },
                 loadComponent: () =>
                     import('./features/users/standar/profile/standard-profile.component')
                         .then(m => m.StandardProfileComponent)
