@@ -12,7 +12,7 @@ import { filter, map } from 'rxjs/operators';
   template: `
     <div class="flex flex-col min-h-screen bg-gray-50">
       <!-- Header -->
-      <app-header-with-icons [centerText]="headerText" [disableBack]="false" [disableNotification]="false" />
+      <app-header-with-icons [centerText]="headerText" [disableBack]="false" [disableRightIcon]="false" />
 
       <!-- Main Content -->
       <main class="flex-1 pb-24">

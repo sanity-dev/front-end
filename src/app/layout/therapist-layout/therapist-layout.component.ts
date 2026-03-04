@@ -11,15 +11,16 @@ import { filter, map } from 'rxjs/operators';
   imports: [CommonModule, RouterOutlet, BottomNavComponent, HeaderWithIconsComponent],
   template: `
     <div class="flex flex-col min-h-screen bg-gray-50">
-      <!-- Header -->
-      <app-header-with-icons [centerText]="headerText" [disableBack]="false" [disableNotification]="false" />
-
-      <!-- Main Content -->
+      <app-header-with-icons
+        [centerText]="headerText"
+        [rightIcon]="headerRightIcon"
+        [disableBack]="false"
+        [disableRightIcon]="false"
+        (rightIconClick)="onRightIconClick()"
+      />
       <main class="flex-1 pb-18">
         <router-outlet />
       </main>
-
-      <!-- Bottom Navigation -->
       <app-bottom-nav [items]="navItems" />
     </div>
   `,
@@ -27,10 +28,11 @@ import { filter, map } from 'rxjs/operators';
 })
 export class TherapistLayoutComponent {
   headerText = 'Sanity';
+  headerRightIcon = 'notification';
 
   navItems = [
     { label: 'Inicio', icon: 'home', route: '/users/therapist/dashboard' },
-    { label: 'Agenda', icon: 'agenda', route: '/users/therapist/agenda' },
+    { label: 'Notificaciones', icon: 'settings', route: '/users/therapist/agenda' },
     { label: 'Pacientes', icon: 'pacientes', route: '/users/therapist/patients' },
     { label: 'Servicios', icon: 'servicio', route: '/users/therapist/services' },
     { label: 'Perfil', icon: 'usuario', route: '/users/therapist/profile' }
@@ -44,9 +46,19 @@ export class TherapistLayoutComponent {
         while (child?.firstChild) {
           child = child.firstChild;
         }
-        return child?.snapshot.data?.['headerText'] || 'Sanity';
+        return child?.snapshot.data;
       })
-    ).subscribe(text => this.headerText = text);
+    ).subscribe(data => {
+      this.headerText = data?.['headerText'] || 'Sanity';
+      this.headerRightIcon = data?.['headerRightIcon'] || 'notification';
+    });
+  }
+
+  onRightIconClick(): void {
+    const actionMap: Record<string, string> = {
+      settings: '/users/therapist/settings',
+    };
+    const route = actionMap[this.headerRightIcon];
+    if (route) this.router.navigate([route]);
   }
 }
-

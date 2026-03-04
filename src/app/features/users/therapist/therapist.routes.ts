@@ -35,10 +35,27 @@ export const THERAPIST_ROUTES: Routes = [
             },
             {
                 path: 'profile',
-                data: { headerText: 'Perfil' },
+                data: {
+                    headerText: 'Perfil',
+                    headerRightIcon: 'settings'
+                },
                 loadComponent: () =>
                     import('./pages/profile/therapist-profile.component')
                         .then(m => m.TherapistProfileComponent)
+            },
+            {
+                path: 'settings',
+                data: { headerText: 'Configuración' },
+                loadComponent: () =>
+                    import('./settings/settings-account-therapist.component')
+                        .then(m => m.TherapistSettingsComponent)
+            },
+            {
+                path: 'settings/suscripcion',
+                data: { headerText: 'Suscripción' },
+                loadComponent: () =>
+                    import('./manage-subscription/manage-subscription.component')
+                        .then(m => m.GestionarSuscripcionComponent)
             },
             {
                 path: '',
