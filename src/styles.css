@@ -15,3 +15,11 @@ body {
     --color-text-secondary: #4C9EEB;
     --font-sans: "Manrope", sans-serif;
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

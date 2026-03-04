@@ -66,6 +66,13 @@ export const routes: Routes = [
             import('./features/diary/components/chat.component')
                 .then(m => m.ChatComponent)
     },
+    
+    {
+        path: 'services',
+        loadChildren: () =>
+            import('./features/services/services.routes')
+                .then(m => m.SERVICES_ROUTES)
+    },
 
 
 ];
