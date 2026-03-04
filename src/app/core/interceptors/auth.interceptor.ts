@@ -14,8 +14,11 @@ export class AuthInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<unknown>> {
     const token = this.authService.getToken();
 
-    // Agrega el token al header si existe
-    if (token) {
+    // No enviar token en rutas de autenticación (login, registro, etc.)
+    const isAuthUrl = request.url.includes('/api/auth/');
+
+    // Agrega el token al header si existe y no es una ruta de auth
+    if (token && !isAuthUrl) {
       request = request.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`

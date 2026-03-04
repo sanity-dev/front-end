@@ -68,13 +68,13 @@ export const routes: Routes = [
             import('./features/diary/components/chat.component')
                 .then(m => m.ChatComponent)
     },
-    
+
     {
         path: 'services',
         loadChildren: () =>
             import('./features/services/services.routes')
                 .then(m => m.SERVICES_ROUTES)
-                },
+    },
     {
         path: 'user',
         component: StandardUserLayoutComponent,
@@ -88,10 +88,27 @@ export const routes: Routes = [
             },
             {
                 path: 'profile',
-                data: { headerText: 'Perfil' },
+                data: {
+                    headerText: 'Perfil',
+                    headerRightIcon: 'settings'
+                },
                 loadComponent: () =>
                     import('./features/users/standar/profile/standard-profile.component')
                         .then(m => m.StandardProfileComponent)
+            },
+            {
+                path: 'settings',
+                data: { headerText: 'Configuración' },
+                loadComponent: () =>
+                    import('./features/users/standar/settings/settings-account-standar.component')
+                        .then(m => m.ConfiguracionComponent)
+            },
+            {
+                path: 'emergency-button',
+                data: { headerText: 'Configuración de Emergencia' },
+                loadComponent: () =>
+                    import('./features/users/standar/emergency-button/emergency-button.component')
+                        .then(m => m.EmergencyButtonComponent)
             }
         ]
     },

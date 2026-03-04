@@ -20,7 +20,7 @@ interface UserProfile {
 @Component({
   selector: 'app-standard-profile',
   standalone: true,
-  imports: [CommonModule, ToggleSwitchComponent, InfoFieldComponent, ButtonComponent, EditFieldModalComponent],
+  imports: [CommonModule, ToggleSwitchComponent, InfoFieldComponent, EditFieldModalComponent],
   template: `
     <div class="flex flex-col px-5 pb-8">
 
@@ -83,15 +83,6 @@ interface UserProfile {
           <app-toggle-switch [(checked)]="emailNotifications" />
         </div>
       </section>
-
-      <!-- Cerrar sesión -->
-      <app-button
-        variant="danger"
-        [fullWidth]="true"
-        (click)="logout()"
-      >
-        Cerrar sesión
-      </app-button>
 
       <!-- Estado de subida -->
       <div

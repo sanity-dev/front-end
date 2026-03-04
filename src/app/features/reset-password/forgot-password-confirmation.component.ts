@@ -11,7 +11,7 @@ import { HeaderWithIconsComponent } from "../../layout/header/header-with-icons.
   template: `
     <div class="flex flex-col min-h-screen ">
      <!-- Header -->
-     <app-header-with-icons [centerText]="'Restablecer contraseña'" [disableBack]="false" [disableNotification]="false"></app-header-with-icons>
+     <app-header-with-icons [centerText]="'Restablecer contraseña'" [disableBack]="false" [disableRightIcon]="false"></app-header-with-icons>
 
       <!-- Contenido centrado -->
       <div class="flex flex-col flex-1 items-center justify-start px-6 pt-12">

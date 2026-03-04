@@ -37,7 +37,7 @@ interface NavItem {
 })
 export class BottomNavComponent implements OnInit {
   @Input() items: NavItem[] = [
-    { label: 'Inicio', icon: 'home', route: '/dashboard' },
+    { label: 'Inicio', icon: 'home', route: '/user/dashboard' },
     { label: 'Diario', icon: 'diario', route: '/journal-entry' },
     { label: 'EuphorIA', icon: 'agente', route: '/euphoria' },
     { label: 'Servicios', icon: 'servicio', route: '/services' },
