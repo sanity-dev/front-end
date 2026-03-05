@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EuphoriaService, MensajeResponse, HistorialItem } from '../../../core/services/euphoria.service';
+import { BottomNavComponent } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 interface Mensaje {
   texto: string;
@@ -13,7 +14,7 @@ interface Mensaje {
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BottomNavComponent],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
@@ -25,15 +26,15 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   mensajeActual: string = '';
   cargando: boolean = false;
   errorConexion: boolean = false;
+  navOculto = false;
+  private vpHandler?: () => void;
   private debeHacerScroll: boolean = false;
 
   constructor(private euphoriaService: EuphoriaService) { }
 
   ngOnInit(): void {
-    console.log('🎨 Chat component iniciado');
     this.verificarConexion();
     this.cargarHistorial();
-
     this.euphoriaService.conexionEstado$.subscribe(estado => {
       this.errorConexion = !estado;
     });
@@ -48,14 +49,8 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   verificarConexion(): void {
     this.euphoriaService.verificarConexion().subscribe({
-      next: (estado) => {
-        console.log('✅ API conectada:', estado);
-        this.errorConexion = false;
-      },
-      error: (error) => {
-        console.error('❌ Error de conexión:', error);
-        this.errorConexion = true;
-      }
+      next:  () => this.errorConexion = false,
+      error: () => this.errorConexion = true
     });
   }
 
@@ -70,13 +65,10 @@ export class ChatComponent implements OnInit, AfterViewChecked {
             esUsuario: item.rol === 'usuario',
             timestamp: new Date(item.timestamp)
           }));
-
           this.debeHacerScroll = true;
         }
       },
-      error: (error) => {
-        console.error('❌ Error al cargar historial:', error);
-      }
+      error: () => {}
     });
   }
 
@@ -162,17 +154,12 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   private scrollAlFinal(): void {
     try {
-      if (this.chatContainer) {
-        const elemento = this.chatContainer.nativeElement;
-        elemento.scrollTop = elemento.scrollHeight;
-      }
-    } catch (err) {
-      console.error('Error al hacer scroll:', err);
-    }
+      const el = this.chatContainer?.nativeElement;
+      if (el) el.scrollTop = el.scrollHeight;
+    } catch {}
   }
 
   volverAtras(): void {
-    // Implementa tu navegación aquí
     console.log('Volver atrás');
   }
 
