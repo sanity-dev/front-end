@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EuphoriaService, MensajeResponse, HistorialItem } from '../../../core/services/euphoria.service';
+import { BottomNavComponent } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 interface Mensaje {
   texto: string;
@@ -13,170 +14,132 @@ interface Mensaje {
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BottomNavComponent],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
-export class ChatComponent implements OnInit, AfterViewChecked {
-  
+export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
+
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
-  
+
   mensajes: Mensaje[] = [];
   mensajeActual: string = '';
   cargando: boolean = false;
   errorConexion: boolean = false;
+  navOculto = false;
+  private vpHandler?: () => void;
   private debeHacerScroll: boolean = false;
-  
+
   constructor(private euphoriaService: EuphoriaService) {}
-  
+
   ngOnInit(): void {
-    console.log('🎨 Chat component iniciado');
     this.verificarConexion();
     this.cargarHistorial();
-    
+    this.detectarTeclado();
     this.euphoriaService.conexionEstado$.subscribe(estado => {
       this.errorConexion = !estado;
     });
   }
-  
+
   ngAfterViewChecked(): void {
     if (this.debeHacerScroll) {
       this.scrollAlFinal();
       this.debeHacerScroll = false;
     }
   }
-  
+
   verificarConexion(): void {
     this.euphoriaService.verificarConexion().subscribe({
-      next: (estado) => {
-        console.log('✅ API conectada:', estado);
-        this.errorConexion = false;
-      },
-      error: (error) => {
-        console.error('❌ Error de conexión:', error);
-        this.errorConexion = true;
-      }
+      next:  () => this.errorConexion = false,
+      error: () => this.errorConexion = true
     });
   }
-  
+
   cargarHistorial(): void {
     this.euphoriaService.obtenerHistorial().subscribe({
       next: (respuesta) => {
-        if (respuesta.historial && respuesta.historial.length > 0) {
-          console.log(`📜 Cargando ${respuesta.total_mensajes} mensajes`);
-          
+        if (respuesta.historial?.length > 0) {
           this.mensajes = respuesta.historial.map((item: HistorialItem) => ({
             texto: item.mensaje,
             esUsuario: item.rol === 'usuario',
             timestamp: new Date(item.timestamp)
           }));
-          
           this.debeHacerScroll = true;
         }
       },
-      error: (error) => {
-        console.error('❌ Error al cargar historial:', error);
-      }
+      error: () => {}
     });
   }
-  
+
   enviarMensaje(): void {
-    if (!this.mensajeActual.trim() || this.cargando) {
-      return;
-    }
-    
-    const mensajeUsuario: Mensaje = {
-      texto: this.mensajeActual,
-      esUsuario: true,
-      timestamp: new Date()
-    };
-    
-    this.mensajes.push(mensajeUsuario);
-    
+    if (!this.mensajeActual.trim() || this.cargando) return;
+
+    this.mensajes.push({ texto: this.mensajeActual, esUsuario: true, timestamp: new Date() });
     const textoMensaje = this.mensajeActual;
     this.mensajeActual = '';
     this.cargando = true;
     this.debeHacerScroll = true;
-    
-    console.log('📤 Enviando mensaje...');
-    
+
     this.euphoriaService.enviarMensaje(textoMensaje).subscribe({
       next: (respuesta: MensajeResponse) => {
-        console.log('✅ Respuesta recibida');
-        
-        const mensajeEuphoria: Mensaje = {
+        this.mensajes.push({
           texto: respuesta.respuesta,
           esUsuario: false,
           timestamp: new Date(respuesta.timestamp),
           emociones: respuesta.emociones_detectadas
-        };
-        
-        this.mensajes.push(mensajeEuphoria);
+        });
         this.cargando = false;
         this.debeHacerScroll = true;
       },
-      error: (error) => {
-        console.error('❌ Error:', error);
-        
-        const mensajeError: Mensaje = {
-          texto: 'Lo siento, hubo un problema. Verifica que el servidor esté corriendo en http://localhost:8000',
+      error: () => {
+        this.mensajes.push({
+          texto: 'Lo siento, hubo un problema. Verifica que el servidor esté corriendo.',
           esUsuario: false,
           timestamp: new Date()
-        };
-        
-        this.mensajes.push(mensajeError);
+        });
         this.cargando = false;
         this.errorConexion = true;
         this.debeHacerScroll = true;
       }
     });
   }
-  
+
   limpiarConversacion(): void {
-    const confirmacion = confirm(
-      '¿Iniciar nueva conversación? Se perderá el historial actual.'
-    );
-    
-    if (confirmacion) {
-      console.log('🔄 Limpiando...');
-      
-      this.euphoriaService.limpiarMemoria().subscribe({
-        next: () => {
-          console.log('✅ Conversación limpiada');
-          this.mensajes = [];
-        },
-        error: (error) => {
-          console.error('❌ Error:', error);
-          alert('No se pudo limpiar la conversación');
-        }
-      });
-    }
+    if (!confirm('¿Iniciar nueva conversación? Se perderá el historial actual.')) return;
+    this.euphoriaService.limpiarMemoria().subscribe({
+      next:  () => this.mensajes = [],
+      error: () => alert('No se pudo limpiar la conversación')
+    });
   }
-  
+
   manejarEnter(evento: KeyboardEvent): void {
     if (evento.key === 'Enter' && !evento.shiftKey) {
       evento.preventDefault();
       this.enviarMensaje();
     }
   }
-  
+
   private scrollAlFinal(): void {
     try {
-      if (this.chatContainer) {
-        const elemento = this.chatContainer.nativeElement;
-        elemento.scrollTop = elemento.scrollHeight;
-      }
-    } catch (err) {
-      console.error('Error al hacer scroll:', err);
-    }
+      const el = this.chatContainer?.nativeElement;
+      if (el) el.scrollTop = el.scrollHeight;
+    } catch {}
   }
-  
-  volverAtras(): void {
-    // Implementa tu navegación aquí
-    console.log('Volver atrás');
+
+  volverAtras(): void {}
+  obtenerIniciales(): string { return 'Tú'; }
+
+  ngOnDestroy(): void {
+    if (this.vpHandler && window.visualViewport)
+      window.visualViewport.removeEventListener('resize', this.vpHandler);
   }
-  
-  obtenerIniciales(): string {
-    return 'Tú';
+
+  private detectarTeclado(): void {
+    if (!window.visualViewport) return;
+    const base = window.visualViewport.height;
+    this.vpHandler = () => {
+      this.navOculto = window.visualViewport!.height < base - 100;
+    };
+    window.visualViewport.addEventListener('resize', this.vpHandler);
   }
 }

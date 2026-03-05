@@ -15,16 +15,16 @@ import { RegisterFormComponent } from '../../components/register-form/register-f
         <div class="w-full max-w-md mx-auto flex flex-col justify-center"> 
             <div class="px-4 pb-12">
             <app-hero
-                title="Registarse"
+                title="Registrarse"
                 description=""
             ></app-hero>
 
             <app-register-form></app-register-form>
 
             <div class="mt-8 text-center text-text-primary space-y-2">
-                <a href="#" class="block underline font-semibold">Soy terapeuta</a>
-                <a routerLink="/login" class="block underline text-sm opacity-90 cursor-pointer">
-                ¿Ya tienes una cuenta? <span class="font-semibold">Iniciar sesión</span>
+                <a routerLink="/therapist-register"  class="block underline font-semibold text-xl text-secondary-background">Soy terapeuta</a>
+                <a routerLink="/login" class="block text-sm opacity-90 cursor-pointer">
+                ¿Ya tienes una cuenta? <span class="font-semibold text-secondary-background">Iniciar sesión</span>
                 </a>
             </div>
             </div>

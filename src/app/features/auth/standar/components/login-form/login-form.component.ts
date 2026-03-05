@@ -44,10 +44,10 @@ import { AuthService } from '../../../../../core/services/auth.service';
       </div>
 
       <div class="flex justify-start">
-        <a href="#" class="text-sm text-gray-400 hover:text-gray-600">¿Olvidaste tu contraseña?</a>
+        <a routerLink="/forgot-password" class="text-sm text-text-secondary hover:text-gray-600">¿Olvidaste tu contraseña?</a>
       </div>
 
-      <div class="pt-2 space-y-3">
+      <div class="pt-2 space-y-4">
         <app-button
           type="submit"
           variant="primary"
@@ -57,14 +57,20 @@ import { AuthService } from '../../../../../core/services/auth.service';
         >
           {{ isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
         </app-button>
-
+        
+        <div class="relative flex items-center gap-4">
+          <div class="flex-1 border-t border-gray-300"></div>
+          <span class="text-gray-400 text-sm font-medium">O</span>
+          <div class="flex-1 border-t border-gray-300"></div>
+        </div>
+        
         <app-google-button
           text="Continuar con Google"
           (onClick)="handleGoogleLogin()"
         ></app-google-button>
       </div>
       
-     <div class="mt-12 text-center text-text-primary space-y-2">
+     <div class="mt-12 text-xl text-center text-text-secondary space-y-2">
                 <a routerLink="/register" class="block underline font-semibold">Registrarse</a>
      </div>
     </form>

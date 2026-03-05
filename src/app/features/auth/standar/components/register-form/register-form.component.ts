@@ -19,6 +19,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
       </div>
 
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
         <app-input
           type="text"
           formControlName="name"
@@ -29,6 +30,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
         </div>
       </div>
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
         <app-input
           type="email"
           formControlName="email"
@@ -40,6 +42,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
         </div>
       </div>
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
         <app-input
           type="password"
           formControlName="password"
@@ -53,6 +56,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
         </div>
       </div>
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
         <app-input
           type="password"
           formControlName="confirmPassword"
@@ -74,7 +78,11 @@ import { AuthService } from '../../../../../core/services/auth.service';
         >
           {{ isLoading ? 'Registrando...' : 'Registrarse' }}
         </app-button>
-
+        <div class="relative flex items-center gap-4">
+          <div class="flex-1 border-t border-gray-300"></div>
+          <span class="text-gray-400 text-sm font-medium">O</span>
+          <div class="flex-1 border-t border-gray-300"></div>
+        </div>
         <app-google-button
           text="Registrarse con Google"
           (onClick)="handleGoogleLogin()"
