@@ -12,7 +12,7 @@ import { HeaderWithIconsComponent } from "../../../../layout/header/header-with-
     template: `
     <div class="min-h-screen relative font-sans text-text-primary">
       <!-- Header -->
-        <app-header-with-icons [centerText]="'Confirmar Emergencia'" [disableBack]="false" [disableNotification]="false" ></app-header-with-icons>
+        <app-header-with-icons [centerText]="'Confirmar Emergencia'" [disableBack]="false" [disableRightIcon]="false" ></app-header-with-icons>
 
       <!-- Content -->
       <div class="px-6 flex flex-col items-center text-center mt-8 pb-20">

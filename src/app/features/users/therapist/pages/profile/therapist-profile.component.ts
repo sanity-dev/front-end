@@ -146,15 +146,6 @@ interface TherapistProfile {
         </div>
       </section>
 
-      <!-- Cerrar sesión -->
-      <app-button
-        variant="danger"
-        [fullWidth]="true"
-        (click)="logout()"
-      >
-        Cerrar sesión
-      </app-button>
-
       <!-- Estado de subida -->
       <div
         *ngIf="uploadStatus"

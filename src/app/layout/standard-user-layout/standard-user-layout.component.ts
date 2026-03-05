@@ -12,7 +12,13 @@ import { filter, map } from 'rxjs/operators';
   template: `
     <div class="flex flex-col min-h-screen bg-gray-50">
       <!-- Header -->
-      <app-header-with-icons [centerText]="headerText" [disableBack]="false" [disableNotification]="false" />
+      <app-header-with-icons
+        [centerText]="headerText"
+        [rightIcon]="headerRightIcon"
+        [disableBack]="false"
+        [disableRightIcon]="false"
+        (rightIconClick)="onRightIconClick()"
+      />
 
       <!-- Main Content -->
       <main class="flex-1 pb-24">
@@ -27,6 +33,7 @@ import { filter, map } from 'rxjs/operators';
 })
 export class StandardUserLayoutComponent {
   headerText = 'Sanity';
+  headerRightIcon = 'notification';
 
   constructor(private router: Router, private route: ActivatedRoute) {
     this.router.events.pipe(
@@ -36,8 +43,19 @@ export class StandardUserLayoutComponent {
         while (child?.firstChild) {
           child = child.firstChild;
         }
-        return child?.snapshot.data?.['headerText'] || 'Sanity';
+        return child?.snapshot.data;
       })
-    ).subscribe(text => this.headerText = text);
+    ).subscribe(data => {
+      this.headerText = data?.['headerText'] || 'Sanity';
+      this.headerRightIcon = data?.['headerRightIcon'] || 'notification';
+    });
+  }
+
+  onRightIconClick(): void {
+    const actionMap: Record<string, string> = {
+      settings: '/user/settings',
+    };
+    const route = actionMap[this.headerRightIcon];
+    if (route) this.router.navigate([route]);
   }
 }
