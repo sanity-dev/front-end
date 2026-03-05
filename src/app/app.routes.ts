@@ -14,6 +14,8 @@ export const routes: Routes = [
     { path: 'emergency/sent', loadComponent: () => import('./features/emergency/pages/sent/alert-sent.component').then(m => m.AlertSentComponent) },
     { path: 'diario', component: JournalEntryComponent },
     { path: 'analytics', component: AnalyticsComponent },
-    { path: 'analisis', redirectTo: 'analytics' }, 
-    { path: 'diary/chat', component: ChatComponent }
+    { path: 'analisis', redirectTo: 'analytics' },
+    { path: 'diary/chat', component: ChatComponent },
+    { path: 'notificaciones', loadComponent: () => import('./features/notifications/notification-list.component').then(m => m.NotificationListComponent) },
+    { path: 'notificaciones/preferencias', loadComponent: () => import('./features/notifications/notification-preferences.component').then(m => m.NotificationPreferencesComponent) }
 ];
