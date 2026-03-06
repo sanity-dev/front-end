@@ -100,10 +100,9 @@ export class LoginFormComponent {
 
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
-          console.log('Inicio de sesión exitoso', response);
           this.isLoading = false;
-          // Redirige al dashboard o página principal
-          this.router.navigate(['/dashboard']);
+          // Redirige al dashboard según tipo de usuario
+          this.router.navigate([this.authService.getRedirectUrl()]);
         },
         error: (error) => {
           console.error('Error en el inicio de sesión', error);
@@ -131,8 +130,7 @@ export class LoginFormComponent {
         if (response.access_token) {
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
-              console.log('Inicio de sesión con Google exitoso', authResponse);
-              this.router.navigate(['/dashboard']);
+              this.router.navigate([this.authService.getRedirectUrl()]);
             },
             error: (error) => {
               console.error('Error en inicio de sesión con Google', error);

@@ -18,7 +18,7 @@ interface Mensaje {
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
-export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
+export class ChatComponent implements OnInit, AfterViewChecked {
 
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
 
@@ -30,12 +30,11 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
   private vpHandler?: () => void;
   private debeHacerScroll: boolean = false;
 
-  constructor(private euphoriaService: EuphoriaService) {}
+  constructor(private euphoriaService: EuphoriaService) { }
 
   ngOnInit(): void {
     this.verificarConexion();
     this.cargarHistorial();
-    this.detectarTeclado();
     this.euphoriaService.conexionEstado$.subscribe(estado => {
       this.errorConexion = !estado;
     });
@@ -58,7 +57,9 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
   cargarHistorial(): void {
     this.euphoriaService.obtenerHistorial().subscribe({
       next: (respuesta) => {
-        if (respuesta.historial?.length > 0) {
+        if (respuesta.historial && respuesta.historial.length > 0) {
+          console.log(`📜 Cargando ${respuesta.total_mensajes} mensajes`);
+
           this.mensajes = respuesta.historial.map((item: HistorialItem) => ({
             texto: item.mensaje,
             esUsuario: item.rol === 'usuario',
@@ -72,31 +73,50 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   enviarMensaje(): void {
-    if (!this.mensajeActual.trim() || this.cargando) return;
+    if (!this.mensajeActual.trim() || this.cargando) {
+      return;
+    }
 
-    this.mensajes.push({ texto: this.mensajeActual, esUsuario: true, timestamp: new Date() });
+    const mensajeUsuario: Mensaje = {
+      texto: this.mensajeActual,
+      esUsuario: true,
+      timestamp: new Date()
+    };
+
+    this.mensajes.push(mensajeUsuario);
+
     const textoMensaje = this.mensajeActual;
     this.mensajeActual = '';
     this.cargando = true;
     this.debeHacerScroll = true;
 
+    console.log('📤 Enviando mensaje...');
+
     this.euphoriaService.enviarMensaje(textoMensaje).subscribe({
       next: (respuesta: MensajeResponse) => {
-        this.mensajes.push({
+        console.log('✅ Respuesta recibida');
+
+        const mensajeEuphoria: Mensaje = {
           texto: respuesta.respuesta,
           esUsuario: false,
           timestamp: new Date(respuesta.timestamp),
           emociones: respuesta.emociones_detectadas
-        });
+        };
+
+        this.mensajes.push(mensajeEuphoria);
         this.cargando = false;
         this.debeHacerScroll = true;
       },
-      error: () => {
-        this.mensajes.push({
-          texto: 'Lo siento, hubo un problema. Verifica que el servidor esté corriendo.',
+      error: (error) => {
+        console.error('❌ Error:', error);
+
+        const mensajeError: Mensaje = {
+          texto: 'Lo siento, hubo un problema. Verifica que el servidor esté corriendo en http://localhost:8000',
           esUsuario: false,
           timestamp: new Date()
-        });
+        };
+
+        this.mensajes.push(mensajeError);
         this.cargando = false;
         this.errorConexion = true;
         this.debeHacerScroll = true;
@@ -105,11 +125,24 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   limpiarConversacion(): void {
-    if (!confirm('¿Iniciar nueva conversación? Se perderá el historial actual.')) return;
-    this.euphoriaService.limpiarMemoria().subscribe({
-      next:  () => this.mensajes = [],
-      error: () => alert('No se pudo limpiar la conversación')
-    });
+    const confirmacion = confirm(
+      '¿Iniciar nueva conversación? Se perderá el historial actual.'
+    );
+
+    if (confirmacion) {
+      console.log('🔄 Limpiando...');
+
+      this.euphoriaService.limpiarMemoria().subscribe({
+        next: () => {
+          console.log('✅ Conversación limpiada');
+          this.mensajes = [];
+        },
+        error: (error) => {
+          console.error('❌ Error:', error);
+          alert('No se pudo limpiar la conversación');
+        }
+      });
+    }
   }
 
   manejarEnter(evento: KeyboardEvent): void {
@@ -126,20 +159,11 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
     } catch {}
   }
 
-  volverAtras(): void {}
-  obtenerIniciales(): string { return 'Tú'; }
-
-  ngOnDestroy(): void {
-    if (this.vpHandler && window.visualViewport)
-      window.visualViewport.removeEventListener('resize', this.vpHandler);
+  volverAtras(): void {
+    console.log('Volver atrás');
   }
 
-  private detectarTeclado(): void {
-    if (!window.visualViewport) return;
-    const base = window.visualViewport.height;
-    this.vpHandler = () => {
-      this.navOculto = window.visualViewport!.height < base - 100;
-    };
-    window.visualViewport.addEventListener('resize', this.vpHandler);
+  obtenerIniciales(): string {
+    return 'Tú';
   }
 }

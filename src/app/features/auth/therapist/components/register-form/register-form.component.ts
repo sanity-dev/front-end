@@ -13,6 +13,11 @@ import { AuthService } from '../../../../../core/services/auth.service';
   imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent],
   template: `
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4 w-full">
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded text-sm">
+        {{ successMessage }}
+      </div>
+
       <!-- Mensaje de error general -->
       <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
         {{ errorMessage }}
@@ -139,6 +144,7 @@ export class TherapistRegisterFormComponent {
   registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -207,9 +213,11 @@ export class TherapistRegisterFormComponent {
 
       this.authService.registerTherapist(registerData).subscribe({
         next: (response) => {
-          console.log('Registro de terapeuta exitoso', response);
           this.isLoading = false;
-          this.router.navigate(['/dashboard']);
+          this.successMessage = '¡Registro exitoso! Redirigiendo al inicio de sesión...';
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
         },
         error: (error) => {
           console.error('Error en el registro', error);
@@ -237,7 +245,6 @@ export class TherapistRegisterFormComponent {
         if (response.access_token) {
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
-              console.log('Registro con Google exitoso', authResponse);
               this.router.navigate(['/dashboard']);
             },
             error: (error) => {
