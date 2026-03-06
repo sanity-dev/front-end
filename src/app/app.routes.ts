@@ -1,8 +1,5 @@
 import { Routes } from '@angular/router';
-import { JournalEntryComponent } from './features/journal-entry/journal-entry.component';
-import { AnalyticsComponent } from './features/analytics/analytics.component';
 import { WelcomePageComponent } from './features/homePage/pages/home/welcome-page.component';
-import { StandardRegisterComponent } from './features/auth/standar/pages/register/standard-register.component';
 import { StandardLoginComponent } from './features/auth/standar/pages/login/standard-login.component';
 import { StandardUserLayoutComponent } from './layout/standard-user-layout/standard-user-layout.component';
 import { TherapistLayoutComponent } from './layout/therapist-layout/therapist-layout.component';
@@ -11,41 +8,41 @@ export const routes: Routes = [
     { path: '', component: WelcomePageComponent },
     { path: 'login', component: StandardLoginComponent },
 
+    { path: 'dashboard',     redirectTo: 'user/dashboard', pathMatch: 'full' },
+    { path: 'journal-entry', redirectTo: 'diario',         pathMatch: 'full' },
+    { path: 'euphoria',      redirectTo: 'euphoria/chat',  pathMatch: 'full' },
+    { path: 'profile',       redirectTo: 'user/profile',   pathMatch: 'full' },
+
     {
         path: 'emergency/confirm',
         loadComponent: () =>
             import('./features/emergency/pages/confirm/confirm-emergency.component')
                 .then(m => m.ConfirmEmergencyComponent)
     },
-
     {
         path: 'emergency/sent',
         loadComponent: () =>
             import('./features/emergency/pages/sent/alert-sent.component')
                 .then(m => m.AlertSentComponent)
     },
-
     {
         path: 'diario',
         loadComponent: () =>
             import('./features/journal-entry/journal-entry.component')
                 .then(m => m.JournalEntryComponent)
     },
-
     {
         path: 'analytics',
         loadComponent: () =>
             import('./features/analytics/analytics.component')
                 .then(m => m.AnalyticsComponent)
     },
-
     {
         path: 'register',
         loadComponent: () =>
             import('./features/auth/standar/pages/register/standard-register.component')
                 .then(m => m.StandardRegisterComponent)
     },
-
     {
         path: 'therapist-register',
         loadComponent: () =>
@@ -54,7 +51,9 @@ export const routes: Routes = [
     },
     {
         path: 'users/therapist',
-        loadChildren: () => import('./features/users/therapist/therapist.routes').then(m => m.THERAPIST_ROUTES)
+        loadChildren: () =>
+            import('./features/users/therapist/therapist.routes')
+                .then(m => m.THERAPIST_ROUTES)
     },
     {
         path: 'forgot-password',
@@ -65,10 +64,10 @@ export const routes: Routes = [
     {
         path: 'euphoria/chat',
         loadComponent: () =>
-            import('./features/diary/components/chat.component')
+            import('./features/euphoria/components/chat.component')
                 .then(m => m.ChatComponent)
     },
-
+    
     {
         path: 'services',
         loadChildren: () =>
@@ -112,12 +111,4 @@ export const routes: Routes = [
             }
         ]
     },
-    {
-        path: 'profile',
-        redirectTo: 'user/profile',
-        pathMatch: 'full'
-    },
-
-
 ];
-
