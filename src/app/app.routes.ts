@@ -64,7 +64,7 @@ export const routes: Routes = [
     {
         path: 'euphoria/chat',
         loadComponent: () =>
-            import('./features/diary/components/chat.component')
+            import('./features/euphoria/components/chat.component')
                 .then(m => m.ChatComponent)
     },
     
