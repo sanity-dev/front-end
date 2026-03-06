@@ -4,7 +4,6 @@ import { StandardLoginComponent } from './features/auth/standar/pages/login/stan
 import { StandardNotificationComponent } from './features/notifications/standard-notification.component';
 import { StandardUserLayoutComponent } from './layout/standard-user-layout/standard-user-layout.component';
 
-
 export const routes: Routes = [
     { path: '', component: WelcomePageComponent },
     { path: 'login', component: StandardLoginComponent },

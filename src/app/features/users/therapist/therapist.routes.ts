@@ -3,6 +3,14 @@ import { TherapistLayoutComponent } from '../../../layout/therapist-layout/thera
 
 export const THERAPIST_ROUTES: Routes = [
     {
+        path: 'notificaciones/preferencias',
+        loadComponent: () => import('../../notifications/therapist-preferences/therapist-notification-preferences.component').then(m => m.TherapistNotificationPreferencesComponent)
+    },
+    {
+        path: 'notificaciones/lista',
+        loadComponent: () => import('../../notifications/therapist-list/therapist-notification-list.component').then(m => m.TherapistNotificationListComponent)
+    },
+    {
         path: '',
         component: TherapistLayoutComponent,
         children: [

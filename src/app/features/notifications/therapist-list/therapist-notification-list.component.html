@@ -1,0 +1,35 @@
+<div class="flex flex-col h-screen bg-gradient-to-b from-[#3DABF0] to-[#1B6F9D] text-black font-sans">
+
+    <!-- Header -->
+    <header class="flex items-center px-4 py-4 bg-[#BDE0FE] text-black drop-shadow-sm z-10">
+        <button class="p-2 rounded-full hover:bg-black/10 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+        </button>
+        <h1 class="flex-1 text-center text-xl font-bold">Notificaciones</h1>
+        <div class="w-10"></div> <!-- Spacer to center title -->
+    </header>
+
+    <!-- Content -->
+    <main class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+
+        <div *ngFor="let notification of notifications" class="flex items-center space-x-4">
+            <div class="w-14 h-14 rounded-full overflow-hidden shrink-0 border border-white/30 bg-gray-200">
+                <!-- Using a placeholder pattern if the image fails or is missing initially -->
+                <img [src]="notification.avatarUrl" alt="Avatar" class="w-full h-full object-cover relative z-10"
+                    onerror="this.src='https://ui-avatars.com/api/?name=Paciente'">
+            </div>
+            <div>
+                <h3 class="text-[1.05rem] font-medium text-black">{{ notification.patientName }}</h3>
+                <p class="text-[0.95rem] text-white font-light mt-0.5">{{ notification.message }}</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <app-bottom-nav [items]="therapistNavItems"></app-bottom-nav>
+
+</div>

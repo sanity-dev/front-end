@@ -1,0 +1,115 @@
+<div class="flex flex-col h-screen bg-gradient-to-b from-[#34A4EA] to-[#1E678B] text-black font-sans">
+
+    <!-- Header -->
+    <header class="flex items-center px-4 py-4 bg-[#BDE0FE] text-black">
+        <button class="p-2 rounded-full hover:bg-black/10 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+        </button>
+        <h1 class="flex-1 text-center text-xl font-bold">Notificaciones</h1>
+        <div class="w-10"></div> <!-- Spacer to center title -->
+    </header>
+
+    <!-- Content -->
+    <main class="flex-1 overflow-y-auto px-6 py-6 space-y-8">
+
+        <!-- Preferencias de Notificaciones Section -->
+        <section>
+            <h2 class="text-xl font-bold mb-6 text-black">Preferencias de Notificaciones</h2>
+
+            <div class="flex items-center justify-between mb-6">
+                <div class="pr-4">
+                    <h3 class="text-base font-medium">Nuevas Solicitudes de Citas</h3>
+                    <p class="text-sm text-black/80 font-light mt-1">Recibe alertas cuando un nuevo paciente solicita una cita.</p>
+                </div>
+                <button (click)="toggle('nuevasSolicitudes')" 
+                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
+                    [ngClass]="notifications.nuevasSolicitudes ? 'bg-white' : 'bg-white/50'">
+                    <div [class.translate-x-6]="notifications.nuevasSolicitudes"
+                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200"></div>
+                </button>
+            </div>
+
+            <div class="flex items-center justify-between mb-6">
+                <div class="pr-4">
+                    <h3 class="text-base font-medium">Recordatorios de Citas</h3>
+                    <p class="text-sm text-black/80 font-light mt-1">Recordatorios de citas programadas para ti.</p>
+                </div>
+                <button (click)="toggle('recordatoriosCitas')" 
+                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
+                    [ngClass]="notifications.recordatoriosCitas ? 'bg-white' : 'bg-white/50'">
+                    <div [class.translate-x-6]="notifications.recordatoriosCitas"
+                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200"></div>
+                </button>
+            </div>
+
+            <div class="flex items-center justify-between mb-6">
+                <div class="pr-4">
+                    <h3 class="text-base font-medium">Mensajes de Pacientes</h3>
+                    <p class="text-sm text-black/80 font-light mt-1">Notificaciones de mensajes de tus pacientes.</p>
+                </div>
+                <button (click)="toggle('mensajesPacientes')" 
+                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
+                    [ngClass]="notifications.mensajesPacientes ? 'bg-white' : 'bg-white/50'">
+                    <div [class.translate-x-6]="notifications.mensajesPacientes"
+                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200"></div>
+                </button>
+            </div>
+
+            <div class="flex items-center justify-between mb-6">
+                <div class="pr-4">
+                    <h3 class="text-base font-medium">Cambios en Perfil/Disponibilidad</h3>
+                    <p class="text-sm text-black/80 font-light mt-1">Alertas sobre cambios en tu perfil o disponibilidad.</p>
+                </div>
+                <button (click)="toggle('cambiosPerfil')" 
+                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
+                    [ngClass]="notifications.cambiosPerfil ? 'bg-white' : 'bg-white/50'">
+                    <div [class.translate-x-6]="notifications.cambiosPerfil"
+                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200"></div>
+                </button>
+            </div>
+        </section>
+
+        <!-- Método de Notificación Section -->
+        <section>
+            <h2 class="text-xl font-bold mb-6 text-black">Método de Notificación</h2>
+
+            <div class="flex items-center justify-between mb-6" (click)="toggle('appNotif')">
+                <h3 class="text-base font-light">Notificaciones dentro de la App</h3>
+                <div class="w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 ml-4 cursor-pointer"
+                    [ngClass]="notifications.appNotif ? 'bg-transparent border-white' : 'border-white/70 bg-transparent'">
+                    <svg *ngIf="notifications.appNotif" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mb-6" (click)="toggle('emailNotif')">
+                <h3 class="text-base font-light">Correo Electrónico</h3>
+                <div class="w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 ml-4 cursor-pointer"
+                    [ngClass]="notifications.emailNotif ? 'bg-transparent border-white' : 'border-white/70 bg-transparent'">
+                    <svg *ngIf="notifications.emailNotif" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mb-6" (click)="toggle('smsNotif')">
+                <h3 class="text-base font-light">SMS</h3>
+                <div class="w-6 h-6 rounded border-2 flex items-center justify-center shrink-0 ml-4 cursor-pointer"
+                    [ngClass]="notifications.smsNotif ? 'bg-transparent border-white' : 'border-white/70 bg-transparent'">
+                    <svg *ngIf="notifications.smsNotif" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <app-bottom-nav [items]="therapistNavItems"></app-bottom-nav>
+
+</div>
