@@ -1,0 +1,115 @@
+<div class="flex flex-col h-screen"
+  style="background: linear-gradient(180deg, var(--color-secondary-background) 0%, var(--color-third-background) 100%); font-family: var(--font-sans)">
+
+  <!-- HEADER -->
+  <div class="flex items-center px-5 py-4 shrink-0"
+    style="background-color: var(--color-secondary-background); box-shadow: 0 2px 4px rgba(0,0,0,0.1)">
+    <button (click)="volverAtras()"
+      class="p-2 rounded-lg border-none bg-transparent cursor-pointer flex items-center justify-center"
+      style="color: var(--color-primary-navbar)">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <div class="flex-1 mx-4">
+      <h1 class="m-0 text-lg font-semibold" style="color: var(--color-primary-navbar)">Euphoria</h1>
+      <span class="text-xs opacity-80" [style.color]="errorConexion ? '#E74C3C' : 'var(--color-primary-navbar)'">
+        {{ errorConexion ? 'Desconectado' : 'En línea' }}
+      </span>
+    </div>
+    <button (click)="limpiarConversacion()"
+      class="p-2 rounded-lg border-none bg-transparent cursor-pointer flex items-center justify-center"
+      style="color: var(--color-primary-navbar)">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- MENSAJES -->
+  <div #chatContainer class="flex-1 overflow-y-auto flex flex-col gap-4 p-5 scrollbar-hide" style="min-height:0">
+
+    <!-- Bienvenida -->
+    <div *ngIf="mensajes.length === 0"
+      class="flex flex-col items-center justify-center text-center text-white gap-4 my-auto">
+      <div class="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-md">
+        <span class="text-4xl font-semibold" style="color: var(--color-secondary-background)">E</span>
+      </div>
+      <h2 class="text-2xl font-semibold m-0">Hola, soy Euphoria</h2>
+      <p class="text-base opacity-90 max-w-xs m-0 leading-relaxed">
+        Estoy aquí para escucharte y ayudarte a navegar tus emociones. ¿Cómo te sientes hoy?
+      </p>
+    </div>
+
+    <!-- Burbujas -->
+    <div *ngFor="let mensaje of mensajes" class="flex w-full"
+      [class.justify-end]="mensaje.esUsuario" [class.justify-start]="!mensaje.esUsuario">
+      <div class="flex gap-3 items-end max-w-[80%]" [class.flex-row-reverse]="mensaje.esUsuario">
+        <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold"
+          [style.background]="mensaje.esUsuario ? 'var(--color-white-sanity)' : 'white'"
+          [style.color]="mensaje.esUsuario ? 'var(--color-primary-navbar)' : 'var(--color-secondary-background)'">
+          {{ mensaje.esUsuario ? obtenerIniciales() : 'E' }}
+        </div>
+        <div class="px-4 py-3 rounded-2xl shadow-sm"
+          [style.background]="mensaje.esUsuario ? 'var(--color-primary-navbar)' : 'white'"
+          [style.color]="mensaje.esUsuario ? 'white' : 'var(--color-text-primary)'"
+          [style.border-bottom-right-radius]="mensaje.esUsuario ? '4px' : ''"
+          [style.border-bottom-left-radius]="!mensaje.esUsuario ? '4px' : ''">
+          <p class="m-0 text-[0.9375rem] leading-relaxed whitespace-pre-wrap break-words">{{ mensaje.texto }}</p>
+          <div *ngIf="mensaje.emociones && mensaje.emociones.length > 0 && mensaje.emociones[0] !== 'neutral'"
+            class="flex flex-wrap gap-1 mt-2">
+            <span *ngFor="let emocion of mensaje.emociones"
+              class="text-[0.6875rem] font-medium px-2 py-0.5 rounded-xl"
+              [style.background]="mensaje.esUsuario ? 'rgba(255,255,255,0.2)' : 'rgba(76,158,235,0.15)'"
+              [style.color]="mensaje.esUsuario ? 'white' : 'var(--color-secondary-background)'">
+              {{ emocion }}
+            </span>
+          </div>
+          <span class="block text-[0.6875rem] mt-1 opacity-60">{{ mensaje.timestamp | date:'shortTime' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing -->
+    <div *ngIf="cargando" class="flex justify-start">
+      <div class="flex gap-3 items-end">
+        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-xs font-semibold"
+          style="color: var(--color-secondary-background)">E</div>
+        <div class="flex gap-1 items-center bg-white px-4 py-3 rounded-2xl" style="border-bottom-left-radius:4px">
+          <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- INPUT: mismo fondo que el gradiente, sin color distinto -->
+  <div class="shrink-0 px-4 py-3" [style.padding-bottom]="navOculto ? '0.75rem' : '5rem'"
+    style="background: var(--color-third-background)">
+    <div class="flex items-end gap-3 bg-white rounded-3xl px-4 py-2"
+      style="border: 1.5px solid rgba(255,255,255,0.4)">
+      <textarea
+        [(ngModel)]="mensajeActual"
+        (keydown)="manejarEnter($event)"
+        [disabled]="cargando"
+        placeholder="Escribe un mensaje..."
+        rows="1"
+        class="flex-1 border-none outline-none resize-none bg-transparent leading-6 scrollbar-hide"
+        style="min-height:1.5rem; max-height:7rem; font-family:var(--font-sans); color:var(--color-text-primary); font-size:16px">
+      </textarea>
+      <button (click)="enviarMensaje()"
+        [disabled]="!mensajeActual.trim() || cargando"
+        class="w-10 h-10 rounded-full border-none flex items-center justify-center shrink-0 cursor-pointer transition-opacity"
+        [style.background]="!mensajeActual.trim() || cargando ? 'var(--color-white-sanity)' : 'var(--color-secondary-background)'"
+        [style.opacity]="!mensajeActual.trim() || cargando ? '0.5' : '1'">
+        <svg class="w-5 h-5" fill="white" viewBox="0 0 24 24">
+          <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<app-bottom-nav *ngIf="!navOculto"></app-bottom-nav>

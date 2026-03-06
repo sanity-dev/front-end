@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { ButtonComponent } from '../../../../../shared/ui/button/button.component';
-import { GoogleButtonComponent } from '../../../../../shared/ui/google-button/google-button.component';
-import { InputComponent } from '../../../../../shared/ui/input/input.component';
+import { Router } from '@angular/router';
+import { ButtonComponent } from '../../../../../shared/components/button/button.component';
+import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
+import { InputComponent } from '../../../../../shared/components/input/input.component';
+import { AuthService } from '../../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register-form',
@@ -11,7 +13,18 @@ import { InputComponent } from '../../../../../shared/ui/input/input.component';
   imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent],
   template: `
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4 w-full">
+      <!-- Mensaje de error general -->
+      <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded text-sm font-medium">
+        {{ successMessage }}
+      </div>
+
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
         <app-input
           type="text"
           formControlName="name"
@@ -22,6 +35,7 @@ import { InputComponent } from '../../../../../shared/ui/input/input.component';
         </div>
       </div>
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
         <app-input
           type="email"
           formControlName="email"
@@ -33,6 +47,7 @@ import { InputComponent } from '../../../../../shared/ui/input/input.component';
         </div>
       </div>
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
         <app-input
           type="password"
           formControlName="password"
@@ -46,6 +61,7 @@ import { InputComponent } from '../../../../../shared/ui/input/input.component';
         </div>
       </div>
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
         <app-input
           type="password"
           formControlName="confirmPassword"
@@ -63,11 +79,15 @@ import { InputComponent } from '../../../../../shared/ui/input/input.component';
           variant="primary"
           [fullWidth]="true"
           class="w-full block"
-          [disabled]="registerForm.invalid"
+          [disabled]="registerForm.invalid || isLoading"
         >
-          Registrarse
+          {{ isLoading ? 'Registrando...' : 'Registrarse' }}
         </app-button>
-
+        <div class="relative flex items-center gap-4">
+          <div class="flex-1 border-t border-gray-300"></div>
+          <span class="text-gray-400 text-sm font-medium">O</span>
+          <div class="flex-1 border-t border-gray-300"></div>
+        </div>
         <app-google-button
           text="Registrarse con Google"
           (onClick)="handleGoogleLogin()"
@@ -79,8 +99,15 @@ import { InputComponent } from '../../../../../shared/ui/input/input.component';
 })
 export class RegisterFormComponent {
   registerForm: FormGroup;
+  isLoading = false;
+  errorMessage = '';
+  successMessage = '';
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.registerForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -135,7 +162,25 @@ export class RegisterFormComponent {
 
   onSubmit() {
     if (this.registerForm.valid) {
-      console.log('Form Submitted', this.registerForm.value);//borrar esto en produccion
+      this.isLoading = true;
+      this.errorMessage = '';
+
+      const { confirmPassword, ...registerData } = this.registerForm.value;
+
+      this.authService.register(registerData).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.successMessage = '¡Registro exitoso! Redirigiendo al inicio de sesión...';
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
+        },
+        error: (error) => {
+          console.error('Error en el registro', error);
+          this.isLoading = false;
+          this.errorMessage = error.error?.message || 'Error en el registro. Intenta nuevamente.';
+        }
+      });
     } else {
       this.registerForm.markAllAsTouched();
     }
@@ -150,23 +195,23 @@ export class RegisterFormComponent {
 
     // @ts-ignore
     const client = google.accounts.oauth2.initTokenClient({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID', // Replace with your actual Client ID
+      client_id: 'YOUR_GOOGLE_CLIENT_ID', // Reemplaza con tu Client ID real
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {
-          console.log('Google Access Token:', response.access_token);
-          this.getUserProfile(response.access_token);
+          this.authService.loginWithGoogle(response.access_token).subscribe({
+            next: (authResponse) => {
+              this.router.navigate(['/dashboard']);
+            },
+            error: (error) => {
+              console.error('Error en registro con Google', error);
+              this.errorMessage = 'Error al registrarse con Google. Intenta nuevamente.';
+            }
+          });
         }
       },
     });
 
     client.requestAccessToken();
-  }
-
-  getUserProfile(accessToken: string) {
-    // Example of how to use the token to get user info (or send to backend)
-    console.log('Fetching user profile with token...');
-    // In a real app, you would send this token to your backend
-    // this.authService.loginWithGoogle(accessToken).subscribe(...)
   }
 }
