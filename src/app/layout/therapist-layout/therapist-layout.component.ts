@@ -34,7 +34,7 @@ export class TherapistLayoutComponent {
     { label: 'Inicio', icon: 'home', route: '/users/therapist/dashboard' },
     { label: 'Notificaciones', icon: 'notificacion', route: '/users/therapist/notifications' },
     { label: 'Pacientes', icon: 'pacientes', route: '/users/therapist/patients' },
-    { label: 'Servicios', icon: 'servicio', route: '/users/therapist/services' },
+    { label: 'Servicios', icon: 'servicio', route: '/services' },
     { label: 'Perfil', icon: 'usuario', route: '/users/therapist/profile' }
   ];
 

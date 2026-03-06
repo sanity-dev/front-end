@@ -9,8 +9,7 @@ import {
   UpdateSpecialistDto,
 } from '../models/specialist.model';
 
-// ← Ajusta al puerto de tu microservicio NestJS de especialistas
-const API = 'http://localhost:3001';
+const API = 'http://localhost:8080/api/services';
 
 @Injectable({ providedIn: 'root' })
 export class SpecialistService {
