@@ -1,16 +1,7 @@
-// ============================================
-// EUPHORIA SERVICE - VERSIÓN FINAL
-// ============================================
-// Ubicación: FRONTEND-END/src/app/core/services/euphoria.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-
-// ============================================
-// INTERFACES
-// ============================================
 
 export interface MensajeRequest {
   mensaje: string;
@@ -43,153 +34,92 @@ export interface StatusResponse {
   timestamp: string;
 }
 
-// ============================================
-// SERVICIO
-// ============================================
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class EuphoriaService {
 
-  private readonly apiUrl = 'http://localhost:8000';
-  private sessionId: string;
-  private conexionEstado = new BehaviorSubject<boolean>(true);
-  public conexionEstado$ = this.conexionEstado.asObservable();
+  private readonly apiUrl = 'http://localhost:8080/api/euphoria';
+  private sessionId       = this.obtenerSessionId();
+  private conexionEstado  = new BehaviorSubject<boolean>(true);
+  public  conexionEstado$ = this.conexionEstado.asObservable();
 
   private httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json'
-    })
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
 
   constructor(private http: HttpClient) {
-    this.sessionId = this.obtenerSessionId();
-    console.log('✅ EuphoriaService inicializado');
-    console.log(`📱 Session ID: ${this.sessionId}`);
     this.verificarConexion();
   }
 
-  // ============================================
-  // SESSION ID
-  // ============================================
+  // ── Session ID ────────────────────────────────────────────────────────────
 
   private obtenerSessionId(): string {
-    let sessionId = localStorage.getItem('euphoria_session_id');
-
-    if (!sessionId) {
-      sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('euphoria_session_id', sessionId);
-      console.log('🆕 Nuevo session ID:', sessionId);
+    let id = localStorage.getItem('euphoria_session_id');
+    if (!id) {
+      id = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('euphoria_session_id', id);
     }
-
-    return sessionId;
+    return id;
   }
 
-  public obtenerSessionIdActual(): string {
-    return this.sessionId;
-  }
+  obtenerSessionIdActual(): string { return this.sessionId; }
 
-  public nuevaSesion(): void {
+  nuevaSesion(): void {
     localStorage.removeItem('euphoria_session_id');
     this.sessionId = this.obtenerSessionId();
-    console.log('🔄 Nueva sesión iniciada');
   }
 
-  // ============================================
-  // ENDPOINTS
-  // ============================================
+  // ── Endpoints ─────────────────────────────────────────────────────────────
 
   enviarMensaje(mensaje: string): Observable<MensajeResponse> {
-    const request: MensajeRequest = {
-      mensaje: mensaje.trim(),
-      session_id: this.sessionId
-    };
-
-    console.log('📤 Enviando:', mensaje.substring(0, 50) + '...');
-
     return this.http.post<MensajeResponse>(
       `${this.apiUrl}/chat`,
-      request,
+      { mensaje: mensaje.trim(), session_id: this.sessionId },
       this.httpOptions
     ).pipe(
-      tap(response => {
-        console.log('✅ Respuesta recibida');
-        this.conexionEstado.next(true);
-      }),
+      tap(() => this.conexionEstado.next(true)),
       catchError(this.manejarError.bind(this))
     );
   }
 
   obtenerHistorial(): Observable<HistorialResponse> {
-    console.log('📜 Obteniendo historial...');
-
     return this.http.get<HistorialResponse>(
       `${this.apiUrl}/historial/${this.sessionId}`,
       this.httpOptions
     ).pipe(
-      tap(response => {
-        console.log(`✅ Historial: ${response.total_mensajes} mensajes`);
-        this.conexionEstado.next(true);
-      }),
+      tap(() => this.conexionEstado.next(true)),
       catchError(this.manejarError.bind(this))
     );
   }
 
   limpiarMemoria(): Observable<StatusResponse> {
-    console.log('🔄 Limpiando memoria...');
-
     return this.http.delete<StatusResponse>(
       `${this.apiUrl}/sesion/${this.sessionId}`,
       this.httpOptions
     ).pipe(
-      tap(() => {
-        console.log('✅ Memoria limpiada');
-        this.conexionEstado.next(true);
-      }),
+      tap(() => this.conexionEstado.next(true)),
       catchError(this.manejarError.bind(this))
     );
   }
 
   verificarConexion(): Observable<any> {
     return this.http.get(`${this.apiUrl}/health`, this.httpOptions).pipe(
-      tap(response => {
-        console.log('✅ API conectada:', response);
-        this.conexionEstado.next(true);
-      }),
-      catchError(error => {
-        console.error('❌ Error de conexión:', error);
+      tap(() => this.conexionEstado.next(true)),
+      catchError(err => {
         this.conexionEstado.next(false);
-        return throwError(() => error);
+        return throwError(() => err);
       })
     );
   }
 
-  // ============================================
-  // MANEJO DE ERRORES
-  // ============================================
+  // ── Error handler ─────────────────────────────────────────────────────────
 
   private manejarError(error: HttpErrorResponse): Observable<never> {
     this.conexionEstado.next(false);
-
-    let mensajeError = 'Error desconocido';
-
-    if (error.error instanceof ErrorEvent) {
-      mensajeError = `Error: ${error.error.message}`;
-      console.error('❌ Error del cliente:', error.error.message);
-    } else {
-      mensajeError = `Error ${error.status}: ${error.error?.detail || error.message}`;
-      console.error(`❌ Error del backend (${error.status}):`, error.error);
-
-      if (error.status === 0) {
-        mensajeError = '❌ No se puede conectar con el servidor. ¿Está corriendo en http://localhost:8000?';
-      } else if (error.status === 400) {
-        mensajeError = 'Solicitud inválida';
-      } else if (error.status === 500) {
-        mensajeError = 'Error en el servidor';
-      }
-    }
-
-    return throwError(() => new Error(mensajeError));
+    let msg = 'Error desconocido';
+    if (error.status === 0)        msg = 'No se puede conectar con el servidor.';
+    else if (error.status === 400) msg = 'Solicitud inválida';
+    else if (error.status === 500) msg = 'Error en el servidor';
+    else msg = `Error ${error.status}: ${error.error?.detail || error.message}`;
+    return throwError(() => new Error(msg));
   }
 }

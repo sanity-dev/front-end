@@ -11,7 +11,7 @@ import {
   Appointment,
 } from '../models/specialist.model';
 
-const API = 'http://localhost:8080/api';
+const API = 'http://localhost:8080/api/services';
 
 @Injectable({ providedIn: 'root' })
 export class SpecialistService {
