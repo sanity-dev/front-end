@@ -1,18 +1,21 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { DashboardService, Appointment } from '../../../../core/services/dashboard.service';
 
 @Component({
-    selector: 'app-therapist-dashboard',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-therapist-dashboard',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="flex flex-col gap-5 px-4 py-5">
 
       <!-- Saludo -->
       <div>
-        <h1 class="text-2xl font-extrabold text-text-primary tracking-tight">Buen día, Dr. Alejandro</h1>
-        <p class="text-sm text-gray-500 mt-1">Hoy tienes 6 sesiones programadas.</p>
+        <h1 class="text-2xl font-extrabold text-text-primary tracking-tight">Buen día, {{ userName }}</h1>
+        <p class="text-sm text-gray-500 mt-1">
+          Hoy tienes {{ todayAppointments.length }} {{ todayAppointments.length === 1 ? 'sesión programada' : 'sesiones programadas' }}.
+        </p>
       </div>
 
       <!-- Tarjetas de resumen -->
@@ -26,7 +29,7 @@ import { Router } from '@angular/router';
           </div>
           <div>
             <p class="text-white/80 text-xs font-medium">Citas programadas</p>
-            <p class="text-white text-4xl font-extrabold leading-tight">12</p>
+            <p class="text-white text-4xl font-extrabold leading-tight">{{ monthAppointmentsCount }}</p>
           </div>
         </div>
        
@@ -40,7 +43,7 @@ import { Router } from '@angular/router';
           </div>
           <div>
             <p class="text-gray-500 text-xs font-medium">Citas restantes</p>
-            <p class="text-text-primary text-4xl font-extrabold leading-tight">4</p>
+            <p class="text-text-primary text-4xl font-extrabold leading-tight">{{ remainingTodayCount }}</p>
           </div>
         </div>
       </div>
@@ -50,40 +53,39 @@ import { Router } from '@angular/router';
       <!-- Citas para Hoy -->
       <div>
         <h2 class="text-base font-bold text-text-primary mb-3">Citas para Hoy</h2>
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-2" *ngIf="todayAppointments.length > 0; else noCitas">
           <button
-            *ngFor="let appointment of appointments"
+            *ngFor="let appointment of todayAppointments"
             (click)="onAppointmentClick(appointment)"
             class="bg-white rounded-2xl px-4 py-3 flex items-center gap-3 border border-gray-100 shadow-sm w-full text-left hover:bg-gray-50 transition-colors active:scale-95"
           >
             <!-- Hora -->
             <div class="flex flex-col items-center w-10 shrink-0">
-              <span class="text-sm font-extrabold text-text-secondary">{{ appointment.hour }}</span>
-              <span class="text-[10px] text-gray-400 font-medium uppercase">{{ appointment.period }}</span>
+              <span class="text-sm font-extrabold text-text-secondary">{{ getHour(appointment.date, appointment.time) }}</span>
+              <span class="text-[10px] text-gray-400 font-medium uppercase">{{ getPeriod(appointment.date, appointment.time) }}</span>
             </div>
 
             <div class="w-px h-8 bg-gray-200 shrink-0"></div>
 
             <!-- Info -->
             <div class="flex-1">
-              <p class="text-sm font-bold text-text-primary">{{ appointment.name }}</p>
-              <p class="text-xs text-gray-400 mt-0.5">{{ appointment.type }}</p>
+              <p class="text-sm font-bold text-text-primary">{{ appointment.therapistName }}</p>
+              <p class="text-xs text-gray-400 mt-0.5">{{ appointment.serviceType }}</p>
             </div>
 
             <!-- Acción -->
             <div class="shrink-0">
-              <span
-                *ngIf="!appointment.isNext"
-                class="text-gray-400"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                </svg>
-              </span>
-              
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
             </div>
           </button>
         </div>
+        <ng-template #noCitas>
+          <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
+            <p class="text-gray-400 text-sm">No tienes citas programadas para hoy</p>
+          </div>
+        </ng-template>
       </div>
 
       <!-- Calendario mensual -->
@@ -157,82 +159,178 @@ import { Router } from '@angular/router';
 
     </div>
   `,
-    styles: []
+  styles: []
 })
-export class TherapistDashboardComponent {
-    private router = inject(Router);
+export class TherapistDashboardComponent implements OnInit {
+  private router = inject(Router);
+  private dashboardService = inject(DashboardService);
 
-    patientAlerts = [
-        {
-            name: 'Sofía Méndez',
-            message: 'Marcadores de ansiedad elevados en el diario matutino. Sugerido adelantar sesión.'
-        }
-    ];
+  userName: string = '';
+  userId: number | null = null;
+  allAppointments: Appointment[] = [];
+  todayAppointments: Appointment[] = [];
+  appointmentDays: number[] = [];
+  monthAppointmentsCount: number = 0;
+  remainingTodayCount: number = 0;
 
-    appointments = [
-        { hour: '10:00', period: 'AM', name: 'Ricardo Alarcón', type: 'Terapia Cognitivo-Conductual', isNext: false },
-        { hour: '11:30', period: 'AM', name: 'Elena Portillo', type: 'Seguimiento quincenal', isNext: false },
-        { hour: '02:00', period: 'PM', name: 'Javier Ruiz', type: 'En espera', isNext: false },
-    ];
+  dayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
-    appointmentDays: number[] = [3, 7, 10, 14, 17, 21, 24, 28];
+  private today = new Date();
+  currentYear = this.today.getFullYear();
+  currentMonth = this.today.getMonth();
 
-    dayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  ngOnInit(): void {
+    this.loadDashboard();
+  }
 
-    private today = new Date();
-    currentYear = this.today.getFullYear();
-    currentMonth = this.today.getMonth(); // 0-indexed
+  private loadDashboard(): void {
+    this.dashboardService.getUserInfo().subscribe(user => {
+      if (user) {
+        this.userName = user.nombre.split(' ')[0];
+        this.userId = user.idPersona;
+        this.loadAppointments(user.idPersona);
+      } else {
+        this.userName = 'Doctor';
+      }
+    });
+  }
 
-    get currentMonthLabel(): string {
-        return new Date(this.currentYear, this.currentMonth, 1)
-            .toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  private loadAppointments(userId: number): void {
+    this.dashboardService.getAllAppointments(userId).subscribe(appointments => {
+      this.allAppointments = appointments;
+      this.processAppointments();
+    });
+  }
+
+  private processAppointments(): void {
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+
+    // Citas de hoy
+    this.todayAppointments = this.allAppointments
+      .filter(a => {
+        const dateStr = new Date(a.date).toISOString().split('T')[0];
+        return dateStr === todayStr;
+      })
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Citas restantes hoy (futuras)
+    this.remainingTodayCount = this.todayAppointments
+      .filter(a => new Date(a.date) > now).length;
+
+    // Citas del mes actual
+    const monthAppointments = this.allAppointments.filter(a => {
+      const d = new Date(a.date);
+      return d.getMonth() === this.currentMonth && d.getFullYear() === this.currentYear;
+    });
+    this.monthAppointmentsCount = monthAppointments.length;
+
+    // Días con cita en el mes visible
+    this.updateCalendarAppointmentDays();
+  }
+
+  private updateCalendarAppointmentDays(): void {
+    this.appointmentDays = this.allAppointments
+      .filter(a => {
+        const d = new Date(a.date);
+        return d.getMonth() === this.currentMonth && d.getFullYear() === this.currentYear;
+      })
+      .map(a => new Date(a.date).getDate());
+  }
+
+  // ============================================
+  // CALENDAR
+  // ============================================
+
+  get currentMonthLabel(): string {
+    return new Date(this.currentYear, this.currentMonth, 1)
+      .toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  }
+
+  get calendarDays(): number[] {
+    const days = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+    return Array.from({ length: days }, (_, i) => i + 1);
+  }
+
+  get emptyStartCells(): null[] {
+    let firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
+    firstDay = firstDay === 0 ? 6 : firstDay - 1;
+    return Array(firstDay).fill(null);
+  }
+
+  hasAppointment(day: number): boolean {
+    return this.appointmentDays.includes(day);
+  }
+
+  isToday(day: number): boolean {
+    return (
+      day === this.today.getDate() &&
+      this.currentMonth === this.today.getMonth() &&
+      this.currentYear === this.today.getFullYear()
+    );
+  }
+
+  prevMonth() {
+    if (this.currentMonth === 0) {
+      this.currentMonth = 11;
+      this.currentYear--;
+    } else {
+      this.currentMonth--;
     }
+    this.updateCalendarAppointmentDays();
 
-    get calendarDays(): number[] {
-        const days = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
-        return Array.from({ length: days }, (_, i) => i + 1);
-    }
+    // Actualizar conteo del mes
+    this.monthAppointmentsCount = this.allAppointments.filter(a => {
+      const d = new Date(a.date);
+      return d.getMonth() === this.currentMonth && d.getFullYear() === this.currentYear;
+    }).length;
+  }
 
-    get emptyStartCells(): null[] {
-        // lunes=0 ... domingo=6
-        let firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
-        firstDay = firstDay === 0 ? 6 : firstDay - 1; // ajustar para semana L-D
-        return Array(firstDay).fill(null);
+  nextMonth() {
+    if (this.currentMonth === 11) {
+      this.currentMonth = 0;
+      this.currentYear++;
+    } else {
+      this.currentMonth++;
     }
+    this.updateCalendarAppointmentDays();
 
-    hasAppointment(day: number): boolean {
-        return this.appointmentDays.includes(day);
-    }
+    // Actualizar conteo del mes
+    this.monthAppointmentsCount = this.allAppointments.filter(a => {
+      const d = new Date(a.date);
+      return d.getMonth() === this.currentMonth && d.getFullYear() === this.currentYear;
+    }).length;
+  }
 
-    isToday(day: number): boolean {
-        return (
-            day === this.today.getDate() &&
-            this.currentMonth === this.today.getMonth() &&
-            this.currentYear === this.today.getFullYear()
-        );
-    }
+  // ============================================
+  // HELPERS
+  // ============================================
 
-    prevMonth() {
-        if (this.currentMonth === 0) {
-            this.currentMonth = 11;
-            this.currentYear--;
-        } else {
-            this.currentMonth--;
-        }
+  getHour(date: string, time: string): string {
+    try {
+      if (time) return time.split(':').slice(0, 2).join(':');
+      const d = new Date(date);
+      const h = d.getHours();
+      const m = d.getMinutes().toString().padStart(2, '0');
+      return `${h > 12 ? h - 12 : h}:${m}`;
+    } catch {
+      return '--:--';
     }
+  }
 
-    nextMonth() {
-        if (this.currentMonth === 11) {
-            this.currentMonth = 0;
-            this.currentYear++;
-        } else {
-            this.currentMonth++;
-        }
+  getPeriod(date: string, time: string): string {
+    try {
+      if (time) {
+        const h = parseInt(time.split(':')[0], 10);
+        return h >= 12 ? 'PM' : 'AM';
+      }
+      return new Date(date).getHours() >= 12 ? 'PM' : 'AM';
+    } catch {
+      return '';
     }
+  }
 
-    onAppointmentClick(appointment: any) {
-        if (appointment.isNext) {
-            this.router.navigate(['/users/therapist/session']);
-        }
-    }
+  onAppointmentClick(appointment: any) {
+    this.router.navigate(['/users/therapist/session']);
+  }
 }
