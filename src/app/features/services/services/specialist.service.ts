@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthHelperService } from './auth-helper.service';
@@ -7,52 +7,48 @@ import {
   Specialist,
   CreateSpecialistDto,
   UpdateSpecialistDto,
+  CreateAppointmentDto,
+  Appointment,
 } from '../models/specialist.model';
 
-// ← Ajusta al puerto de tu microservicio NestJS de especialistas
-const API = 'http://localhost:3001';
+const API = 'http://localhost:8080/api/services';
 
 @Injectable({ providedIn: 'root' })
 export class SpecialistService {
   private http = inject(HttpClient);
   private auth = inject(AuthHelperService);
 
-  private get headers(): HttpHeaders {
-    return new HttpHeaders({ Authorization: `Bearer ${this.auth.getBearerToken()}` });
-  }
-
-  /** Todos los terapeutas que ya registraron servicios → para USUARIO */
   getAllSpecialists(): Observable<Specialist[]> {
     return this.http
-      .get<Specialist[]>(`${API}/specialists`, { headers: this.headers })
-      .pipe(catchError(err => throwError(() => err)));
+      .get<Specialist[]>(`${API}/specialist`)
+      .pipe(catchError(() => of([])));
   }
 
-  /**
-   * Perfil del TERAPEUTA autenticado.
-   * 404 = aún no registró servicios → retorna null (flujo válido).
-   */
   getMyProfile(): Observable<Specialist | null> {
     const user = this.auth.getAuthUser();
-    if (!user) return throwError(() => new Error('No autenticado'));
+    if (!user) return of(null);
     return this.http
-      .get<Specialist>(`${API}/specialists/${user.userId}`, { headers: this.headers })
-      .pipe(catchError(err => err?.status === 404 ? of(null) : throwError(() => err)));
+      .get<Specialist>(`${API}/specialist/${user.userId}`)
+      .pipe(catchError(() => of(null)));
   }
 
-  /** Registra por primera vez los servicios del terapeuta */
   createSpecialist(dto: CreateSpecialistDto): Observable<Specialist> {
     return this.http
-      .post<Specialist>(`${API}/specialists`, dto, { headers: this.headers })
+      .post<Specialist>(`${API}/specialist`, dto)
       .pipe(catchError(err => throwError(() => err)));
   }
 
-  /** Actualiza los servicios del terapeuta */
   updateSpecialist(dto: UpdateSpecialistDto): Observable<Specialist> {
     const user = this.auth.getAuthUser();
     if (!user) return throwError(() => new Error('No autenticado'));
     return this.http
-      .patch<Specialist>(`${API}/specialists/${user.userId}`, dto, { headers: this.headers })
+      .put<Specialist>(`${API}/specialist/${user.userId}`, dto)
+      .pipe(catchError(err => throwError(() => err)));
+  }
+
+  createAppointment(dto: CreateAppointmentDto): Observable<Appointment> {
+    return this.http
+      .post<Appointment>(`${API}/appointment`, dto)
       .pipe(catchError(err => throwError(() => err)));
   }
 }

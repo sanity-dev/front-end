@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { InputComponent } from '../../../../shared/components/input/input.component';
+import { TextareaComponent } from '../../../../shared/components/textarea/textarea.component';
 
 interface EmergencyConfig {
   contactName: string;
@@ -15,63 +17,59 @@ interface EmergencyConfig {
 @Component({
   selector: 'app-emergency-button',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, TextareaComponent],
   template: `
-    <div class="min-h-full bg-linear-to-b from-[#e1e1e1] via-[#e0e0e0] to-[#f9f9f9] px-5 py-4 pb-8">
+    <div class="min-h-full px-5 py-4 pb-8">
       <div class="flex flex-col gap-5">
 
         <!-- Contacto de Emergencia -->
         <section class="flex flex-col gap-3">
-          <h2 class="text-xl font-extrabold text-text-primary m-0">Contacto de Emergencia</h2>
+          <h2 class="text-xl font-extrabold text-text-secondary m-0">Contacto de Emergencia</h2>
 
           <div class="flex flex-col gap-1">
             <label class="text-[0.8rem] font-semibold text-text-primary">Nombre del Contacto</label>
-            <input
+            <app-input
               type="text"
-              class="w-full shadow-sm py-3 px-4 border-none rounded-xl bg-white text-[0.9rem] text-gray-700 outline-none transition-shadow duration-200 focus:shadow-[0_0_0_2px_rgba(56,189,248,0.5)] placeholder:text-slate-400"
               placeholder="Nombre"
               [(ngModel)]="config.contactName"
-            />
+            ></app-input>
           </div>
 
           <div class="flex flex-col gap-1">
             <label class="text-[0.8rem] font-semibold text-text-primary">Número de Teléfono o Correo Electrónico</label>
-            <input
+            <app-input
               type="text"
-              class="w-full shadow-sm py-3 px-4 border-none rounded-xl bg-white text-[0.9rem] text-gray-700 outline-none transition-shadow duration-200 focus:shadow-[0_0_0_2px_rgba(56,189,248,0.5)] placeholder:text-slate-400"
               placeholder="Teléfono o Correo"
               [(ngModel)]="config.contactInfo"
-            />
+            ></app-input>
           </div>
         </section>
 
         <!-- Mensaje de Emergencia -->
         <section class="flex flex-col gap-3">
-          <h2 class="text-xl font-extrabold text-text-primary m-0">Mensaje de Emergencia</h2>
+          <h2 class="text-xl font-extrabold text-text-secondary m-0">Mensaje de Emergencia</h2>
 
           <div class="flex flex-col gap-1">
             <label class="text-[0.8rem] font-semibold text-text-primary">Mensaje</label>
-            <textarea
-              class="w-full shadow-sm py-3 px-4 border-none rounded-xl bg-white text-[0.9rem] text-gray-700 outline-none transition-shadow duration-200 focus:shadow-[0_0_0_2px_rgba(56,189,248,0.5)] placeholder:text-slate-400 resize-y min-h-[100px] font-[inherit]"
+            <app-textarea
               placeholder="Escribe tu mensaje de emergencia..."
               [(ngModel)]="config.message"
-              rows="4"
-            ></textarea>
+              [rows]="4"
+            ></app-textarea>
           </div>
         </section>
 
         <!-- Línea de Apoyo Alternativa -->
         <section class="flex flex-col gap-3">
-          <h2 class="text-xl font-extrabold text-text-primary m-0">Línea de Apoyo Alternativa</h2>
+          <h2 class="text-xl font-extrabold text-text-secondary m-0">Línea de Apoyo Alternativa</h2>
 
           <div class="flex flex-col gap-1">
             <label class="text-[0.8rem] font-semibold text-text-primary">Número de Teléfono</label>
-            <input
+            <app-input
               type="tel"
-              class="w-full shadow-sm py-3 px-4 border-none rounded-xl bg-white text-[0.9rem] text-gray-700 outline-none transition-shadow duration-200 focus:shadow-[0_0_0_2px_rgba(56,189,248,0.5)] placeholder:text-slate-400"
               placeholder="Teléfono"
               [(ngModel)]="config.alternatePhone"
-            />
+            ></app-input>
           </div>
         </section>
 
