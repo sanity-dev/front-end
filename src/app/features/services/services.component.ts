@@ -1,12 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, style, animate, transition } from '@angular/animations';
-
-// ✅ Ruta correcta: services.component.ts está en features/services/
-//    shared está en src/app/shared/
 import { BottomNavComponent } from '../../shared/components/bottom-nav/bottom-nav.component';
-
-// ✅ Rutas relativas desde features/services/ hacia sus subcarpetas
 import { SpecialistService } from './services/specialist.service';
 import { AuthHelperService } from './services/auth-helper.service';
 import { SpecialistFormToastComponent } from './components/specialist-form-toast.component';
@@ -44,15 +39,14 @@ import { Specialist } from './models/specialist.model';
     <div class="min-h-screen" style="background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%)">
 
       <!-- Top bar -->
-      <header class="bg-white border-b sticky top-0 z-40 px-5 py-4 flex items-center justify-between"
-        style="border-color: #D9D9D9">
+      <header class="bg-white border-b sticky top-0 z-40 px-5 flex items-center justify-between"
+        style="padding-top: 1rem; padding-bottom: 1rem; border-color: #D9D9D9">
         <div>
           <p class="text-xs font-medium text-gray-400">{{ saludo }}</p>
           <h1 class="text-lg font-bold tracking-tight" style="color: #1d1d1d; font-family: Manrope, sans-serif">
             Servicios
           </h1>
         </div>
-        <!-- Avatar inicial -->
         <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md"
           style="background: linear-gradient(135deg, #4C9EEB, #4CA1AF)">
           {{ inicial }}
@@ -61,17 +55,15 @@ import { Specialist } from './models/specialist.model';
 
       <main class="px-5 pt-5">
 
-        <!-- ─── Loading skeleton ─── -->
-        <div *ngIf="loading" @fadeIn class="space-y-4 pb-24">
+        <!-- Loading skeleton -->
+        <div *ngIf="loading" @fadeIn class="space-y-4" style="padding-bottom: 6rem">
           <div class="h-52 rounded-3xl animate-pulse" style="background: #D9D9D9"></div>
           <div class="h-5 rounded-full w-1/3 animate-pulse" style="background: #D9D9D9"></div>
           <div class="h-28 rounded-2xl animate-pulse" style="background: #D9D9D9"></div>
           <div class="h-28 rounded-2xl animate-pulse" style="background: #D9D9D9"></div>
         </div>
 
-        <!-- ════════════════════════════════════════════
-             TERAPEUTA — ya registró sus servicios
-             ════════════════════════════════════════════ -->
+        <!-- TERAPEUTA — ya registró sus servicios -->
         <ng-container *ngIf="!loading && isTherapist && myProfile">
           <app-therapist-profile
             [specialist]="myProfile"
@@ -79,13 +71,12 @@ import { Specialist } from './models/specialist.model';
           </app-therapist-profile>
         </ng-container>
 
-        <!-- ════════════════════════════════════════════
-             TERAPEUTA — aún NO registró sus servicios
-             ════════════════════════════════════════════ -->
+        <!-- TERAPEUTA — aún NO registró sus servicios -->
         <ng-container *ngIf="!loading && isTherapist && !myProfile">
-          <div @bounceIn class="flex flex-col items-center justify-center pt-10 pb-24 text-center px-2">
+          <div @bounceIn class="flex flex-col items-center justify-center text-center px-2"
+            style="padding-top: 2.5rem; padding-bottom: 6rem">
 
-            <div class="relative mb-7">
+            <div class="relative" style="margin-bottom: 1.75rem">
               <div class="w-32 h-32 rounded-full flex items-center justify-center text-6xl shadow-inner"
                 style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF33)">
                 🌱
@@ -96,37 +87,34 @@ import { Specialist } from './models/specialist.model';
               </div>
             </div>
 
-            <h2 class="text-2xl font-bold tracking-tight mb-2" style="color: #1d1d1d; font-family: Manrope, sans-serif">
+            <h2 class="text-2xl font-bold tracking-tight" style="color: #1d1d1d; font-family: Manrope, sans-serif; margin-bottom: 0.5rem">
               ¡Haz crecer tu práctica!
             </h2>
-            <p class="text-gray-400 text-sm leading-relaxed mb-8 max-w-xs">
+            <p class="text-gray-400 text-sm leading-relaxed max-w-xs" style="margin-bottom: 2rem">
               Registra tus servicios y conecta con pacientes que buscan exactamente tu especialidad.
             </p>
 
-            <!-- Chips motivacionales con colores del tema -->
-            <div class="flex flex-wrap justify-center gap-2 mb-8">
+            <div class="flex flex-wrap justify-center gap-2" style="margin-bottom: 2rem">
               <span *ngFor="let chip of chips"
-                class="px-3 py-1.5 rounded-full text-xs font-bold border"
-                style="background: #4CA1AF1A; color: #4CA1AF; border-color: #4CA1AF33">
+                class="text-xs font-bold rounded-full border"
+                style="padding: 0.375rem 0.75rem; background: #4CA1AF1A; color: #4CA1AF; border-color: #4CA1AF33">
                 ✓ {{ chip }}
               </span>
             </div>
 
             <button (click)="showForm = true"
-              class="w-full max-w-sm py-4 rounded-2xl text-white font-bold text-base
-                     active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
-              style="background: linear-gradient(135deg, #2C3E50, #4CA1AF)">
+              class="w-full max-w-sm rounded-2xl text-white font-bold text-base flex items-center justify-center gap-2"
+              style="padding: 1rem; background: linear-gradient(135deg, #2C3E50, #4CA1AF); transition: transform 0.2s"
+              onmousedown="this.style.transform='scale(0.98)'"
+              onmouseup="this.style.transform='scale(1)'">
               🚀 ¡Ofrece tus servicios!
             </button>
 
-            <p class="text-xs text-gray-400 mt-4">Solo toma unos minutos completar tu perfil</p>
+            <p class="text-xs text-gray-400" style="margin-top: 1rem">Solo toma unos minutos completar tu perfil</p>
           </div>
         </ng-container>
 
-        <!-- ════════════════════════════════════════════
-             USUARIO — directorio de terapeutas
-             Solo ve terapeutas que YA registraron sus servicios
-             ════════════════════════════════════════════ -->
+        <!-- USUARIO — directorio de terapeutas -->
         <ng-container *ngIf="!loading && !isTherapist">
           <app-specialists-carousel
             [specialists]="allSpecialists"
@@ -137,8 +125,10 @@ import { Specialist } from './models/specialist.model';
       </main>
 
       <!-- Toast formulario de servicios (TERAPEUTA) -->
+      <!-- ✅ [existingProfile]="myProfile" precarga datos al editar -->
       <ng-container *ngIf="showForm">
         <app-specialist-form-toast
+          [existingProfile]="myProfile"
           (closed)="showForm = false"
           (saved)="onSaved()">
         </app-specialist-form-toast>
@@ -152,13 +142,11 @@ import { Specialist } from './models/specialist.model';
         </app-appointment-toast>
       </ng-container>
 
-      <!-- Bottom nav reutilizado -->
       <app-bottom-nav></app-bottom-nav>
     </div>
   `,
 })
 export class ServicesComponent implements OnInit {
-  // inject() evita el error NG2003 de token de inyección
   private specialistSvc = inject(SpecialistService);
   private authSvc       = inject(AuthHelperService);
 
@@ -191,7 +179,7 @@ export class ServicesComponent implements OnInit {
     this.loading = true;
     this.specialistSvc.getMyProfile().subscribe({
       next: (profile: Specialist | null) => {
-        this.myProfile = profile;   // null = aún no registró → muestra CTA
+        this.myProfile = profile;
         this.loading   = false;
       },
       error: () => { this.myProfile = null; this.loading = false; },
