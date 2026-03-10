@@ -38,10 +38,10 @@ interface NavItem {
 export class BottomNavComponent implements OnInit, OnDestroy {
   @Input() items: NavItem[] = [
     { label: 'Inicio', icon: 'home', route: '/user/dashboard' },
-    { label: 'Diario', icon: 'diario', route: '/journal-entry' },
-    { label: 'EuphorIA', icon: 'agente', route: '/euphoria' },
-    { label: 'Servicios', icon: 'servicio', route: '/services' },
-    { label: 'Perfil', icon: 'usuario', route: '/profile' }
+    { label: 'Diario', icon: 'diario', route: '/user/diario' },
+    { label: 'EuphorIA', icon: 'agente', route: '/euphoria/chat' },
+    { label: 'Servicios', icon: 'servicio', route: '/user/services' },
+    { label: 'Perfil', icon: 'usuario', route: '/user/profile' }
   ];
 
   currentRoute: string = '';

@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeaderWithIconsComponent } from "../../layout/header/header-with-icons.component";
 
 @Component({
     selector: 'app-journal-entry',
     standalone: true,
-    imports: [CommonModule, HeaderWithIconsComponent],
+    imports: [CommonModule],
     templateUrl: './journal-entry.component.html',
     styleUrl: './journal-entry.component.css'
 })
