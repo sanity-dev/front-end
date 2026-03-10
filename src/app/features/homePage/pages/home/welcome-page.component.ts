@@ -24,12 +24,12 @@ export class WelcomePageComponent {
         {
             title: 'Diario interactivo',
             description: 'Reflexiona sobre tu día con nuestro diario intuitivo. Registra tu estado de ánimo, identifica patrones y obtén información sobre tu bienestar mental.',
-            image: 'https://images.unsplash.com/photo-1650848200302-22e62d26a75a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/diario3.svg'
         },
         {
-            title: 'Agente de IA',
+            title: 'EuphorIA',
             description: 'Nuestro agente de IA está disponible las 24 horas del día, los 7 días de la semana para brindar apoyo y orientación. Obtén recomendaciones personalizadas y aprende estrategias de afrontamiento.',
-            image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/euphoria2.svg'
         }
     ];
 
@@ -37,12 +37,12 @@ export class WelcomePageComponent {
         {
             title: 'Sesiones de terapia',
             description: 'Conéctate con terapeutas licenciados para obtener apoyo personalizado. Programa sesiones y gestiona tu atención sin problemas.',
-            image: 'https://images.unsplash.com/photo-1616740795271-abd6ce1a5a5a?q=80&w=716&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/onbording1.svg'
         },
         {
             title: 'Servicios de asesoramiento',
             description: 'Accede a servicios de asesoramiento profesional adaptados a tus necesidades. Encuentra al consejero adecuado y comienza tu viaje hacia una mejor salud mental.',
-            image: 'https://images.unsplash.com/photo-1524758870432-af57e54afa26?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/asesoramiento.svg'
         }
     ];
 
@@ -50,12 +50,12 @@ export class WelcomePageComponent {
         {
             title: 'Ejercicios de atención plena',
             description: 'Practica la atención plena con meditaciones guiadas y ejercicios de respiración para reducir el estrés y mejorar la concentración.',
-            image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=799&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/habitos.svg'
         },
         {
             title: 'Contacto de emergencia',
             description: 'Accede rápidamente a contactos de emergencia y recursos para obtener apoyo inmediato durante las crisis.',
-            image: 'https://images.unsplash.com/photo-1532883130016-f3d311140ba8?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/emergencia.svg'
         }
     ];
 
