@@ -1,134 +1,95 @@
-<div class="flex flex-col h-screen bg-gradient-to-b from-[#34A4EA] to-[#1E678B] text-black font-sans">
-
-    <!-- Header -->
-    <header class="flex items-center px-4 py-4 bg-[#BDE0FE] text-black drop-shadow-sm z-10">
-        <button class="p-2 rounded-full hover:bg-black/10 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-            </svg>
-        </button>
-        <h1 class="flex-1 text-center text-xl font-bold">Notificaciones</h1>
-        <div class="w-10"></div> <!-- Spacer to center title -->
-    </header>
+<div class="min-h-screen bg-[#f5f5f5] flex flex-col font-sans">
 
     <!-- Content -->
-    <main class="flex-1 overflow-y-auto px-6 py-6 space-y-8">
+    <main class="flex-1 overflow-y-auto px-4 py-6 pb-20">
 
-        <!-- Recordatorios Section -->
-        <section>
-            <h2 class="text-xl font-bold mb-6 text-black">Recordatorios</h2>
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-xl font-bold text-black">Notificaciones</h1>
+            <span *ngIf="unreadCount > 0" class="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                {{ unreadCount }}
+            </span>
+        </div>
 
-            <div class="flex items-center justify-between mb-6">
-                <div class="pr-4">
-                    <h3 class="text-base font-medium">Recordatorios de citas</h3>
-                    <p class="text-[0.9rem] text-white font-light mt-1">Recibe recordatorios para tus citas programadas.
-                    </p>
+        <!-- Loading State -->
+        <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 text-gray-400">
+            <svg class="w-10 h-10 animate-spin mb-3" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+            </svg>
+            <p class="text-sm">Cargando notificaciones...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+            <p class="text-red-600 text-sm mb-3">{{ error }}</p>
+            <button (click)="loadNotifications()"
+                class="text-sm font-medium text-red-600 bg-red-100 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors">
+                Reintentar
+            </button>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading && !error && notifications.length === 0"
+            class="flex flex-col items-center justify-center py-20 text-gray-400">
+            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0">
+                </path>
+            </svg>
+            <p class="text-base font-medium text-gray-500">No tienes notificaciones</p>
+            <p class="text-sm text-gray-400 mt-1">Cuando recibas una, aparecerá aquí</p>
+        </div>
+
+        <!-- Notification List -->
+        <div *ngIf="!loading && !error && notifications.length > 0" class="space-y-3">
+            <div *ngFor="let notification of notifications" (click)="markAsRead(notification)"
+                class="bg-white rounded-xl p-4 shadow-sm flex items-start gap-3 transition-all duration-200 cursor-pointer"
+                [ngClass]="{'border-l-4 border-blue-400': !notification.leida, 'opacity-75': notification.leida}">
+
+                <!-- Type Icon -->
+                <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-lg"
+                    [ngClass]="notification.leida ? 'bg-gray-100' : 'bg-blue-50'">
+                    {{ getTypeIcon(notification.tipo) }}
                 </div>
-                <button (click)="toggle('citas')"
-                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
-                    [ngClass]="notifications.citas ? 'bg-white' : 'bg-white/50'">
-                    <div [class.translate-x-6]="notifications.citas"
-                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200">
+
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-2">
+                        <h3 class="text-sm font-semibold text-black truncate"
+                            [ngClass]="{'font-bold': !notification.leida}">
+                            {{ notification.titulo || 'Notificación' }}
+                        </h3>
+                        <span class="text-[0.7rem] text-gray-400 shrink-0">
+                            {{ getTimeAgo(notification.fechaCreacion) }}
+                        </span>
                     </div>
+                    <p class="text-sm text-gray-600 mt-0.5 line-clamp-2">{{ notification.mensaje }}</p>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="text-[0.65rem] px-2 py-0.5 rounded-full font-medium" [ngClass]="{
+                                'bg-green-100 text-green-700': notification.estado === 'LEIDO',
+                                'bg-yellow-100 text-yellow-700': notification.estado === 'PENDIENTE',
+                                'bg-blue-100 text-blue-700': notification.estado === 'ENVIADO',
+                                'bg-red-100 text-red-700': notification.estado === 'FALLIDO'
+                            }">
+                            {{ notification.estado }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Delete Button -->
+                <button (click)="deleteNotification(notification.id); $event.stopPropagation()"
+                    class="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 transition-colors shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                        </path>
+                    </svg>
                 </button>
             </div>
-
-            <div class="flex items-center justify-between mb-6">
-                <div class="pr-4">
-                    <h3 class="text-base font-medium">Recordatorios de actividades</h3>
-                    <p class="text-[0.9rem] text-white font-light mt-1">Recibe recordatorios para completar tus
-                        actividades diarias.</p>
-                </div>
-                <button (click)="toggle('actividades')"
-                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
-                    [ngClass]="notifications.actividades ? 'bg-white' : 'bg-white/50'">
-                    <div [class.translate-x-6]="notifications.actividades"
-                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200">
-                    </div>
-                </button>
-            </div>
-
-            <div class="flex items-center justify-between mb-6">
-                <div class="pr-4">
-                    <h3 class="text-base font-medium">Recordatorios de hábitos</h3>
-                    <p class="text-[0.9rem] text-white font-light mt-1">Recibe recordatorios para mantener tus hábitos.
-                    </p>
-                </div>
-                <button (click)="toggle('habitos')"
-                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
-                    [ngClass]="notifications.habitos ? 'bg-white' : 'bg-white/50'">
-                    <div [class.translate-x-6]="notifications.habitos"
-                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200">
-                    </div>
-                </button>
-            </div>
-        </section>
-
-        <!-- Actualizaciones Section -->
-        <section>
-            <h2 class="text-xl font-bold mb-6 text-black">Actualizaciones</h2>
-
-            <div class="flex items-center justify-between mb-6">
-                <div class="pr-4">
-                    <h3 class="text-base font-medium">Nuevas actividades</h3>
-                    <p class="text-[0.9rem] text-white font-light mt-1">Recibe notificaciones sobre nuevas actividades
-                        sugeridas.</p>
-                </div>
-                <button (click)="toggle('nuevasActividades')"
-                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
-                    [ngClass]="notifications.nuevasActividades ? 'bg-white' : 'bg-white/50'">
-                    <div [class.translate-x-6]="notifications.nuevasActividades"
-                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200">
-                    </div>
-                </button>
-            </div>
-
-            <div class="flex items-center justify-between mb-6">
-                <div class="pr-4">
-                    <h3 class="text-base font-medium">Mensajes del agente de IA</h3>
-                    <p class="text-[0.9rem] text-white font-light mt-1">Recibe mensajes de tu agente de IA.</p>
-                </div>
-                <button (click)="toggle('mensajesIA')"
-                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
-                    [ngClass]="notifications.mensajesIA ? 'bg-white' : 'bg-white/50'">
-                    <div [class.translate-x-6]="notifications.mensajesIA"
-                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200">
-                    </div>
-                </button>
-            </div>
-        </section>
-
-        <!-- Método de notificación Section -->
-        <section>
-            <h2 class="text-xl font-bold mb-6 text-black">Método de notificación</h2>
-
-            <div class="flex items-center justify-between mb-6">
-                <div class="pr-4">
-                    <h3 class="text-base font-light">Notificaciones push</h3>
-                </div>
-                <button (click)="toggle('push')"
-                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
-                    [ngClass]="notifications.push ? 'bg-white' : 'bg-white/50'">
-                    <div [class.translate-x-6]="notifications.push"
-                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200">
-                    </div>
-                </button>
-            </div>
-
-            <div class="flex items-center justify-between mb-6">
-                <div class="pr-4">
-                    <h3 class="text-base font-light">Correo electrónico</h3>
-                </div>
-                <button (click)="toggle('email')"
-                    class="w-14 h-8 rounded-full transition-colors relative flex items-center px-1 shrink-0 ml-2"
-                    [ngClass]="notifications.email ? 'bg-white' : 'bg-white/50'">
-                    <div [class.translate-x-6]="notifications.email"
-                        class="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 border border-gray-200">
-                    </div>
-                </button>
-            </div>
-        </section>
+        </div>
 
     </main>
 

@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
+import { NotificationModalComponent } from '../../shared/components/notification-modal/notification-modal.component';
 
 @Component({
     selector: 'app-header-with-icons',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, NotificationModalComponent],
     template: `
     <header class="flex items-center px-4 py-3 bg-linear-to-r from-secondary-background/80 to-blue-800/80 backdrop-blur-sm sticky top-0 z-50">
 
@@ -17,9 +18,15 @@ import { CommonModule, Location } from '@angular/common';
       <div class="flex-1 text-center text-lg font-semibold text-white">{{ centerText }}</div>
 
       <!-- Botón derecho dinámico -->
-      <button class="p-2 cursor-pointer" (click)="onRightAction()" [disabled]="disableRightIcon" [class.opacity-50]="disableRightIcon">
+      <button class="p-2 cursor-pointer relative" (click)="onRightAction()" [disabled]="disableRightIcon" [class.opacity-50]="disableRightIcon">
         <img [src]="'assets/icons/' + rightIconFile" [alt]="rightIcon" class="w-6 h-6" />
       </button>
+
+      <!-- Modal de Notificaciones -->
+      <app-notification-modal 
+        *ngIf="showNotificationModal" 
+        (close)="showNotificationModal = false">
+      </app-notification-modal>
 
     </header>
   `,
@@ -62,12 +69,14 @@ export class HeaderWithIconsComponent {
         }
     }
 
+    showNotificationModal = false;
+
     onRightAction(): void {
         if (!this.disableRightIcon) {
             this.rightIconClick.emit();
-            // Retrocompatibilidad
+            // Mostrar modal si el ícono es notificación
             if (this.rightIcon === 'notification') {
-                this.notificationClick.emit();
+                this.showNotificationModal = !this.showNotificationModal;
             }
         }
     }

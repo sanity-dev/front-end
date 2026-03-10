@@ -1,17 +1,16 @@
 import { Routes } from '@angular/router';
 import { WelcomePageComponent } from './features/homePage/pages/home/welcome-page.component';
 import { StandardLoginComponent } from './features/auth/standar/pages/login/standard-login.component';
-import { StandardNotificationComponent } from './features/notifications/standard-notification.component';
 import { StandardUserLayoutComponent } from './layout/standard-user-layout/standard-user-layout.component';
 
 export const routes: Routes = [
     { path: '', component: WelcomePageComponent },
     { path: 'login', component: StandardLoginComponent },
 
-    { path: 'dashboard',     redirectTo: 'user/dashboard', pathMatch: 'full' },
-    { path: 'journal-entry', redirectTo: 'diario',         pathMatch: 'full' },
-    { path: 'euphoria',      redirectTo: 'euphoria/chat',  pathMatch: 'full' },
-    { path: 'profile',       redirectTo: 'user/profile',   pathMatch: 'full' },
+    { path: 'dashboard', redirectTo: 'user/dashboard', pathMatch: 'full' },
+    { path: 'journal-entry', redirectTo: 'diario', pathMatch: 'full' },
+    { path: 'euphoria', redirectTo: 'euphoria/chat', pathMatch: 'full' },
+    { path: 'profile', redirectTo: 'user/profile', pathMatch: 'full' },
 
     {
         path: 'emergency/confirm',
@@ -67,7 +66,7 @@ export const routes: Routes = [
             import('./features/diary/components/chat.component')
                 .then(m => m.ChatComponent)
     },
-    
+
     {
         path: 'services',
         loadChildren: () =>

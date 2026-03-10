@@ -1,14 +1,20 @@
 <div class="min-h-screen bg-[#f5f5f5] flex flex-col font-sans text-primary-font">
- <app-header-with-icons [centerText]="'Diario'" [disableBack]="false" [disableRightIcon]="false" ></app-header-with-icons>
+  <app-header-with-icons [centerText]="'Diario'" [disableBack]="false"
+    [disableRightIcon]="false"></app-header-with-icons>
 
   <!-- Main Content -->
   <main class="flex-1 px-4 sm:px-6 md:px-8 lg:px-12 pb-24 sm:pb-28 overflow-y-auto max-w-4xl mx-auto w-full">
     <!-- Text Area Card -->
     <div
       class="bg-white rounded-xl p-3 sm:p-4 md:p-5 shadow-sm mb-5 sm:mb-6 min-h-35 sm:min-h-40 md:min-h-45 mt-4 sm:mt-6">
-      <textarea
+      <textarea [(ngModel)]="currentText"
         class="w-full h-full bg-transparent border-none resize-none focus:ring-0 text-xs sm:text-sm md:text-base leading-relaxed placeholder-gray-500 text-text-primary"
-        placeholder="Hoy me sentí más tranquilo después de meditar.">Hoy me sentí más tranquilo después de meditar.</textarea>
+        placeholder="¿Cómo te sentiste hoy?..."></textarea>
+    </div>
+
+    <div *ngIf="saveMessage"
+      class="mb-4 text-center px-4 py-2 bg-green-50 text-green-700 rounded-xl text-sm transition-all">
+      {{ saveMessage }}
     </div>
 
     <!-- Actions -->
@@ -72,12 +78,15 @@
   </main>
 
   <!-- Footer -->
-  <footer class="fixed bottom-0 left-0 right-0 p-3 sm:p-4 md:p-5 bg-linear-to-t from-third-background to-transparent">
+  <footer class="fixed bottom-14 left-0 right-0 p-3 sm:p-4 md:p-5 bg-linear-to-t from-[#f5f5f5] to-transparent">
     <div class="max-w-4xl mx-auto">
-      <button
-        class="w-full py-2.5 sm:py-3 md:py-3.5 bg-secondary-background text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold shadow-lg hover:bg-third-background transition-colors">
-        Guardar
+      <button (click)="guardarEntrada()" [disabled]="isSaving || !currentText.trim()"
+        class="w-full py-2.5 sm:py-3 md:py-3.5 bg-secondary-background text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold shadow-lg hover:bg-third-background transition-colors disabled:opacity-50">
+        {{ isSaving ? 'Guardando...' : 'Guardar' }}
       </button>
     </div>
   </footer>
+
+  <!-- Bottom Navigation -->
+  <app-bottom-nav></app-bottom-nav>
 </div>
