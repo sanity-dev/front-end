@@ -8,11 +8,6 @@ export const routes: Routes = [
     { path: '', component: WelcomePageComponent },
     { path: 'login', component: StandardLoginComponent },
 
-    { path: 'dashboard',     redirectTo: 'user/dashboard', pathMatch: 'full' },
-    { path: 'journal-entry', redirectTo: 'diario',         pathMatch: 'full' },
-    { path: 'euphoria',      redirectTo: 'euphoria/chat',  pathMatch: 'full' },
-    { path: 'profile',       redirectTo: 'user/profile',   pathMatch: 'full' },
-
     {
         path: 'emergency/confirm',
         loadComponent: () =>
@@ -24,12 +19,6 @@ export const routes: Routes = [
         loadComponent: () =>
             import('./features/emergency/pages/sent/alert-sent.component')
                 .then(m => m.AlertSentComponent)
-    },
-    {
-        path: 'diario',
-        loadComponent: () =>
-            import('./features/journal-entry/journal-entry.component')
-                .then(m => m.JournalEntryComponent)
     },
     {
         path: 'analytics',
@@ -67,13 +56,6 @@ export const routes: Routes = [
             import('./features/euphoria/components/chat.component')
                 .then(m => m.ChatComponent)
     },
-    
-    {
-        path: 'services',
-        loadChildren: () =>
-            import('./features/services/services.routes')
-                .then(m => m.SERVICES_ROUTES)
-    },
     {
         path: 'user',
         component: StandardUserLayoutComponent,
@@ -108,7 +90,19 @@ export const routes: Routes = [
                 loadComponent: () =>
                     import('./features/users/standar/emergency-button/emergency-button.component')
                         .then(m => m.EmergencyButtonComponent)
+            },
+            {
+                path: 'diario',
+                data: { headerText: 'Diario' },
+                loadComponent: () =>
+                    import('./features/journal-entry/journal-entry.component')
+                        .then(m => m.JournalEntryComponent)
+            },
+            {
+                path: 'services',
+                loadComponent: () => import('./features/services/services.component').then(m => m.ServicesComponent)
             }
+
         ]
     },
 ];

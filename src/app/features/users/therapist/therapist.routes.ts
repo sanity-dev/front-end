@@ -58,6 +58,10 @@ export const THERAPIST_ROUTES: Routes = [
                         .then(m => m.GestionarSuscripcionComponent)
             },
             {
+                path: 'services',
+                loadComponent: () => import('../../services/services.component').then(m => m.ServicesComponent)
+            },
+            {
                 path: '',
                 redirectTo: 'welcome',
                 pathMatch: 'full'

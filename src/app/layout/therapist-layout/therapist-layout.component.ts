@@ -33,7 +33,7 @@ export class TherapistLayoutComponent {
   navItems = [
     { label: 'Inicio', icon: 'home', route: '/users/therapist/dashboard' },
     { label: 'Pacientes', icon: 'pacientes', route: '/users/therapist/patients' },
-    { label: 'Servicios', icon: 'servicio', route: '/services' },
+    { label: 'Servicios', icon: 'servicio', route: '/users/therapist/services' },
     { label: 'Perfil', icon: 'usuario', route: '/users/therapist/profile' }
   ];
 
