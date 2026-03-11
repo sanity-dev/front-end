@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 export interface LoginPayload {
   email: string;
@@ -52,7 +53,7 @@ export interface ForgotPasswordResponse {
 })
 
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth'; // Cambia la URL según tu backend
+  private apiUrl = `${environment.apiUrl}/api/auth`;
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
 
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
