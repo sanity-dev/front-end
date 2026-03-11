@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 // ============================================
 // INTERFACES
@@ -44,7 +45,7 @@ export interface DiaryEntry {
 })
 export class DashboardService {
 
-    private readonly gatewayUrl = 'http://localhost:8080';
+    private readonly gatewayUrl = environment.apiUrl;
 
     constructor(private http: HttpClient) { }
 
