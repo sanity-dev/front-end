@@ -43,7 +43,7 @@ import { Specialist, parseDisponibilidad } from '../models/specialist.model';
           <div class="p-5 flex items-start gap-4 bg-gradient-to-r from-secondary-background/5 to-third-background/5">
             <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
                  style="background: linear-gradient(135deg, #4C9EEB, #4CA1AF)">
-              🧑‍⚕️
+              ⚕️
             </div>
             <div class="flex-1 min-w-0">
               <h3 class="font-bold text-text-primary truncate">{{ s.nombre || 'Terapeuta' }}</h3>

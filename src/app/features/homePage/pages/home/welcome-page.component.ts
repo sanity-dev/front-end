@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../../../../layout/header/header.component';
 import { SectionComponent } from '../../components/section/section.component';
 import { InfoSectionComponent } from '../../components/info-section/info-section.component';
+import { MembershipSectionComponent } from '../../components/membership-section/membership-section.component';
 import { FooterComponent } from '../../../../layout/footer/footer.component';
 import { HeroComponent } from '../../../../shared/components/hero/hero.component';
 
@@ -11,7 +12,7 @@ import { HeroComponent } from '../../../../shared/components/hero/hero.component
 @Component({
     selector: 'app-welcome-page',
     standalone: true,
-    imports: [CommonModule, HeaderComponent, SectionComponent, InfoSectionComponent, FooterComponent, HeroComponent],
+    imports: [CommonModule, HeaderComponent, SectionComponent, InfoSectionComponent, MembershipSectionComponent, FooterComponent, HeroComponent],
     templateUrl: './welcome-page.component.html',
     styleUrls: ['./welcome-page.component.css']
 })
@@ -23,12 +24,12 @@ export class WelcomePageComponent {
         {
             title: 'Diario interactivo',
             description: 'Reflexiona sobre tu día con nuestro diario intuitivo. Registra tu estado de ánimo, identifica patrones y obtén información sobre tu bienestar mental.',
-            image: 'https://images.unsplash.com/photo-1650848200302-22e62d26a75a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/diario3.svg'
         },
         {
-            title: 'Agente de IA',
+            title: 'EuphorIA',
             description: 'Nuestro agente de IA está disponible las 24 horas del día, los 7 días de la semana para brindar apoyo y orientación. Obtén recomendaciones personalizadas y aprende estrategias de afrontamiento.',
-            image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/euphoria2.svg'
         }
     ];
 
@@ -36,12 +37,12 @@ export class WelcomePageComponent {
         {
             title: 'Sesiones de terapia',
             description: 'Conéctate con terapeutas licenciados para obtener apoyo personalizado. Programa sesiones y gestiona tu atención sin problemas.',
-            image: 'https://images.unsplash.com/photo-1616740795271-abd6ce1a5a5a?q=80&w=716&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/onbording1.svg'
         },
         {
             title: 'Servicios de asesoramiento',
             description: 'Accede a servicios de asesoramiento profesional adaptados a tus necesidades. Encuentra al consejero adecuado y comienza tu viaje hacia una mejor salud mental.',
-            image: 'https://images.unsplash.com/photo-1524758870432-af57e54afa26?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/asesoramiento.svg'
         }
     ];
 
@@ -49,12 +50,12 @@ export class WelcomePageComponent {
         {
             title: 'Ejercicios de atención plena',
             description: 'Practica la atención plena con meditaciones guiadas y ejercicios de respiración para reducir el estrés y mejorar la concentración.',
-            image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=799&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/habitos.svg'
         },
         {
             title: 'Contacto de emergencia',
             description: 'Accede rápidamente a contactos de emergencia y recursos para obtener apoyo inmediato durante las crisis.',
-            image: 'https://images.unsplash.com/photo-1532883130016-f3d311140ba8?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Placeholder
+            image: 'assets/images/emergencia.svg'
         }
     ];
 
@@ -76,12 +77,48 @@ export class WelcomePageComponent {
         }
     ];
 
+    membershipTitle = '¿Eres terapeuta profesional?';
+    membershipDescription = 'Únete a Sanity y amplía tu alcance conectando con pacientes que necesitan tu ayuda. Ofrece tus servicios en nuestra plataforma.';
+
+    membershipPlan = {
+        name: 'Premium',
+        price: '$70.000 COP',
+        period: 'mes',
+        trialText: '7 días de prueba gratis',
+        benefits: [
+            { text: 'Perfil profesional verificado visible para todos los usuarios' },
+            { text: 'Gestión de citas y agenda integrada' },
+            { text: 'Panel de métricas y seguimiento de pacientes' },
+            { text: 'Soporte prioritario del equipo Sanity' },
+            { text: 'Visibilidad destacada en búsquedas de terapeutas' }
+        ]
+    };
+
+    membershipHighlights = [
+        {
+            title: 'Sin compromiso',
+            description: 'Prueba gratis por 7 días. Cancela en cualquier momento sin penalidades ni cargos ocultos.',
+            iconPath: 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
+        },
+        {
+            title: 'Más pacientes',
+            description: 'Conecta con miles de usuarios que buscan apoyo profesional en salud mental.',
+            iconPath: 'M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z'
+        },
+        {
+            title: 'Pagos seguros',
+            description: 'Recibe tus pagos de forma segura y puntual directamente en tu cuenta bancaria.',
+            iconPath: 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z'
+        }
+    ];
+
     menuItems = [
         { label: 'Inicio', id: 'hero' },
         { label: 'Actividades', id: 'features' },
         { label: 'Servicios', id: 'services' },
         { label: 'Hábitos', id: 'habits' },
         { label: 'Nosotros', id: 'why-sanity' },
+        { label: 'Membresía', id: 'membership' },
         { label: 'Únete', id: 'cta' }
     ];
 
