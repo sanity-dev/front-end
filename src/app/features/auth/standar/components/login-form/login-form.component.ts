@@ -7,6 +7,7 @@ import { ButtonComponent } from '../../../../../shared/components/button/button.
 import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
 import { InputComponent } from '../../../../../shared/components/input/input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-login-form',
@@ -118,22 +119,26 @@ export class LoginFormComponent {
   handleGoogleLogin() {
     // @ts-ignore
     if (typeof google === 'undefined' || !google.accounts) {
-      console.error('Google Identity Services not loaded');
+      this.errorMessage = 'El servicio de Google no está disponible. Intenta recargar la página.';
       return;
     }
 
     // @ts-ignore
     const client = google.accounts.oauth2.initTokenClient({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID', // Reemplaza con tu Client ID real
+      client_id: environment.googleClientId,
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {
+          this.isLoading = true;
+          this.errorMessage = '';
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
+              this.isLoading = false;
               this.router.navigate([this.authService.getRedirectUrl()]);
             },
             error: (error) => {
               console.error('Error en inicio de sesión con Google', error);
+              this.isLoading = false;
               this.errorMessage = 'Error al iniciar sesión con Google. Intenta nuevamente.';
             }
           });

@@ -7,6 +7,12 @@ import { TherapistLayoutComponent } from './layout/therapist-layout/therapist-la
 export const routes: Routes = [
     { path: '', component: WelcomePageComponent },
     { path: 'login', component: StandardLoginComponent },
+    {
+        path: 'contact',
+        loadComponent: () =>
+            import('./features/contact/pages/contact-page.component')
+                .then(m => m.ContactPageComponent)
+    },
 
     {
         path: 'emergency/confirm',

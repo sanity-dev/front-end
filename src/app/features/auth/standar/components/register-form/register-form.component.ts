@@ -6,6 +6,7 @@ import { ButtonComponent } from '../../../../../shared/components/button/button.
 import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
 import { InputComponent } from '../../../../../shared/components/input/input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-register-form',
@@ -73,6 +74,22 @@ import { AuthService } from '../../../../../core/services/auth.service';
         </div>
       </div>
 
+      <!-- Términos y condiciones -->
+      <div class="flex items-start gap-2 pt-2">
+        <input
+          type="checkbox"
+          id="acceptTerms"
+          formControlName="acceptTerms"
+          class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+        />
+        <label for="acceptTerms" class="text-sm text-gray-600 cursor-pointer select-none">
+          Acepto los <a href="/terms" target="_blank" class="text-blue-600 underline hover:text-blue-800 font-medium">términos y condiciones</a> de Sanity
+        </label>
+      </div>
+      <div *ngIf="registerForm.get('acceptTerms')?.invalid && (registerForm.get('acceptTerms')?.dirty || registerForm.get('acceptTerms')?.touched)" class="text-red-500 text-xs -mt-2">
+        <div *ngIf="registerForm.get('acceptTerms')?.errors?.['required']">Debe aceptar los términos y condiciones para registrarse.</div>
+      </div>
+
       <div class="pt-4 space-y-3">
         <app-button
           type="submit"
@@ -117,7 +134,8 @@ export class RegisterFormComponent {
         this.specialCharValidator,
         this.uppercaseValidator
       ]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', Validators.required],
+      acceptTerms: [false, Validators.requiredTrue]
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -165,7 +183,7 @@ export class RegisterFormComponent {
       this.isLoading = true;
       this.errorMessage = '';
 
-      const { confirmPassword, ...registerData } = this.registerForm.value;
+      const { confirmPassword, acceptTerms, ...registerData } = this.registerForm.value;
 
       this.authService.register(registerData).subscribe({
         next: (response) => {
@@ -189,22 +207,26 @@ export class RegisterFormComponent {
   handleGoogleLogin() {
     // @ts-ignore
     if (typeof google === 'undefined' || !google.accounts) {
-      console.error('Google Identity Services not loaded');
+      this.errorMessage = 'El servicio de Google no está disponible. Intenta recargar la página.';
       return;
     }
 
     // @ts-ignore
     const client = google.accounts.oauth2.initTokenClient({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID', // Reemplaza con tu Client ID real
+      client_id: environment.googleClientId,
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {
+          this.isLoading = true;
+          this.errorMessage = '';
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
-              this.router.navigate(['/dashboard']);
+              this.isLoading = false;
+              this.router.navigate([this.authService.getRedirectUrl()]);
             },
             error: (error) => {
               console.error('Error en registro con Google', error);
+              this.isLoading = false;
               this.errorMessage = 'Error al registrarse con Google. Intenta nuevamente.';
             }
           });

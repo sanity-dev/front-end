@@ -140,6 +140,9 @@ export class AuthService {
       tap((response) => {
         if (response.token) {
           this.setToken(response.token);
+          if (response.persona?.tipoUsuario) {
+            localStorage.setItem('userType', response.persona.tipoUsuario);
+          }
           this.isAuthenticatedSubject.next(true);
         }
       })
