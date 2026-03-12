@@ -13,8 +13,6 @@ import { MembershipService, MembershipStatus } from '../membership.service';
 
       <!-- TRIAL activo — días restantes -->
       <div *ngIf="membership && membership.isTrial && membership.daysLeft > 0">
-        0" class="rounded-2xl text-white relative overflow-hidden" style="background:
-        linear-gradient(135deg, #F59E0B, #EF4444); padding: 1rem 1.25rem">
         <div class="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/10"></div>
         <div class="flex items-center justify-between">
           <div>
