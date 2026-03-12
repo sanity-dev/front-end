@@ -6,6 +6,7 @@ import { ToggleSwitchComponent } from '../../../../../shared/components/toggle-s
 import { InfoFieldComponent } from '../../../../../shared/components/info-field/info-field.component';
 import { ButtonComponent } from '../../../../../shared/components/button/button.component';
 import { EditFieldModalComponent, EditFieldConfig } from '../../../../../shared/components/edit-field-modal/edit-field-modal.component';
+import { environment } from '../../../../../../environments/environment';
 
 interface TherapistProfile {
     idPersona: number;
@@ -207,7 +208,7 @@ export class TherapistProfileComponent implements OnInit {
     uploadStatus: 'success' | 'error' | null = null;
     uploadMessage = '';
 
-    private apiUrl = 'http://localhost:8080/api/personas';
+    private apiUrl = `${environment.apiUrl}/api/personas`;
 
     get verificationLabel(): string {
         const labels: Record<string, string> = {

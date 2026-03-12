@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 // ============================================
 // INTERFACES
@@ -36,7 +37,7 @@ export interface CrearNotificacionPayload {
 export class NotificacionService {
 
   // URL del API Gateway (port 8080 en lugar de microservicio directo 8082)
-  private readonly apiUrl = 'http://localhost:8080/api/notifications';
+  private readonly apiUrl = `${environment.apiUrl}/api/notifications`;
 
   // BehaviorSubject para emitir cambios en las notificaciones
   private notificacionesSubject = new BehaviorSubject<Notificacion[]>([]);

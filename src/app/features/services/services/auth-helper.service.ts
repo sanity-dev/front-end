@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthUser, JwtPayload } from '../models/specialist.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthHelperService {
@@ -59,7 +60,7 @@ export class AuthHelperService {
     const token = this.getBearerToken();
     if (!token) return;
 
-    this.http.get<any[]>('http://localhost:8080/api/personas').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/api/personas`).subscribe({
       next: (personas) => {
         const found = personas.find((p: any) => p.correo === email);
         if (found) {
