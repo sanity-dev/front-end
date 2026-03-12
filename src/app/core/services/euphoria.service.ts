@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 export interface MensajeRequest {
   mensaje: string;
@@ -37,7 +38,7 @@ export interface StatusResponse {
 @Injectable({ providedIn: 'root' })
 export class EuphoriaService {
 
-  private readonly apiUrl = 'http://localhost:8080/api/euphoria';
+  private readonly apiUrl = `${environment.apiUrl}/api/euphoria`;
   private sessionId       = this.obtenerSessionId();
   private conexionEstado  = new BehaviorSubject<boolean>(true);
   public  conexionEstado$ = this.conexionEstado.asObservable();
