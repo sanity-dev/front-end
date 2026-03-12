@@ -51,18 +51,52 @@ export class EuphoriaService {
     this.verificarConexion();
   }
 
-  // ── Session ID ────────────────────────────────────────────────────────────
+  // ── Session ID basado en email del JWT ────────────────────────────────────
+
+  private obtenerEmailDelToken(): string | null {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return null;
+
+      // El JWT tiene 3 partes separadas por puntos: header.payload.signature
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+
+      // Decodificar el payload (base64)
+      const decoded = JSON.parse(atob(payload));
+
+      // El email puede estar en distintos campos según el backend
+      return decoded.sub || decoded.email || decoded.correo || null;
+    } catch {
+      return null;
+    }
+  }
 
   private obtenerSessionId(): string {
+    const email = this.obtenerEmailDelToken();
+
+    if (email) {
+      // Usar el email como session_id — único por usuario
+      return email;
+    }
+
+    // Fallback: si no hay token, usar ID local (usuario no autenticado)
     let id = localStorage.getItem('euphoria_session_id');
     if (!id) {
-      id = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      id = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       localStorage.setItem('euphoria_session_id', id);
     }
     return id;
   }
 
-  obtenerSessionIdActual(): string { return this.sessionId; }
+  obtenerSessionIdActual(): string {
+    return this.sessionId;
+  }
+
+  // Llamar esto después del login para refrescar el session_id con el email real
+  refrescarSesion(): void {
+    this.sessionId = this.obtenerSessionId();
+  }
 
   nuevaSesion(): void {
     localStorage.removeItem('euphoria_session_id');
