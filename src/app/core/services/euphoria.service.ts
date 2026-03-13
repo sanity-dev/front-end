@@ -2,12 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
-
-export interface MensajeRequest {
-  mensaje: string;
-  session_id?: string;
-}
 
 export interface MensajeResponse {
   respuesta: string;
@@ -21,6 +15,7 @@ export interface HistorialItem {
   rol: string;
   mensaje: string;
   timestamp: string;
+  emociones?: string[];
 }
 
 export interface HistorialResponse {
@@ -50,7 +45,7 @@ export class EuphoriaService {
     this.verificarConexion();
   }
 
-  // ── Email del JWT — siempre en tiempo real ────────────────────────────────
+  // ── Session ID desde JWT ──────────────────────────────────────────────────
 
   private obtenerEmailDelToken(): string | null {
     try {
@@ -63,12 +58,9 @@ export class EuphoriaService {
     }
   }
 
-  // ── Session ID — getter para que siempre sea del usuario actual ───────────
-
   private get sessionId(): string {
     const email = this.obtenerEmailDelToken();
     if (email) return email;
-
     let id = localStorage.getItem('euphoria_session_id');
     if (!id) {
       id = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -81,7 +73,7 @@ export class EuphoriaService {
     return this.sessionId;
   }
 
-  // ── Nombre del usuario desde localStorage ────────────────────────────────
+  // ── Nombre del usuario ────────────────────────────────────────────────────
 
   private obtenerNombreUsuario(): string | null {
     try {
@@ -93,7 +85,7 @@ export class EuphoriaService {
     }
   }
 
-  // ── Contexto inicial con nombre del usuario ───────────────────────────────
+  // ── Contexto inicial — solo va al backend, NO se muestra en el chat ───────
 
   private construirMensajeConContexto(mensaje: string, esFirstMessage: boolean): string {
     if (!esFirstMessage) return mensaje;
@@ -108,6 +100,8 @@ export class EuphoriaService {
   // ── Endpoints ─────────────────────────────────────────────────────────────
 
   enviarMensaje(mensaje: string, esFirstMessage: boolean = false): Observable<MensajeResponse> {
+    // mensajeFinal va al backend con el contexto
+    // pero el frontend mostrará solo el mensaje original (sin contexto)
     const mensajeFinal = this.construirMensajeConContexto(mensaje, esFirstMessage);
     return this.http.post<MensajeResponse>(
       `${this.apiUrl}/chat`,

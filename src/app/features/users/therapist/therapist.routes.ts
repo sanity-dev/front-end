@@ -62,6 +62,20 @@ export const THERAPIST_ROUTES: Routes = [
                 loadComponent: () => import('../../services/services.component').then(m => m.ServicesComponent)
             },
             {
+                path: 'patients',
+                data: { headerText: 'Pacientes' },
+                loadComponent: () =>
+                    import('./patients/patient-list/patient-list.component')
+                        .then(m => m.PatientListComponent)
+            },
+            {
+                path: 'patients/:patientId',
+                data: { headerText: 'Historial del Paciente' },
+                loadComponent: () =>
+                    import('./patients/patient-history/patient-history.component')
+                        .then(m => m.PatientHistoryComponent)
+            },
+            {
                 path: '',
                 redirectTo: 'welcome',
                 pathMatch: 'full'
