@@ -38,7 +38,6 @@ export interface StatusResponse {
 export class EuphoriaService {
 
   private readonly apiUrl = 'https://euphoria-app.politedune-01b83c33.westus2.azurecontainerapps.io';
-  private sessionId = this.obtenerSessionId();
   private conexionEstado = new BehaviorSubject<boolean>(true);
   public conexionEstado$ = this.conexionEstado.asObservable();
 
@@ -50,36 +49,25 @@ export class EuphoriaService {
     this.verificarConexion();
   }
 
-  // ── Session ID basado en email del JWT ────────────────────────────────────
+  // ── Email del JWT — siempre en tiempo real ────────────────────────────────
 
   private obtenerEmailDelToken(): string | null {
     try {
       const token = localStorage.getItem('authToken');
       if (!token) return null;
-
-      // El JWT tiene 3 partes separadas por puntos: header.payload.signature
-      const payload = token.split('.')[1];
-      if (!payload) return null;
-
-      // Decodificar el payload (base64)
-      const decoded = JSON.parse(atob(payload));
-
-      // El email puede estar en distintos campos según el backend
-      return decoded.sub || decoded.email || decoded.correo || null;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub || payload.email || payload.correo || null;
     } catch {
       return null;
     }
   }
 
-  private obtenerSessionId(): string {
+  // ── Session ID — getter para que siempre sea del usuario actual ───────────
+
+  private get sessionId(): string {
     const email = this.obtenerEmailDelToken();
+    if (email) return email;
 
-    if (email) {
-      // Usar el email como session_id — único por usuario
-      return email;
-    }
-
-    // Fallback: si no hay token, usar ID local (usuario no autenticado)
     let id = localStorage.getItem('euphoria_session_id');
     if (!id) {
       id = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -92,22 +80,37 @@ export class EuphoriaService {
     return this.sessionId;
   }
 
-  // Llamar esto después del login para refrescar el session_id con el email real
-  refrescarSesion(): void {
-    this.sessionId = this.obtenerSessionId();
+  // ── Nombre del usuario desde localStorage ────────────────────────────────
+
+  private obtenerNombreUsuario(): string | null {
+    try {
+      const persona = localStorage.getItem('persona');
+      if (persona) return JSON.parse(persona)?.nombre || null;
+      return null;
+    } catch {
+      return null;
+    }
   }
 
-  nuevaSesion(): void {
-    localStorage.removeItem('euphoria_session_id');
-    this.sessionId = this.obtenerSessionId();
+  // ── Contexto inicial con nombre del usuario ───────────────────────────────
+
+  private construirMensajeConContexto(mensaje: string, esFirstMessage: boolean): string {
+    if (!esFirstMessage) return mensaje;
+    const nombre = this.obtenerNombreUsuario();
+    const email = this.obtenerEmailDelToken();
+    if (nombre) {
+      return `[Contexto del sistema: El usuario se llama ${nombre} y su email es ${email}. Salúdalo por su nombre en este primer mensaje.]\n\nUsuario: ${mensaje}`;
+    }
+    return mensaje;
   }
 
   // ── Endpoints ─────────────────────────────────────────────────────────────
 
-  enviarMensaje(mensaje: string): Observable<MensajeResponse> {
+  enviarMensaje(mensaje: string, esFirstMessage: boolean = false): Observable<MensajeResponse> {
+    const mensajeFinal = this.construirMensajeConContexto(mensaje, esFirstMessage);
     return this.http.post<MensajeResponse>(
       `${this.apiUrl}/chat`,
-      { mensaje: mensaje.trim(), session_id: this.sessionId },
+      { mensaje: mensajeFinal.trim(), session_id: this.sessionId },
       this.httpOptions
     ).pipe(
       tap(() => this.conexionEstado.next(true)),

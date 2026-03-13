@@ -7,6 +7,7 @@ import { ButtonComponent } from '../../../../../shared/components/button/button.
 import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
 import { InputComponent } from '../../../../../shared/components/input/input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { EuphoriaService } from '../../../../../core/services/euphoria.service';
 
 @Component({
   selector: 'app-login-form',
@@ -85,6 +86,7 @@ export class LoginFormComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private euphoriaService: EuphoriaService,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
@@ -101,7 +103,15 @@ export class LoginFormComponent {
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
           this.isLoading = false;
-          // Redirige al dashboard según tipo de usuario
+
+          // Guardar datos de la persona en localStorage para que Euphoria los use
+          if (response.persona) {
+            localStorage.setItem('persona', JSON.stringify(response.persona));
+          }
+
+          // Limpiar sesión guest anterior para que use el email real
+          localStorage.removeItem('euphoria_session_id');
+
           this.router.navigate([this.authService.getRedirectUrl()]);
         },
         error: (error) => {
@@ -124,12 +134,16 @@ export class LoginFormComponent {
 
     // @ts-ignore
     const client = google.accounts.oauth2.initTokenClient({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID', // Reemplaza con tu Client ID real
+      client_id: 'YOUR_GOOGLE_CLIENT_ID',
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
+              if (authResponse.persona) {
+                localStorage.setItem('persona', JSON.stringify(authResponse.persona));
+              }
+              localStorage.removeItem('euphoria_session_id');
               this.router.navigate([this.authService.getRedirectUrl()]);
             },
             error: (error) => {

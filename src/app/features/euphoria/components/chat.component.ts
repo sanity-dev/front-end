@@ -80,7 +80,10 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.cargando = true;
     this.debeHacerScroll = true;
 
-    this.euphoriaService.enviarMensaje(textoMensaje).subscribe({
+    // Es el primer mensaje si no hay historial previo (solo el que acabamos de agregar)
+    const esFirstMessage = this.mensajes.length === 1;
+
+    this.euphoriaService.enviarMensaje(textoMensaje, esFirstMessage).subscribe({
       next: (respuesta: MensajeResponse) => {
         this.mensajes.push({
           texto: respuesta.respuesta,

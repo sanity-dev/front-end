@@ -49,16 +49,15 @@ export interface ForgotPasswordResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/api/auth`;
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
 
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   /**
    * Inicia sesión con email y contraseña
@@ -66,7 +65,7 @@ export class AuthService {
   login(credentials: LoginPayload): Observable<AuthResponse> {
     const payload = {
       correo: credentials.email,
-      contraseña: credentials.password
+      contraseña: credentials.password,
     } as any;
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, payload).pipe(
@@ -78,7 +77,7 @@ export class AuthService {
           }
           this.isAuthenticatedSubject.next(true);
         }
-      })
+      }),
     );
   }
 
@@ -90,7 +89,7 @@ export class AuthService {
     const payload: any = {
       nombre: data.name,
       correo: data.email,
-      contraseña: data.password
+      contraseña: data.password,
     };
 
     if (data.telefono) payload.telefono = data.telefono;
@@ -103,7 +102,7 @@ export class AuthService {
           this.setToken(response.token);
           this.isAuthenticatedSubject.next(true);
         }
-      })
+      }),
     );
   }
 
@@ -119,7 +118,7 @@ export class AuthService {
       cedula: data.documentNumber,
       tarjetaProfesional: data.professionalLicenseNumber,
       telefono: data.phoneNumber,
-      tipoUsuario: 'terapeuta'
+      tipoUsuario: 'terapeuta',
     };
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register-therapist`, payload).pipe(
@@ -128,7 +127,7 @@ export class AuthService {
           this.setToken(response.token);
           this.isAuthenticatedSubject.next(true);
         }
-      })
+      }),
     );
   }
 
@@ -142,12 +141,12 @@ export class AuthService {
           this.setToken(response.token);
           this.isAuthenticatedSubject.next(true);
         }
-      })
+      }),
     );
   }
   /**
-    * envia enlace para recuperar contraseña
-    */
+   * envia enlace para recuperar contraseña
+   */
   forgotPassword(email: string): Observable<ForgotPasswordResponse> {
     return this.http.post(`${this.apiUrl}/forgot-password`, { correo: email });
   }
@@ -155,7 +154,10 @@ export class AuthService {
    * Cierra la sesión
    */
   logout(): void {
-    this.removeToken();
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userType');
+    localStorage.removeItem('persona'); 
+    localStorage.removeItem('euphoria_session_id'); 
     this.isAuthenticatedSubject.next(false);
   }
 
