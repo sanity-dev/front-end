@@ -7,7 +7,7 @@ import { ButtonComponent } from '../../../../../shared/components/button/button.
 import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
 import { InputComponent } from '../../../../../shared/components/input/input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
-import { EuphoriaService } from '../../../../../core/services/euphoria.service';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-login-form',
@@ -86,7 +86,6 @@ export class LoginFormComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private euphoriaService: EuphoriaService,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
@@ -103,15 +102,7 @@ export class LoginFormComponent {
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
           this.isLoading = false;
-
-          // Guardar datos de la persona en localStorage para que Euphoria los use
-          if (response.persona) {
-            localStorage.setItem('persona', JSON.stringify(response.persona));
-          }
-
-          // Limpiar sesión guest anterior para que use el email real
-          localStorage.removeItem('euphoria_session_id');
-
+          // Redirige al dashboard según tipo de usuario
           this.router.navigate([this.authService.getRedirectUrl()]);
         },
         error: (error) => {
@@ -134,7 +125,7 @@ export class LoginFormComponent {
 
     // @ts-ignore
     const client = google.accounts.oauth2.initTokenClient({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID',
+      client_id: environment.googleClientId,
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {
@@ -142,10 +133,11 @@ export class LoginFormComponent {
           this.errorMessage = '';
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
-              if (authResponse.persona) {
-                localStorage.setItem('persona', JSON.stringify(authResponse.persona));
-              }
+              this.isLoading = false;
               this.router.navigate([this.authService.getRedirectUrl()]);
+            },
+            error: (error) => {
+              console.error('Error en inicio de sesión con Google', error);
               this.isLoading = false;
               this.errorMessage = 'Error al iniciar sesión con Google. Intenta nuevamente.';
             }

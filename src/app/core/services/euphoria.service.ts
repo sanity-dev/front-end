@@ -2,6 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+
+export interface MensajeRequest {
+  mensaje: string;
+  session_id?: string;
+}
 
 export interface MensajeResponse {
   respuesta: string;
@@ -33,7 +39,7 @@ export interface StatusResponse {
 @Injectable({ providedIn: 'root' })
 export class EuphoriaService {
 
-  private readonly apiUrl = 'https://euphoria-app.politedune-01b83c33.westus2.azurecontainerapps.io';
+  private readonly apiUrl = `${environment.apiUrl}/api/euphoria`;
   private conexionEstado = new BehaviorSubject<boolean>(true);
   public conexionEstado$ = this.conexionEstado.asObservable();
 
@@ -45,14 +51,16 @@ export class EuphoriaService {
     this.verificarConexion();
   }
 
-  // ── Session ID desde JWT ──────────────────────────────────────────────────
+  // ── Session ID desde JWT — getter para que siempre sea del usuario actual ─
 
   private obtenerEmailDelToken(): string | null {
     try {
       const token = localStorage.getItem('authToken');
       if (!token) return null;
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.sub || payload.email || payload.correo || null;
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+      const decoded = JSON.parse(atob(payload));
+      return decoded.sub || decoded.email || decoded.correo || null;
     } catch {
       return null;
     }
@@ -61,6 +69,7 @@ export class EuphoriaService {
   private get sessionId(): string {
     const email = this.obtenerEmailDelToken();
     if (email) return email;
+
     let id = localStorage.getItem('euphoria_session_id');
     if (!id) {
       id = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -71,6 +80,10 @@ export class EuphoriaService {
 
   obtenerSessionIdActual(): string {
     return this.sessionId;
+  }
+
+  nuevaSesion(): void {
+    localStorage.removeItem('euphoria_session_id');
   }
 
   // ── Nombre del usuario ────────────────────────────────────────────────────
@@ -100,8 +113,6 @@ export class EuphoriaService {
   // ── Endpoints ─────────────────────────────────────────────────────────────
 
   enviarMensaje(mensaje: string, esFirstMessage: boolean = false): Observable<MensajeResponse> {
-    // mensajeFinal va al backend con el contexto
-    // pero el frontend mostrará solo el mensaje original (sin contexto)
     const mensajeFinal = this.construirMensajeConContexto(mensaje, esFirstMessage);
     return this.http.post<MensajeResponse>(
       `${this.apiUrl}/chat`,
