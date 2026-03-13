@@ -7,6 +7,7 @@ import { ToggleSwitchComponent } from '../../../../shared/components/toggle-swit
 import { InfoFieldComponent } from '../../../../shared/components/info-field/info-field.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { EditFieldModalComponent, EditFieldConfig } from '../../../../shared/components/edit-field-modal/edit-field-modal.component';
+import { environment } from '../../../../../environments/environment';
 
 interface UserProfile {
   idPersona: number;
@@ -132,7 +133,7 @@ export class StandardProfileComponent implements OnInit {
   isSaving = false;
   editConfig: EditFieldConfig = { field: '', label: '', value: '', type: 'text' };
 
-  private apiUrl = 'http://localhost:8080/api/personas';
+  private apiUrl = `${environment.apiUrl}/api/personas`;
 
   ngOnInit(): void {
     this.loadUserProfile();

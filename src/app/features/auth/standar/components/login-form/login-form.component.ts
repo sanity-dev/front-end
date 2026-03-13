@@ -128,7 +128,7 @@ export class LoginFormComponent {
   handleGoogleLogin() {
     // @ts-ignore
     if (typeof google === 'undefined' || !google.accounts) {
-      console.error('Google Identity Services not loaded');
+      this.errorMessage = 'El servicio de Google no está disponible. Intenta recargar la página.';
       return;
     }
 
@@ -138,16 +138,15 @@ export class LoginFormComponent {
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {
+          this.isLoading = true;
+          this.errorMessage = '';
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
               if (authResponse.persona) {
                 localStorage.setItem('persona', JSON.stringify(authResponse.persona));
               }
-              localStorage.removeItem('euphoria_session_id');
               this.router.navigate([this.authService.getRedirectUrl()]);
-            },
-            error: (error) => {
-              console.error('Error en inicio de sesión con Google', error);
+              this.isLoading = false;
               this.errorMessage = 'Error al iniciar sesión con Google. Intenta nuevamente.';
             }
           });
