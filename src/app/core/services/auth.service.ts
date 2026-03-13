@@ -148,7 +148,14 @@ export class AuthService {
     * envia enlace para recuperar contraseña
     */
   forgotPassword(email: string): Observable<ForgotPasswordResponse> {
-    return this.http.post(`${this.apiUrl}/forgot-password`, { correo: email });
+    return this.http.post('http://localhost:8080/api/recovery/forgot-password', { correo: email });
+  }
+
+  /**
+   * Resetea la contraseña con el token recibido por email
+   */
+  resetPassword(token: string, nuevaPassword: string): Observable<any> {
+    return this.http.post('http://localhost:8080/api/recovery/reset-password', { token, nuevaPassword });
   }
   /**
    * Cierra la sesión

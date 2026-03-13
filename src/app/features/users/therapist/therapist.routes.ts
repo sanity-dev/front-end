@@ -3,14 +3,6 @@ import { TherapistLayoutComponent } from '../../../layout/therapist-layout/thera
 
 export const THERAPIST_ROUTES: Routes = [
     {
-        path: 'notificaciones/preferencias',
-        loadComponent: () => import('../../notifications/therapist-preferences/therapist-notification-preferences.component').then(m => m.TherapistNotificationPreferencesComponent)
-    },
-    {
-        path: 'notificaciones/lista',
-        loadComponent: () => import('../../notifications/therapist-list/therapist-notification-list.component').then(m => m.TherapistNotificationListComponent)
-    },
-    {
         path: '',
         component: TherapistLayoutComponent,
         children: [
@@ -66,8 +58,6 @@ export const THERAPIST_ROUTES: Routes = [
                         .then(m => m.GestionarSuscripcionComponent)
             },
             {
-<<<<<<< HEAD
-=======
                 path: 'services',
                 loadComponent: () => import('../../services/services.component').then(m => m.ServicesComponent)
             },
@@ -86,7 +76,6 @@ export const THERAPIST_ROUTES: Routes = [
                         .then(m => m.PatientHistoryComponent)
             },
             {
->>>>>>> 92162972651a9fc3e555c765a83853223f0124e8
                 path: '',
                 redirectTo: 'welcome',
                 pathMatch: 'full'
