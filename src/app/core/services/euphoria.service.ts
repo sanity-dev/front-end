@@ -29,6 +29,7 @@ export interface HistorialItem {
   rol: string;
   mensaje: string;
   timestamp: string;
+  emociones?: string[];
 }
 
 export interface HistorialResponse {
@@ -52,8 +53,7 @@ export interface StatusResponse {
 })
 export class EuphoriaService {
 
-  private readonly apiUrl = 'http://localhost:8000';
-  private sessionId: string;
+  private readonly apiUrl = `${environment.apiUrl}/api/euphoria`;
   private conexionEstado = new BehaviorSubject<boolean>(true);
   public conexionEstado$ = this.conexionEstado.asObservable();
 
@@ -70,17 +70,29 @@ export class EuphoriaService {
     this.verificarConexion();
   }
 
-  // ============================================
-  // SESSION ID
-  // ============================================
+  // ── Session ID desde JWT — getter para que siempre sea del usuario actual ─
 
-  private obtenerSessionId(): string {
-    let sessionId = localStorage.getItem('euphoria_session_id');
+  private obtenerEmailDelToken(): string | null {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return null;
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+      const decoded = JSON.parse(atob(payload));
+      return decoded.sub || decoded.email || decoded.correo || null;
+    } catch {
+      return null;
+    }
+  }
 
-    if (!sessionId) {
-      sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('euphoria_session_id', sessionId);
-      console.log('🆕 Nuevo session ID:', sessionId);
+  private get sessionId(): string {
+    const email = this.obtenerEmailDelToken();
+    if (email) return email;
+
+    let id = localStorage.getItem('euphoria_session_id');
+    if (!id) {
+      id = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('euphoria_session_id', id);
     }
 
     return sessionId;
@@ -90,27 +102,43 @@ export class EuphoriaService {
     return this.sessionId;
   }
 
-  public nuevaSesion(): void {
+  nuevaSesion(): void {
     localStorage.removeItem('euphoria_session_id');
-    this.sessionId = this.obtenerSessionId();
-    console.log('🔄 Nueva sesión iniciada');
+  }
+
+  // ── Nombre del usuario ────────────────────────────────────────────────────
+
+  private obtenerNombreUsuario(): string | null {
+    try {
+      const persona = localStorage.getItem('persona');
+      if (persona) return JSON.parse(persona)?.nombre || null;
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  // ── Contexto inicial — solo va al backend, NO se muestra en el chat ───────
+
+  private construirMensajeConContexto(mensaje: string, esFirstMessage: boolean): string {
+    if (!esFirstMessage) return mensaje;
+    const nombre = this.obtenerNombreUsuario();
+    const email = this.obtenerEmailDelToken();
+    if (nombre) {
+      return `[Contexto del sistema: El usuario se llama ${nombre} y su email es ${email}. Salúdalo por su nombre en este primer mensaje.]\n\nUsuario: ${mensaje}`;
+    }
+    return mensaje;
   }
 
   // ============================================
   // ENDPOINTS
   // ============================================
 
-  enviarMensaje(mensaje: string): Observable<MensajeResponse> {
-    const request: MensajeRequest = {
-      mensaje: mensaje.trim(),
-      session_id: this.sessionId
-    };
-
-    console.log('📤 Enviando:', mensaje.substring(0, 50) + '...');
-
+  enviarMensaje(mensaje: string, esFirstMessage: boolean = false): Observable<MensajeResponse> {
+    const mensajeFinal = this.construirMensajeConContexto(mensaje, esFirstMessage);
     return this.http.post<MensajeResponse>(
       `${this.apiUrl}/chat`,
-      request,
+      { mensaje: mensajeFinal.trim(), session_id: this.sessionId },
       this.httpOptions
     ).pipe(
       tap(response => {

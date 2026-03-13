@@ -11,6 +11,9 @@ interface Mensaje {
   emociones?: string[];
 }
 
+// Prefijo que usamos para marcar mensajes con contexto del sistema
+const CONTEXTO_PREFIX = '[Contexto del sistema:';
+
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -57,14 +60,25 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   cargarHistorial(): void {
     this.euphoriaService.obtenerHistorial().subscribe({
       next: (respuesta) => {
-        if (respuesta.historial && respuesta.historial.length > 0) {
-          console.log(`📜 Cargando ${respuesta.total_mensajes} mensajes`);
+        if (respuesta.historial?.length > 0) {
+          this.mensajes = respuesta.historial
+            .map((item: HistorialItem) => {
+              // Limpiar el contexto del sistema del mensaje visible
+              let textoVisible = item.mensaje;
+              if (textoVisible.includes(CONTEXTO_PREFIX)) {
+                // Extraer solo el texto después de "Usuario: "
+                const match = textoVisible.match(/Usuario:\s*([\s\S]+)$/);
+                textoVisible = match ? match[1].trim() : textoVisible;
+              }
 
-          this.mensajes = respuesta.historial.map((item: HistorialItem) => ({
-            texto: item.mensaje,
-            esUsuario: item.rol === 'usuario',
-            timestamp: new Date(item.timestamp)
-          }));
+              return {
+                texto: textoVisible,
+                // rol viene como "user" o "assistant" desde el backend
+                esUsuario: item.rol === 'user',
+                timestamp: new Date(item.timestamp),
+                emociones: item.emociones || []
+              };
+            });
           this.debeHacerScroll = true;
         }
       },
@@ -85,14 +99,20 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
     this.mensajes.push(mensajeUsuario);
 
+    // Mostrar el mensaje original (sin contexto) en el chat
+    this.mensajes.push({
+      texto: this.mensajeActual,
+      esUsuario: true,
+      timestamp: new Date()
+    });
+
     const textoMensaje = this.mensajeActual;
-    this.mensajeActual = '';
-    this.cargando = true;
     this.debeHacerScroll = true;
 
-    console.log('📤 Enviando mensaje...');
+    const esFirstMessage = this.mensajes.length === 1;
 
-    this.euphoriaService.enviarMensaje(textoMensaje).subscribe({
+    // Enviar al backend (con contexto si es el primero)
+    this.euphoriaService.enviarMensaje(textoMensaje, esFirstMessage).subscribe({
       next: (respuesta: MensajeResponse) => {
         console.log('✅ Respuesta recibida');
 
