@@ -66,6 +66,27 @@ export const THERAPIST_ROUTES: Routes = [
                         .then(m => m.GestionarSuscripcionComponent)
             },
             {
+<<<<<<< HEAD
+=======
+                path: 'services',
+                loadComponent: () => import('../../services/services.component').then(m => m.ServicesComponent)
+            },
+            {
+                path: 'patients',
+                data: { headerText: 'Pacientes' },
+                loadComponent: () =>
+                    import('./patients/patient-list/patient-list.component')
+                        .then(m => m.PatientListComponent)
+            },
+            {
+                path: 'patients/:patientId',
+                data: { headerText: 'Historial del Paciente' },
+                loadComponent: () =>
+                    import('./patients/patient-history/patient-history.component')
+                        .then(m => m.PatientHistoryComponent)
+            },
+            {
+>>>>>>> 92162972651a9fc3e555c765a83853223f0124e8
                 path: '',
                 redirectTo: 'welcome',
                 pathMatch: 'full'

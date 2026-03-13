@@ -27,7 +27,7 @@ interface UserProfile {
       <!-- Foto de perfil + nombre -->
       <section class="flex flex-col items-center py-6 gap-2">
         <div
-          class="relative w-28 h-28 rounded-full cursor-pointer overflow-hidden shadow-lg shadow-secondary-background/25 transition-transform duration-200 hover:scale-[1.03]"
+          class="relative w-28 h-28 rounded-full cursor-pointer shadow-lg shadow-secondary-background/25 transition-transform duration-200 hover:scale-[1.03]"
           (click)="triggerFileInput()"
         >
           <img
@@ -36,8 +36,11 @@ interface UserProfile {
             class="w-full h-full object-cover rounded-full border-3 border-secondary-background"
             [ngClass]="!user.fotoPerfilUrl ? 'p-6 bg-linear-to-br from-blue-100 to-blue-200 border-dashed' : ''"
           />
-          <div class="absolute bottom-0 left-0 right-0 h-9 bg-black/45 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <!-- Camera badge (Facebook-style) -->
+          <div
+            class="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-secondary-background border-2 border-white flex items-center justify-center shadow-md transition-transform duration-200 hover:scale-110"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px] text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
               <circle cx="12" cy="13" r="3"/>
             </svg>

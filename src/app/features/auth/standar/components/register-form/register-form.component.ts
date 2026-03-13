@@ -28,7 +28,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
         <app-input
           type="text"
           formControlName="name"
-          placeholder="Nombre"
+          placeholder="Nombre completo"
         ></app-input>
         <div *ngIf="registerForm.get('name')?.invalid && (registerForm.get('name')?.dirty || registerForm.get('name')?.touched)" class="text-red-500 text-xs mt-1">
           <div *ngIf="registerForm.get('name')?.errors?.['required']">El nombre es requerido.</div>
@@ -73,6 +73,25 @@ import { AuthService } from '../../../../../core/services/auth.service';
         </div>
       </div>
 
+<<<<<<< HEAD
+=======
+      <!-- Términos y condiciones -->
+      <div class="flex items-start gap-2 pt-2">
+        <input
+          type="checkbox"
+          id="acceptTerms"
+          formControlName="acceptTerms"
+          class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+        />
+        <label for="acceptTerms" class="text-sm text-gray-600 cursor-pointer select-none">
+          Acepto los <a href="https://storage.googleapis.com/115305318075-us-central1-blueprint-config/terminos-cond-sanity/Sanity_Terminos_y_Condiciones.pdf" target="_blank" class="text-blue-600 underline hover:text-blue-800 font-medium">términos y condiciones</a> de Sanity
+        </label>
+      </div>
+      <div *ngIf="registerForm.get('acceptTerms')?.invalid && (registerForm.get('acceptTerms')?.dirty || registerForm.get('acceptTerms')?.touched)" class="text-red-500 text-xs -mt-2">
+        <div *ngIf="registerForm.get('acceptTerms')?.errors?.['required']">Debe aceptar los términos y condiciones para registrarse.</div>
+      </div>
+
+>>>>>>> 92162972651a9fc3e555c765a83853223f0124e8
       <div class="pt-4 space-y-3">
         <app-button
           type="submit"
