@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 export interface MensajeRequest {
   mensaje: string;
   session_id?: string;
+  user_id?: number;
 }
 
 export interface MensajeResponse {
@@ -15,6 +16,7 @@ export interface MensajeResponse {
   timestamp: string;
   session_id: string;
   mensaje_numero?: number;
+  acciones_realizadas?: string[];
 }
 
 export interface HistorialItem {
@@ -72,6 +74,18 @@ export class EuphoriaService {
     }
   }
 
+  private obtenerUserIdDelToken(): number | null {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return null;
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+      const decoded = JSON.parse(atob(payload));
+      return decoded.userId || decoded.idPersona || null;
+    } catch {
+      return null;
+    }
+  }
   private obtenerSessionId(): string {
     const email = this.obtenerEmailDelToken();
 
@@ -106,9 +120,15 @@ export class EuphoriaService {
   // ── Endpoints ─────────────────────────────────────────────────────────────
 
   enviarMensaje(mensaje: string): Observable<MensajeResponse> {
+    const userId = this.obtenerUserIdDelToken();
+    const body: MensajeRequest = {
+      mensaje: mensaje.trim(),
+      session_id: this.sessionId,
+      ...(userId ? { user_id: userId } : {})
+    };
     return this.http.post<MensajeResponse>(
       `${this.apiUrl}/chat`,
-      { mensaje: mensaje.trim(), session_id: this.sessionId },
+      body,
       this.httpOptions
     ).pipe(
       tap(() => this.conexionEstado.next(true)),
