@@ -27,7 +27,7 @@ export interface Diario {
   providedIn: 'root'
 })
 export class JournalService {
-  private apiUrl = `${environment.apiUrl}/api/diarios`;
+  private apiUrl = `${environment.apiUrl}/api/diary`;
 
   constructor(private http: HttpClient) {}
 

@@ -36,14 +36,6 @@ import { Specialist } from './models/specialist.model';
   template: `
     <div class="min-h-screen" style="background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%)">
 
-      <!-- Top bar -->
-      <header class="bg-white border-b sticky top-0 z-40 px-5 flex items-center justify-between"
-        style="padding-top: 1rem; padding-bottom: 1rem; border-color: #D9D9D9">
-        <div>
-          <p class="text-xs font-medium text-gray-400">{{ saludo }}</p>
-        </div>
-      </header>
-
       <main class="px-5 pt-5">
 
         <!-- Loading -->

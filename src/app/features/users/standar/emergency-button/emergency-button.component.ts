@@ -17,7 +17,7 @@ interface EmergencyConfig {
 @Component({
   selector: 'app-emergency-button',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, TextareaComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, ],
   template: `
     <div class="min-h-full px-5 py-4 pb-8">
       <div class="flex flex-col gap-5">
@@ -42,20 +42,6 @@ interface EmergencyConfig {
               placeholder="Teléfono o Correo"
               [(ngModel)]="config.contactInfo"
             ></app-input>
-          </div>
-        </section>
-
-        <!-- Mensaje de Emergencia -->
-        <section class="flex flex-col gap-3">
-          <h2 class="text-xl font-extrabold text-text-secondary m-0">Mensaje de Emergencia</h2>
-
-          <div class="flex flex-col gap-1">
-            <label class="text-[0.8rem] font-semibold text-text-primary">Mensaje</label>
-            <app-textarea
-              placeholder="Escribe tu mensaje de emergencia..."
-              [(ngModel)]="config.message"
-              [rows]="4"
-            ></app-textarea>
           </div>
         </section>
 
