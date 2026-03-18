@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DashboardService, UserInfo, Appointment, Habit, DiaryEntry } from '../../../../core/services/dashboard.service';
+import { EuphoriaService, MensajeResponse } from '../../../../core/services/euphoria.service';
 
 @Component({
   selector: 'app-standard-dashboard',
@@ -36,6 +37,26 @@ import { DashboardService, UserInfo, Appointment, Habit, DiaryEntry } from '../.
               [class.text-gray-400]="selectedMood !== mood.key"
             >{{ mood.label }}</span>
           </button>
+        </div>
+
+        <!-- Respuesta del Agente -->
+        <div *ngIf="isAgentLoading || agentMessage" class="mt-5 bg-indigo-50/50 border border-indigo-100/50 rounded-2xl p-4 flex gap-3 shadow-sm transition-all duration-300">
+          <div class="bg-indigo-100 text-indigo-500 rounded-full p-2 h-fit shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-xs font-bold text-indigo-900 uppercase tracking-widest mb-1">EuphorIA dice:</h3>
+            <div *ngIf="isAgentLoading" class="flex gap-1 mt-2">
+              <div class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style="animation-delay: 0s"></div>
+              <div class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style="animation-delay: 0.15s"></div>
+              <div class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style="animation-delay: 0.3s"></div>
+            </div>
+            <p *ngIf="!isAgentLoading && agentMessage" class="text-sm text-indigo-800 leading-relaxed font-medium">
+              {{ agentMessage }}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -173,6 +194,7 @@ import { DashboardService, UserInfo, Appointment, Habit, DiaryEntry } from '../.
 export class StandardDashboardComponent implements OnInit {
   private router = inject(Router);
   private dashboardService = inject(DashboardService);
+  private euphoriaService = inject(EuphoriaService);
 
   userName: string = '';
   userId: number | null = null;
@@ -180,6 +202,9 @@ export class StandardDashboardComponent implements OnInit {
   nextAppointment: Appointment | null = null;
   habits: Habit[] = [];
   diaryEntry: DiaryEntry | null = null;
+
+  agentMessage: string | null = null;
+  isAgentLoading: boolean = false;
 
   moods = [
     { key: 'triste', emoji: '😔', label: 'Triste' },
@@ -228,8 +253,26 @@ export class StandardDashboardComponent implements OnInit {
     });
   }
 
-  selectMood(key: string) {
+  async selectMood(key: string) {
+
     this.selectedMood = key;
+    this.agentMessage = null;
+    this.isAgentLoading = true;
+
+    const observable = await this.euphoriaService.checkMood(key);
+
+    observable.subscribe({
+      next: (response: MensajeResponse) => {
+        this.agentMessage = response.respuesta;
+        this.isAgentLoading = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener mensaje de EuphorIA', err);
+        this.agentMessage = "Siento que estés pasando por esto. Recuerda que estoy aquí para escucharte cuando lo necesites.";
+        this.isAgentLoading = false;
+      }
+    });
+
   }
 
   onEmergency() {
