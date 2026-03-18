@@ -57,6 +57,12 @@ export const routes: Routes = [
                 .then(m => m.RESET_PASSWORD_ROUTES)
     },
     {
+        path: 'resetear-password',
+        loadComponent: () =>
+            import('./features/reset-password/reset-password.component')
+                .then(m => m.ResetPasswordComponent)
+    },
+    {
         path: 'euphoria/chat',
         loadComponent: () =>
             import('./features/euphoria/components/chat.component')
