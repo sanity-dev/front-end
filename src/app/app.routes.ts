@@ -124,7 +124,7 @@ export const routes: Routes = [
                     },
                     {
                         path: 'preferences',
-                        loadComponent: () => import('./features/notifications/notification-list.component').then(m => m.NotificationListComponent) // Por ahora reusamos el mismo o creamos uno nuevo si existe
+                        loadComponent: () => import('./features/notifications/notification-preferences.component').then(m => m.NotificationPreferencesComponent)
                     }
                 ]
             }
