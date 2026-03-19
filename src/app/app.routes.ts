@@ -113,8 +113,21 @@ export const routes: Routes = [
             {
                 path: 'services',
                 loadComponent: () => import('./features/services/services.component').then(m => m.ServicesComponent)
+            },
+            {
+                path: 'notifications',
+                data: { headerText: 'Notificaciones' },
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('./features/notifications/notification-list.component').then(m => m.NotificationListComponent)
+                    },
+                    {
+                        path: 'preferences',
+                        loadComponent: () => import('./features/notifications/notification-list.component').then(m => m.NotificationListComponent) // Por ahora reusamos el mismo o creamos uno nuevo si existe
+                    }
+                ]
             }
-
         ]
     },
 ];
