@@ -2,10 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-icons.component';
 import { ToggleSwitchComponent } from '../../../../shared/components/toggle-switch/toggle-switch.component';
 import { InfoFieldComponent } from '../../../../shared/components/info-field/info-field.component';
-import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { EditFieldModalComponent, EditFieldConfig } from '../../../../shared/components/edit-field-modal/edit-field-modal.component';
 import { environment } from '../../../../../environments/environment';
 
@@ -37,7 +35,7 @@ interface UserProfile {
             class="w-full h-full object-cover rounded-full border-3 border-secondary-background"
             [ngClass]="!user.fotoPerfilUrl ? 'p-6 bg-linear-to-br from-blue-100 to-blue-200 border-dashed' : ''"
           />
-          <!-- Camera badge (Facebook-style) -->
+          <!-- Camera badge -->
           <div
             class="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-secondary-background border-2 border-white flex items-center justify-center shadow-md transition-transform duration-200 hover:scale-110"
           >
@@ -64,7 +62,6 @@ interface UserProfile {
       <!-- Información personal -->
       <section class="py-3">
         <h3 class="text-lg font-bold text-text-primary mb-3">Información personal</h3>
-
         <app-info-field [value]="user.nombre" label="Nombre" (edit)="editField('nombre')" />
         <app-info-field [value]="user.correo" label="Correo electrónico" (edit)="editField('correo')" />
         <app-info-field value="********" label="Contraseña" (edit)="editField('contraseña')" />
@@ -76,12 +73,10 @@ interface UserProfile {
       <!-- Notificaciones -->
       <section class="py-3">
         <h3 class="text-lg font-bold text-text-primary mb-3">Notificaciones</h3>
-
         <div class="flex items-center justify-between py-2.5">
           <span class="text-sm text-text-primary">Notificaciones push</span>
           <app-toggle-switch [(checked)]="pushNotifications" />
         </div>
-
         <div class="flex items-center justify-between py-2.5">
           <span class="text-sm text-text-primary">Notificaciones por correo electrónico</span>
           <app-toggle-switch [(checked)]="emailNotifications" />
@@ -115,7 +110,7 @@ interface UserProfile {
 })
 export class StandardProfileComponent implements OnInit {
   private router = inject(Router);
-  private http = inject(HttpClient);
+  private http   = inject(HttpClient);
 
   user: UserProfile = {
     idPersona: 0,
@@ -126,14 +121,13 @@ export class StandardProfileComponent implements OnInit {
     fotoPerfilUrl: null
   };
 
-  pushNotifications = true;
+  pushNotifications  = true;
   emailNotifications = true;
   uploadStatus: 'success' | 'error' | null = null;
   uploadMessage = '';
 
-  // Edit modal
   showEditModal = false;
-  isSaving = false;
+  isSaving      = false;
   editConfig: EditFieldConfig = { field: '', label: '', value: '', type: 'text' };
 
   private apiUrl = `${environment.apiUrl}/api/personas`;
@@ -151,13 +145,15 @@ export class StandardProfileComponent implements OnInit {
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const email = payload.sub;
+      const email   = payload.sub;
 
       this.http.get<UserProfile[]>(this.apiUrl).subscribe({
         next: (personas) => {
           const found = personas.find(p => p.correo === email);
           if (found) {
             this.user = found;
+            // Sincronizar localStorage con los datos actuales del backend
+            this.actualizarLocalStorage(found);
           }
         },
         error: (err) => console.error('Error loading profile:', err)
@@ -192,6 +188,8 @@ export class StandardProfileComponent implements OnInit {
     ).subscribe({
       next: (updated) => {
         this.user = updated;
+        // ← Actualizar localStorage para que therapist-profile y services vean la nueva foto
+        this.actualizarLocalStorage(updated);
         this.showStatus('success', '✓ Foto de perfil actualizada');
       },
       error: (err) => {
@@ -203,15 +201,15 @@ export class StandardProfileComponent implements OnInit {
 
   editField(field: string): void {
     const fieldMap: Record<string, EditFieldConfig> = {
-      nombre: { field: 'nombre', label: 'Nombre', value: this.user.nombre, type: 'text' },
-      correo: { field: 'correo', label: 'Correo electrónico', value: this.user.correo, type: 'email' },
-      'contraseña': { field: 'contraseña', label: 'Contraseña', value: '', type: 'password' },
-      telefono: { field: 'telefono', label: 'Teléfono', value: this.user.telefono || '', type: 'tel' }
+      nombre:      { field: 'nombre',      label: 'Nombre',               value: this.user.nombre,    type: 'text'     },
+      correo:      { field: 'correo',      label: 'Correo electrónico',   value: this.user.correo,    type: 'email'    },
+      'contraseña':{ field: 'contraseña',  label: 'Contraseña',           value: '',                  type: 'password' },
+      telefono:    { field: 'telefono',    label: 'Teléfono',             value: this.user.telefono || '', type: 'tel' }
     };
 
     const config = fieldMap[field];
     if (config) {
-      this.editConfig = config;
+      this.editConfig   = config;
       this.showEditModal = true;
     }
   }
@@ -220,10 +218,10 @@ export class StandardProfileComponent implements OnInit {
     this.isSaving = true;
 
     const payload: any = {};
-    if (data['nombre']) payload.nombre = data['nombre'];
-    if (data['correo']) payload.correo = data['correo'];
+    if (data['nombre'])     payload.nombre     = data['nombre'];
+    if (data['correo'])     payload.correo     = data['correo'];
     if (data['contraseña']) payload.contraseña = data['contraseña'];
-    if (data['telefono']) payload.telefono = data['telefono'];
+    if (data['telefono'])   payload.telefono   = data['telefono'];
 
     this.http.put<any>(
       `${this.apiUrl}/${this.user.idPersona}/basica`,
@@ -231,7 +229,8 @@ export class StandardProfileComponent implements OnInit {
     ).subscribe({
       next: (updated) => {
         this.user = { ...this.user, ...updated };
-        this.isSaving = false;
+        this.actualizarLocalStorage(this.user);
+        this.isSaving      = false;
         this.showEditModal = false;
         this.showStatus('success', '✓ Perfil actualizado');
       },
@@ -245,11 +244,28 @@ export class StandardProfileComponent implements OnInit {
 
   logout(): void {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('persona');
     this.router.navigate(['/login']);
   }
 
+  // ── Mantener localStorage sincronizado con el backend ────────────────────
+  private actualizarLocalStorage(perfil: UserProfile): void {
+    try {
+      const persona = localStorage.getItem('persona');
+      if (persona) {
+        const parsed = JSON.parse(persona);
+        parsed.fotoPerfilUrl = perfil.fotoPerfilUrl;
+        parsed.nombre        = perfil.nombre;
+        parsed.correo        = perfil.correo;
+        localStorage.setItem('persona', JSON.stringify(parsed));
+      }
+    } catch (e) {
+      console.error('Error actualizando localStorage:', e);
+    }
+  }
+
   private showStatus(type: 'success' | 'error', message: string): void {
-    this.uploadStatus = type;
+    this.uploadStatus  = type;
     this.uploadMessage = message;
     setTimeout(() => { this.uploadStatus = null; }, 3000);
   }

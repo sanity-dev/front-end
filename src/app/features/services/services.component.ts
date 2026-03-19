@@ -1,6 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { trigger, style, animate, transition } from '@angular/animations';
+import { Subscription, interval } from 'rxjs';
+import { switchMap, takeWhile } from 'rxjs/operators';
 import { BottomNavComponent } from '../../shared/components/bottom-nav/bottom-nav.component';
 import { SpecialistService } from './services/specialist.service';
 import { AuthHelperService } from './services/auth-helper.service';
@@ -36,6 +39,34 @@ import { Specialist } from './models/specialist.model';
   template: `
     <div class="min-h-screen" style="background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%)">
 
+      <!-- Banner de pago exitoso -->
+      <div *ngIf="paymentSuccess" @fadeIn
+        class="mx-5 mt-4 rounded-2xl text-white text-sm font-medium flex items-center gap-2"
+        style="padding: 0.875rem 1rem; background: linear-gradient(135deg, #2ecc71, #27ae60)">
+        ✅ ¡Pago exitoso! Tu membresía ya está activa.
+      </div>
+
+      <!-- Banner esperando pago -->
+      <div *ngIf="waitingPayment" @fadeIn
+        class="mx-5 mt-4 rounded-2xl text-white text-sm font-medium flex items-center gap-2"
+        style="padding: 0.875rem 1rem; background: linear-gradient(135deg, #4C9EEB, #4CA1AF)">
+        ⏳ Esperando confirmación del pago...
+      </div>
+
+      <!-- Banner de pago pendiente -->
+      <div *ngIf="paymentPending" @fadeIn
+        class="mx-5 mt-4 rounded-2xl text-white text-sm font-medium flex items-center gap-2"
+        style="padding: 0.875rem 1rem; background: linear-gradient(135deg, #f39c12, #e67e22)">
+        ⏳ Tu pago está pendiente de confirmación.
+      </div>
+
+      <!-- Banner de pago fallido -->
+      <div *ngIf="paymentFailed" @fadeIn
+        class="mx-5 mt-4 rounded-2xl text-white text-sm font-medium flex items-center gap-2"
+        style="padding: 0.875rem 1rem; background: linear-gradient(135deg, #e74c3c, #c0392b)">
+        ❌ El pago no pudo procesarse. Intenta de nuevo.
+      </div>
+
       <main class="px-5 pt-5">
 
         <!-- Loading -->
@@ -53,11 +84,17 @@ import { Specialist } from './models/specialist.model';
             <div @bounceIn class="flex flex-col items-center text-center px-2"
               style="padding-top: 2rem; padding-bottom: 7rem">
 
-              <!-- Ilustración -->
+              <!-- Foto de perfil o emoji -->
               <div class="relative" style="margin-bottom: 2rem">
-                <div class="w-36 h-36 rounded-full flex items-center justify-center"
-                  style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF44); font-size: 4rem">
-                  {{ membership?.status === 'EXPIRED' ? '🥺' : '🩺' }}
+                <div class="w-36 h-36 rounded-full overflow-hidden flex items-center justify-center"
+                  style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF44)">
+                  <img *ngIf="fotoTerapeuta"
+                    [src]="fotoTerapeuta"
+                    class="w-full h-full object-cover"
+                    alt="foto perfil"/>
+                  <span *ngIf="!fotoTerapeuta" style="font-size: 4rem">
+                    {{ membership?.status === 'EXPIRED' ? '🥺' : '🩺' }}
+                  </span>
                 </div>
                 <div class="absolute -bottom-1 -right-1 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
                   style="background: linear-gradient(135deg, #4C9EEB, #4CA1AF); font-size: 1.25rem">
@@ -65,7 +102,6 @@ import { Specialist } from './models/specialist.model';
                 </div>
               </div>
 
-              <!-- Título y descripción -->
               <h2 class="text-2xl font-bold"
                 style="color: #1d1d1d; font-family: Manrope, sans-serif; margin-bottom: 0.5rem">
                 {{ membership?.status === 'EXPIRED' ? '¡Renueva tu membresía!' : '¡Haz crecer tu práctica!' }}
@@ -76,7 +112,7 @@ import { Specialist } from './models/specialist.model';
                   : 'Elige cómo quieres empezar. Puedes probar gratis o activar tu membresía completa desde el primer día.' }}
               </p>
 
-              <!-- Opción 1: Trial gratis — solo si NO tiene membresía previa -->
+              <!-- Trial -->
               <ng-container *ngIf="!membership">
                 <div class="w-full max-w-sm rounded-3xl text-left relative overflow-hidden"
                   style="margin-bottom: 1rem; background: linear-gradient(135deg, #4C9EEB15, #4CA1AF25); border: 2px solid #4CA1AF50; padding: 1.25rem">
@@ -106,7 +142,7 @@ import { Specialist } from './models/specialist.model';
                 </div>
               </ng-container>
 
-              <!-- Opción 2: Pago mensual — siempre visible -->
+              <!-- Pago mensual -->
               <div class="w-full max-w-sm rounded-3xl text-left"
                 style="border: 1.5px solid #E5E7EB; padding: 1.25rem; background: white; margin-bottom: 1rem">
                 <div class="flex items-start justify-between" style="margin-bottom: 0.75rem">
@@ -125,11 +161,11 @@ import { Specialist } from './models/specialist.model';
                   <li>✓ Perfil destacado en búsquedas</li>
                   <li>✓ Soporte prioritario</li>
                 </ul>
-                <button (click)="onPagar()" [disabled]="payLoading"
+                <button (click)="onPagar()" [disabled]="payLoading || waitingPayment"
                   class="w-full rounded-2xl font-bold text-sm border-2"
                   style="padding: 0.875rem; border-color: #4C9EEB; color: #4C9EEB; background: white; transition: opacity 0.2s"
-                  [style.opacity]="payLoading ? '0.7' : '1'">
-                  {{ payLoading ? '⏳ Redirigiendo...' : '💳 Pagar membresía' }}
+                  [style.opacity]="payLoading || waitingPayment ? '0.7' : '1'">
+                  {{ payLoading ? '⏳ Redirigiendo...' : waitingPayment ? '⏳ Esperando pago...' : '💳 Pagar membresía' }}
                 </button>
               </div>
 
@@ -142,6 +178,14 @@ import { Specialist } from './models/specialist.model';
 
           <!-- CON membresía activa o trial -->
           <ng-container *ngIf="membership && membership.isActive">
+            <div class="flex justify-center" style="margin-bottom: 1rem">
+              <span class="text-xs font-bold rounded-full px-3 py-1"
+                [style.background]="membership.status === 'ACTIVE' ? '#2ecc7120' : '#4CA1AF20'"
+                [style.color]="membership.status === 'ACTIVE' ? '#27ae60' : '#4CA1AF'">
+                {{ membership.status === 'ACTIVE' ? '✅ Membresía activa' : '🎁 Prueba gratuita' }}
+                — {{ membership.daysLeft }} días restantes
+              </span>
+            </div>
 
             <ng-container *ngIf="myProfile">
               <app-therapist-profile [specialist]="myProfile" (edit)="showForm = true">
@@ -152,16 +196,20 @@ import { Specialist } from './models/specialist.model';
               <div @bounceIn class="flex flex-col items-center text-center px-2"
                 style="padding-top: 2rem; padding-bottom: 7rem">
                 <div class="relative" style="margin-bottom: 1.75rem">
-                  <div class="w-32 h-32 rounded-full flex items-center justify-center"
-                    style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF33); font-size: 3.5rem">
-                    🌱
+                  <div class="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center"
+                    style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF33)">
+                    <img *ngIf="fotoTerapeuta"
+                      [src]="fotoTerapeuta"
+                      class="w-full h-full object-cover"
+                      alt="foto perfil"/>
+                    <span *ngIf="!fotoTerapeuta" style="font-size: 3.5rem">🌱</span>
                   </div>
                   <div class="absolute -bottom-1 -right-2 w-11 h-11 rounded-full flex items-center justify-center shadow-md"
                     style="background: #4C9EEB; font-size: 1.1rem">✨</div>
                 </div>
                 <h2 class="text-2xl font-bold tracking-tight"
                   style="color: #1d1d1d; font-family: Manrope, sans-serif; margin-bottom: 0.5rem">
-                  ¡Membresía activa! 🎉
+                  {{ membership.status === 'ACTIVE' ? '¡Membresía activa! 🎉' : '¡Prueba activada! 🎉' }}
                 </h2>
                 <p class="text-gray-400 text-sm leading-relaxed max-w-xs" style="margin-bottom: 2rem">
                   Ya puedes registrar tus servicios y empezar a recibir pacientes.
@@ -177,12 +225,8 @@ import { Specialist } from './models/specialist.model';
                   style="padding: 1rem; background: linear-gradient(135deg, #2C3E50, #4CA1AF); gap: 0.5rem">
                   🚀 Registrar mis servicios
                 </button>
-                <p class="text-xs text-gray-400" style="margin-top: 1rem">
-                  Solo toma unos minutos completar tu perfil
-                </p>
               </div>
             </ng-container>
-
           </ng-container>
         </ng-container>
 
@@ -208,10 +252,11 @@ import { Specialist } from './models/specialist.model';
     </div>
   `,
 })
-export class ServicesComponent implements OnInit {
+export class ServicesComponent implements OnInit, OnDestroy {
   private specialistSvc = inject(SpecialistService);
   private authSvc       = inject(AuthHelperService);
   private membershipSvc = inject(MembershipService);
+  private route         = inject(ActivatedRoute);
 
   loading              = true;
   isTherapist          = false;
@@ -223,14 +268,25 @@ export class ServicesComponent implements OnInit {
   trialLoading         = false;
   payLoading           = false;
   membershipError      = '';
+  waitingPayment       = false;
+
+  paymentSuccess = false;
+  paymentPending = false;
+  paymentFailed  = false;
+
+  private pollingSub?: Subscription;
 
   chips = ['Sin comisiones', 'Citas ilimitadas', 'Cancela cuando quieras'];
 
-  get saludo(): string {
-    const h = new Date().getHours();
-    if (h < 12) return 'Buenos días ☀️';
-    if (h < 19) return 'Buenas tardes 🌤️';
-    return 'Buenas noches 🌙';
+  // ── Foto de perfil del terapeuta desde localStorage ──────────────────────
+  get fotoTerapeuta(): string | null {
+    try {
+      const persona = localStorage.getItem('persona');
+      if (persona) return JSON.parse(persona)?.fotoPerfilUrl || null;
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   get inicial(): string {
@@ -239,14 +295,33 @@ export class ServicesComponent implements OnInit {
 
   ngOnInit(): void {
     this.isTherapist = this.authSvc.isTherapist();
+
+    this.route.queryParams.subscribe(params => {
+      if (params['payment'] === 'success') {
+        this.paymentSuccess = true;
+        setTimeout(() => this.loadTherapistView(), 3000);
+        setTimeout(() => this.paymentSuccess = false, 6000);
+      } else if (params['payment'] === 'pending') {
+        this.paymentPending = true;
+        setTimeout(() => this.paymentPending = false, 6000);
+      } else if (params['payment'] === 'failure') {
+        this.paymentFailed = true;
+        setTimeout(() => this.paymentFailed = false, 6000);
+      }
+    });
+
     this.isTherapist ? this.loadTherapistView() : this.loadPatientView();
+  }
+
+  ngOnDestroy(): void {
+    this.stopPolling();
   }
 
   private loadTherapistView(): void {
     this.loading = true;
     this.membershipSvc.getStatus().subscribe({
-      next:  m  => this.membership = m,
-      error: () => this.membership = null,
+      next:  m  => { this.membership = m; },
+      error: () => { this.membership = null; },
     });
     this.specialistSvc.getMyProfile().subscribe({
       next:  p  => { this.myProfile = p; this.loading = false; },
@@ -260,6 +335,31 @@ export class ServicesComponent implements OnInit {
       next:  list => { this.allSpecialists = list; this.loading = false; },
       error: ()   => { this.allSpecialists = []; this.loading = false; },
     });
+  }
+
+  // ── Polling — consulta el estado cada 5 segundos hasta que sea ACTIVE ────
+  private startPolling(): void {
+    this.stopPolling();
+    this.pollingSub = interval(5000).pipe(
+      switchMap(() => this.membershipSvc.getStatus()),
+      takeWhile(m => m?.status !== 'ACTIVE', true)
+    ).subscribe({
+      next: m => {
+        if (m?.status === 'ACTIVE') {
+          this.membership     = m;
+          this.waitingPayment = false;
+          this.paymentSuccess = true;
+          this.stopPolling();
+          setTimeout(() => this.paymentSuccess = false, 6000);
+        }
+      },
+      error: () => this.stopPolling()
+    });
+  }
+
+  private stopPolling(): void {
+    this.pollingSub?.unsubscribe();
+    this.pollingSub = undefined;
   }
 
   onStartTrial(): void {
@@ -282,7 +382,12 @@ export class ServicesComponent implements OnInit {
     this.payLoading      = true;
     this.membershipError = '';
     this.membershipSvc.checkout().subscribe({
-      next: ({ checkoutUrl }) => { this.payLoading = false; window.open(checkoutUrl, '_blank'); },
+      next: ({ checkoutUrl }) => {
+        this.payLoading      = false;
+        this.waitingPayment  = true;
+        window.open(checkoutUrl, '_blank');
+        this.startPolling();
+      },
       error: () => {
         this.membershipError = 'No se pudo conectar con el sistema de pagos.';
         this.payLoading      = false;
