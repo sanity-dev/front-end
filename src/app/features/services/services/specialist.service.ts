@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of, throwError, forkJoin } from 'rxjs';
+import { catchError, switchMap, map } from 'rxjs/operators';
 import {
   Specialist,
   CreateSpecialistDto,
@@ -18,7 +18,18 @@ export class SpecialistService {
   private http = inject(HttpClient);
 
   getAllSpecialists(): Observable<Specialist[]> {
-    return this.http.get<Specialist[]>(`${API}/specialist`).pipe(catchError(() => of([])));
+    return forkJoin({
+      specialists: this.http.get<Specialist[]>(`${API}/specialist`).pipe(catchError(() => of([]))),
+      personas:    this.http.get<any[]>(`${API}/personas`).pipe(catchError(() => of([]))),
+    }).pipe(
+      map(({ specialists, personas }) => {
+        return specialists.map((s) => {
+          const persona = personas.find((p) => p.correo === s.email);
+          return { ...s, fotoPerfilUrl: persona?.fotoPerfilUrl || null, nombre: persona?.nombre || null, };
+        });
+      }),
+      catchError(() => of([])),
+    );
   }
 
   getMyProfile(): Observable<Specialist | null> {
