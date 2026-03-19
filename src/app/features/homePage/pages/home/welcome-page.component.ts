@@ -24,7 +24,7 @@ export class WelcomePageComponent {
         {
             title: 'Diario interactivo',
             description: 'Reflexiona sobre tu día con nuestro diario intuitivo. Registra tu estado de ánimo, identifica patrones y obtén información sobre tu bienestar mental.',
-            image: 'assets/images/diario3.svg'
+            image: 'assets/images/diario4.svg'
         },
         {
             title: 'EuphorIA',
