@@ -61,7 +61,22 @@ export class NotificacionService {
   obtenerMisNotificaciones(): Observable<Notificacion[]> {
     console.log('📬 Obteniendo notificaciones del usuario logueado');
 
-    return this.http.get<Notificacion[]>(`${this.apiUrl}/me`).pipe(
+    let usuarioId = '';
+    try {
+      const personaStr = localStorage.getItem('persona');
+      if (personaStr) {
+        const p = JSON.parse(personaStr);
+        if (p && p.idPersona) {
+          usuarioId = p.idPersona.toString();
+        }
+      }
+    } catch (e) {
+      console.error('Error al leer idPersona para obtener notificaciones', e);
+    }
+
+    const endpoint = usuarioId ? `${this.apiUrl}/usuario/${usuarioId}` : `${this.apiUrl}/me`;
+
+    return this.http.get<Notificacion[]>(endpoint).pipe(
       tap(notificaciones => {
         console.log(`✅ ${notificaciones.length} notificaciones recibidas`);
         this.notificacionesSubject.next(notificaciones);

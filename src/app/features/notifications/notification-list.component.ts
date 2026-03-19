@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { NotificacionService, Notificacion } from '../../core/services/notificacion.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -10,24 +11,6 @@ import { AuthService } from '../../core/services/auth.service';
   imports: [CommonModule],
   template: `
     <div class="min-h-screen bg-slate-50 flex flex-col font-sans">
-
-      <!-- Header -->
-      <header class="sticky top-0 z-10 flex items-center px-4 sm:px-6 py-4 bg-white border-b border-slate-200">
-        <button (click)="goBack()" class="p-2 rounded-full hover:bg-slate-100 transition-colors mr-3 text-slate-600">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-          </svg>
-        </button>
-        <h1 class="text-lg font-semibold text-slate-800">Notificaciones</h1>
-        <div class="ml-auto flex items-center gap-2">
-          <button (click)="goToPreferences()" class="p-2 rounded-full hover:bg-slate-100 transition-colors text-slate-500" title="Preferencias">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
-          </button>
-        </div>
-      </header>
 
       <!-- Content -->
       <main class="flex-1 px-4 sm:px-6 py-4 max-w-4xl mx-auto w-full">
@@ -122,10 +105,11 @@ import { AuthService } from '../../core/services/auth.service';
     }
   `]
 })
-export class NotificationListComponent implements OnInit {
+export class NotificationListComponent implements OnInit, OnDestroy {
   notificaciones: Notificacion[] = [];
   loading = true;
   error: string | null = null;
+  private subscription: Subscription | null = null;
 
   constructor(
     private notificacionService: NotificacionService,
@@ -134,7 +118,18 @@ export class NotificationListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Suscribirse a los cambios en tiempo real
+    this.subscription = this.notificacionService.notificaciones$.subscribe((notifs: Notificacion[]) => {
+      this.notificaciones = notifs;
+    });
+
     this.cargarNotificaciones();
+  }
+
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   cargarNotificaciones(): void {
@@ -142,8 +137,8 @@ export class NotificationListComponent implements OnInit {
     this.error = null;
 
     this.notificacionService.obtenerMisNotificaciones().subscribe({
-      next: (data) => {
-        this.notificaciones = data;
+      next: () => {
+        // La lista se actualiza automáticamente por la suscripción a notificaciones$
         this.loading = false;
       },
       error: (err) => {
@@ -157,12 +152,8 @@ export class NotificationListComponent implements OnInit {
   abrirNotificacion(notif: Notificacion): void {
     if (!notif.leida) {
       this.notificacionService.marcarComoLeida(notif.id).subscribe({
-        next: (updated) => {
-          // Actualizar localmente
-          const idx = this.notificaciones.findIndex(n => n.id === notif.id);
-          if (idx !== -1) {
-            this.notificaciones[idx] = { ...this.notificaciones[idx], leida: true };
-          }
+        next: () => {
+          // El estado se actualiza automáticamente a través de notificaciones$ en el NotificacionService
         },
         error: (err) => console.error('Error al marcar como leída', err)
       });
@@ -173,7 +164,7 @@ export class NotificationListComponent implements OnInit {
     event.stopPropagation();
     this.notificacionService.eliminar(id).subscribe({
       next: () => {
-        this.notificaciones = this.notificaciones.filter(n => n.id !== id);
+        // La lista se actualiza automáticamente a través de notificaciones$ en el NotificacionService
       },
       error: (err) => console.error('Error al eliminar', err)
     });
