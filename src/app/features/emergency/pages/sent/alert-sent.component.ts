@@ -8,12 +8,10 @@ import { HeaderWithIconsComponent } from "../../../../layout/header/header-with-
 @Component({
     selector: 'app-alert-sent',
     standalone: true,
-    imports: [CommonModule, BottomNavComponent, ButtonComponent, HeaderWithIconsComponent],
+    imports: [CommonModule, ButtonComponent,],
     template: `
     <div class="min-h-screen relative font-sans text-text-primary">
-      <!-- Header -->
-        <app-header-with-icons [centerText]="'Confirmar Emergencia'" [disableBack]="false" [disableRightIcon]="false" ></app-header-with-icons>
-
+    
       <!-- Content -->
       <div class="px-6 flex flex-col items-center text-center mt-8 pb-20">
           <h1 class="text-2xl font-bold mb-4 text-text-primary">
@@ -41,12 +39,9 @@ import { HeaderWithIconsComponent } from "../../../../layout/header/header-with-
                   [fullWidth]="true"
                   (click)="contactOther()"
                    class="shadow-none rounded-xl"
-              >Contactar otro recurso</app-button>
+              >Contactar a nuestro agente</app-button>
           </div>
       </div>
-
-       <!-- Bottom Navigation -->
-      <app-bottom-nav></app-bottom-nav>
     </div>
   `,
     styles: [`
@@ -76,12 +71,11 @@ export class AlertSentComponent {
     constructor(private router: Router) { }
 
     goHome() {
-        this.router.navigate(['/']);
+        this.router.navigate(['/user/dashboard']);
     }
 
     contactOther() {
-        // Placeholder for actual functionality
-        console.log('Contactar otro recurso clicked');
+       this.router.navigate(['/euphoria/chat']);
     }
 }
 
