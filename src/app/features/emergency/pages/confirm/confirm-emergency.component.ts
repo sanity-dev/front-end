@@ -1,0 +1,68 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { BottomNavComponent } from '../../../../shared/components/bottom-nav/bottom-nav.component';
+import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-icons.component';
+import { EuphoriaService } from '../../../../core/services/euphoria.service';
+
+@Component({
+    selector: 'app-confirm-emergency',
+    standalone: true,
+    imports: [CommonModule, ButtonComponent,],
+    template: `
+    <div class="min-h-screen relative font-sans text-text-primary">
+    
+      <!-- Content Card -->
+      <div class="px-6 mt-12 flex flex-col items-center text-center pb-20">
+          <h2 class="text-2xl font-bold mb-4 text-text-primary">
+              ¿Estás seguro de que<br>quieres enviar la alerta de<br>emergencia?
+          </h2>
+          <p class="text-text-primary text-sm mb-12 leading-relaxed max-w-xs">
+              Esta acción notificará inmediatamente a tus<br>contactos de emergencia y al equipo de soporte<br>de Sanity.
+          </p>
+
+          <div class="w-full flex flex-col gap-4 max-w-xs">
+              <app-button
+                  variant="primary"
+                  [fullWidth]="true"
+                  (click)="confirm()"
+                  customClass="shadow-none rounded-xl"
+              >Enviar</app-button>
+
+              <app-button
+                  variant="secondary"
+                  [fullWidth]="true"
+                  (click)="cancel()"
+                  customClass="shadow-none rounded-xl"
+              >Cancelar</app-button>
+          </div>
+      </div>
+
+    </div>
+    
+  `,
+    styles: []
+})
+export class ConfirmEmergencyComponent {
+
+    constructor(private router: Router, private euphoriaService: EuphoriaService) { }
+
+    confirm() {
+        this.euphoriaService.triggerEmergencyCall().subscribe({
+            next: (response) => {
+                console.log('Emergencia ejecutada:', response);
+                this.router.navigate(['/user/emergency/sent']);
+            },
+            error: (error) => {
+                console.error('Error:', error);
+                this.router.navigate(['/user/emergency/sent']);
+            }
+        });
+    }
+
+    cancel() {
+        this.router.navigate(['/user/dashboard']);
+    }
+
+}

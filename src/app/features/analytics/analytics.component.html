@@ -1,0 +1,78 @@
+<div class="min-h-screen flex flex-col font-sans text-text-primary pb-20">
+    <!-- Header -->
+    <header
+        class="flex items-center px-4 sm:px-6 py-4 bg-linear-to-r from-secondary-background/80 to-blue-800/80 backdrop-blur-sm sticky top-0 z-10">
+        <button class="p-2 rounded-full hover:bg-white/20 transition-colors mr-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 text-[#f5f5f5]">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+        </button>
+        <h1 class="text-base sm:text-lg md:text-xl font-semibold text-[#f5f5f5]">Análisis de Emociones</h1>
+    </header>
+
+    <!-- Filters -->
+    <div class="px-4 sm:px-6 py-4">
+        <h3 class="text-sm font-medium mb-3 text-text-primary">Filtros</h3>
+        <div class="flex gap-2 sm:gap-3">
+            <button *ngFor="let filter of filters" (click)="selectFilter(filter)"
+                [class.bg-secondary-background]="selectedFilter === filter"
+                [class.text-white]="selectedFilter === filter" [class.bg-gray-100]="selectedFilter !== filter"
+                [class.text-text-primary]="selectedFilter !== filter"
+                class="px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all hover:bg-secondary-background/20">
+                {{ filter }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 px-4 sm:px-6 space-y-4 sm:space-y-5 max-w-4xl mx-auto w-full">
+        <!-- Tendencia Emocional Card -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 shadow-md">
+            <div class="mb-4">
+                <h2 class="text-sm sm:text-base font-semibold text-text-primary">Tendencia Emocional</h2>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <span class="text-2xl sm:text-3xl font-bold text-text-secondary">+12%</span>
+                    <span class="text-xs sm:text-sm text-gray-500">Últimos 30 días <span
+                            class="text-green-500">-12%</span></span>
+                </div>
+            </div>
+            <div class="h-40 sm:h-48">
+                <canvas #trendChart></canvas>
+            </div>
+        </div>
+
+        <!-- Frecuencia de Emociones Card -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 shadow-md">
+            <div class="mb-4">
+                <h2 class="text-sm sm:text-base font-semibold text-text-primary">Frecuencia de Emociones</h2>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <span class="text-2xl sm:text-3xl font-bold text-text-secondary">+8%</span>
+                    <span class="text-xs sm:text-sm text-gray-500">Últimos 30 días <span
+                            class="text-red-500">-8%</span></span>
+                </div>
+            </div>
+            <div class="h-48 sm:h-56">
+                <canvas #frequencyChart></canvas>
+            </div>
+        </div>
+
+        <!-- Intensidad Emocional Card -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 shadow-md">
+            <div class="mb-4">
+                <h2 class="text-sm sm:text-base font-semibold text-text-primary">Intensidad Emocional</h2>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <span class="text-2xl sm:text-3xl font-bold text-text-secondary">+5%</span>
+                    <span class="text-xs sm:text-sm text-gray-500">Últimos 30 días <span
+                            class="text-green-500">-5%</span></span>
+                </div>
+            </div>
+            <div class="h-40 sm:h-48">
+                <canvas #intensityChart></canvas>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <app-bottom-nav></app-bottom-nav>
+</div>

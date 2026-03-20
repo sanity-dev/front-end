@@ -1,0 +1,48 @@
+/* Styles for analytics component */
+
+/* Ensure charts are properly sized */
+canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Card hover effects */
+.bg-white {
+  transition: all 0.3s ease;
+}
+
+.bg-white:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Filter button active state */
+button.bg-secondary-background {
+  box-shadow: 0 2px 8px rgba(76, 158, 235, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  canvas {
+    max-height: 180px;
+  }
+}
+
+@media (min-width: 768px) {
+  .bg-white {
+    padding: 1.5rem;
+  }
+}
+
+/* Chart container */
+.h-40, .h-48, .h-56 {
+  position: relative;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .bg-white,
+  button {
+    transition: none;
+  }
+}

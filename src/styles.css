@@ -1,2 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
+
+body {
+    background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
+}
+
+
+@theme {
+    --color-primary-navbar: #2C3E50;
+    --color-secondary-background: #4C9EEB;
+    --color-third-background: #4CA1AF;
+    --color-white-sanity: #D9D9D9;
+    --color-text-primary: #1d1d1d;
+    --color-text-secondary: #4C9EEB;
+    --font-sans: "Manrope", sans-serif;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
