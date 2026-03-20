@@ -43,7 +43,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
   constructor(
     private euphoriaService: EuphoriaService,
     private dashboardService: DashboardService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // 1. Obtener UserID
@@ -93,7 +93,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
           this.mensajes = [];
         }
       },
-      error: () => {}
+      error: () => { }
     });
   }
 
@@ -192,7 +192,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
     if (!input.files || input.files.length === 0 || !this.userId) return;
 
     const file = input.files[0];
-    
+
     // Validar tipo y tamaño si es necesario
     if (file.size > 10 * 1024 * 1024) { // 10MB
       alert('La imagen es demasiado grande (máx 10MB)');
@@ -200,13 +200,13 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
 
     this.cargando = true;
-    
+
     this.euphoriaService.uploadMoment(file, this.userId).subscribe({
       next: (res) => {
         if (res.success && res.url) {
           // Notificar al agente para que invoque su tool
           const mensajeAuto = `He capturado este momento para mi diario: ${res.url}`;
-          
+
           // Enviamos como mensaje invisible o visible?
           // El usuario dice "cuando el usuario solicite guardar un mensaje o una foto... el agente invoca la tool"
           // Así que enviamos el mensaje al agente.
@@ -223,7 +223,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
         alert('Error al capturar el momento: ' + err.message);
       }
     });
-    
+
     // Limpiar input para permitir seleccionar la misma foto
     input.value = '';
   }
@@ -247,10 +247,10 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
     try {
       const el = this.chatContainer?.nativeElement;
       if (el) el.scrollTop = el.scrollHeight;
-    } catch {}
+    } catch { }
   }
 
-  volverAtras(): void {}
+  volverAtras(): void { }
   obtenerIniciales(): string { return 'Tú'; }
 
   ngOnDestroy(): void {
