@@ -25,7 +25,7 @@ export class SpecialistService {
       map(({ specialists, personas }) => {
         return specialists.map((s) => {
           const persona = personas.find((p) => p.correo === s.email);
-          return { ...s, fotoPerfilUrl: persona?.fotoPerfilUrl || null, nombre: persona?.nombre || null, };
+          return { ...s, fotoPerfilUrl: persona?.fotoPerfilUrl || null,  nombre: persona?.nombre || null, };
         });
       }),
       catchError(() => of([])),

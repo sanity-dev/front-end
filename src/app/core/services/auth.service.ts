@@ -60,7 +60,7 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    private notificacionService: NotificacionService
+    private notificacionService: NotificacionService,
   ) {
     if (this.hasToken()) {
       const personaKey = localStorage.getItem('persona');
@@ -192,9 +192,9 @@ export class AuthService {
    * Resetea la contraseña usando un token
    */
   resetPassword(token: string, newPassword: string): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/api/recovery/reset-password`, { 
-      token: token, 
-      nuevaPassword: newPassword 
+    return this.http.post(`${environment.apiUrl}/api/recovery/reset-password`, {
+      token: token,
+      nuevaPassword: newPassword,
     });
   }
 
@@ -204,8 +204,8 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userType');
-    localStorage.removeItem('persona'); 
-    localStorage.removeItem('euphoria_session_id'); 
+    localStorage.removeItem('persona');
+    localStorage.removeItem('euphoria_session_id');
     this.notificacionService.desconectarSSE();
     this.isAuthenticatedSubject.next(false);
   }
@@ -230,7 +230,7 @@ export class AuthService {
   private removeToken(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userType');
-    localStorage.removeItem('persona'); 
+    localStorage.removeItem('persona');
   }
 
   /**

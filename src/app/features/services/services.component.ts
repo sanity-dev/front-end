@@ -84,17 +84,11 @@ import { Specialist } from './models/specialist.model';
             <div @bounceIn class="flex flex-col items-center text-center px-2"
               style="padding-top: 2rem; padding-bottom: 7rem">
 
-              <!-- Foto de perfil o emoji -->
+              <!-- Ilustración -->
               <div class="relative" style="margin-bottom: 2rem">
-                <div class="w-36 h-36 rounded-full overflow-hidden flex items-center justify-center"
-                  style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF44)">
-                  <img *ngIf="fotoTerapeuta"
-                    [src]="fotoTerapeuta"
-                    class="w-full h-full object-cover"
-                    alt="foto perfil"/>
-                  <span *ngIf="!fotoTerapeuta" style="font-size: 4rem">
-                    {{ membership?.status === 'EXPIRED' ? '🥺' : '🩺' }}
-                  </span>
+                <div class="w-36 h-36 rounded-full flex items-center justify-center"
+                  style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF44); font-size: 4rem">
+                  {{ membership?.status === 'EXPIRED' ? '🥺' : '🩺' }}
                 </div>
                 <div class="absolute -bottom-1 -right-1 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
                   style="background: linear-gradient(135deg, #4C9EEB, #4CA1AF); font-size: 1.25rem">
@@ -178,14 +172,6 @@ import { Specialist } from './models/specialist.model';
 
           <!-- CON membresía activa o trial -->
           <ng-container *ngIf="membership && membership.isActive">
-            <div class="flex justify-center" style="margin-bottom: 1rem">
-              <span class="text-xs font-bold rounded-full px-3 py-1"
-                [style.background]="membership.status === 'ACTIVE' ? '#2ecc7120' : '#4CA1AF20'"
-                [style.color]="membership.status === 'ACTIVE' ? '#27ae60' : '#4CA1AF'">
-                {{ membership.status === 'ACTIVE' ? '✅ Membresía activa' : '🎁 Prueba gratuita' }}
-                — {{ membership.daysLeft }} días restantes
-              </span>
-            </div>
 
             <ng-container *ngIf="myProfile">
               <app-therapist-profile [specialist]="myProfile" (edit)="showForm = true">
@@ -196,20 +182,16 @@ import { Specialist } from './models/specialist.model';
               <div @bounceIn class="flex flex-col items-center text-center px-2"
                 style="padding-top: 2rem; padding-bottom: 7rem">
                 <div class="relative" style="margin-bottom: 1.75rem">
-                  <div class="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center"
-                    style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF33)">
-                    <img *ngIf="fotoTerapeuta"
-                      [src]="fotoTerapeuta"
-                      class="w-full h-full object-cover"
-                      alt="foto perfil"/>
-                    <span *ngIf="!fotoTerapeuta" style="font-size: 3.5rem">🌱</span>
+                  <div class="w-32 h-32 rounded-full flex items-center justify-center"
+                    style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF33); font-size: 3.5rem">
+                    🌱
                   </div>
                   <div class="absolute -bottom-1 -right-2 w-11 h-11 rounded-full flex items-center justify-center shadow-md"
                     style="background: #4C9EEB; font-size: 1.1rem">✨</div>
                 </div>
                 <h2 class="text-2xl font-bold tracking-tight"
                   style="color: #1d1d1d; font-family: Manrope, sans-serif; margin-bottom: 0.5rem">
-                  {{ membership.status === 'ACTIVE' ? '¡Membresía activa! 🎉' : '¡Prueba activada! 🎉' }}
+                  ¡Membresía activa! 🎉
                 </h2>
                 <p class="text-gray-400 text-sm leading-relaxed max-w-xs" style="margin-bottom: 2rem">
                   Ya puedes registrar tus servicios y empezar a recibir pacientes.
@@ -225,8 +207,12 @@ import { Specialist } from './models/specialist.model';
                   style="padding: 1rem; background: linear-gradient(135deg, #2C3E50, #4CA1AF); gap: 0.5rem">
                   🚀 Registrar mis servicios
                 </button>
+                <p class="text-xs text-gray-400" style="margin-top: 1rem">
+                  Solo toma unos minutos completar tu perfil
+                </p>
               </div>
             </ng-container>
+
           </ng-container>
         </ng-container>
 
@@ -278,17 +264,6 @@ export class ServicesComponent implements OnInit, OnDestroy {
 
   chips = ['Sin comisiones', 'Citas ilimitadas', 'Cancela cuando quieras'];
 
-  // ── Foto de perfil del terapeuta desde localStorage ──────────────────────
-  get fotoTerapeuta(): string | null {
-    try {
-      const persona = localStorage.getItem('persona');
-      if (persona) return JSON.parse(persona)?.fotoPerfilUrl || null;
-      return null;
-    } catch {
-      return null;
-    }
-  }
-
   get inicial(): string {
     return this.authSvc.getAuthUser()?.nombre?.charAt(0).toUpperCase() ?? '?';
   }
@@ -320,8 +295,8 @@ export class ServicesComponent implements OnInit, OnDestroy {
   private loadTherapistView(): void {
     this.loading = true;
     this.membershipSvc.getStatus().subscribe({
-      next:  m  => { this.membership = m; },
-      error: () => { this.membership = null; },
+      next:  m  => this.membership = m,
+      error: () => this.membership = null,
     });
     this.specialistSvc.getMyProfile().subscribe({
       next:  p  => { this.myProfile = p; this.loading = false; },
@@ -383,8 +358,8 @@ export class ServicesComponent implements OnInit, OnDestroy {
     this.membershipError = '';
     this.membershipSvc.checkout().subscribe({
       next: ({ checkoutUrl }) => {
-        this.payLoading      = false;
-        this.waitingPayment  = true;
+        this.payLoading     = false;
+        this.waitingPayment = true;
         window.open(checkoutUrl, '_blank');
         this.startPolling();
       },
