@@ -8,13 +8,10 @@ import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-
 @Component({
     selector: 'app-confirm-emergency',
     standalone: true,
-    imports: [CommonModule, BottomNavComponent, ButtonComponent, HeaderWithIconsComponent],
+    imports: [CommonModule, ButtonComponent,],
     template: `
     <div class="min-h-screen relative font-sans text-text-primary">
     
-         <!-- Header -->
-        <app-header-with-icons [centerText]="'Confirmar Emergencia'" [disableBack]="false" [disableRightIcon]="false" ></app-header-with-icons>
-
       <!-- Content Card -->
       <div class="px-6 mt-12 flex flex-col items-center text-center pb-20">
           <h2 class="text-2xl font-bold mb-4 text-text-primary">
@@ -41,8 +38,6 @@ import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-
           </div>
       </div>
 
-         <!-- Bottom Navigation -->
-        <app-bottom-nav></app-bottom-nav>
     </div>
     
   `,
@@ -73,11 +68,11 @@ export class ConfirmEmergencyComponent {
     constructor(private router: Router) { }
 
     confirm() {
-        this.router.navigate(['/emergency/sent']);
+        this.router.navigate(['/user/emergency/sent']);
     }
 
     cancel() {
-        this.router.navigate(['/']);
+        this.router.navigate(['/user/dashboard']);
     }
 
 }

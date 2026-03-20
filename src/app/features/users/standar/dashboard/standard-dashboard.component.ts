@@ -276,7 +276,7 @@ export class StandardDashboardComponent implements OnInit {
   }
 
   onEmergency() {
-    this.router.navigate(['/emergency/confirm']);
+    this.router.navigate(['user/emergency/confirm']);
   }
 
   formatDate(dateStr: string): string {
