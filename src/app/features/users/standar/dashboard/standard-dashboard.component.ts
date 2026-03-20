@@ -1,8 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { DashboardService, UserInfo, Appointment, Habit, DiaryEntry } from '../../../../core/services/dashboard.service';
 import { EuphoriaService, MensajeResponse } from '../../../../core/services/euphoria.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-standard-dashboard',
@@ -156,6 +157,8 @@ import { EuphoriaService, MensajeResponse } from '../../../../core/services/euph
                 {{ habit.progress }}%
               </span>
             </div>
+            <!-- Detalle del hábito -->
+            <span *ngIf="habit.time" class="text-[10px] text-gray-400 text-center">{{ habit.time }}</span>
             <span class="text-xs font-semibold text-gray-600 text-center">{{ habit.label }}</span>
           </div>
         </div>
@@ -216,6 +219,15 @@ export class StandardDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDashboard();
+
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      filter((event: any) => event.urlAfterRedirects.includes('/user/dashboard'))
+    ).subscribe(() => {
+      if (this.userId) {
+        this.loadHabits(this.userId);
+      }
+    });
   }
 
   private loadDashboard(): void {

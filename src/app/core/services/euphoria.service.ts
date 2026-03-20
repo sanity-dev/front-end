@@ -228,6 +228,24 @@ export class EuphoriaService {
 
   }
 
+  triggerEmergencyCall(): Observable<any> {
+  return this.obtenerUserIdDelToken().pipe(
+    switchMap(userId => {
+      const body = {
+        mensaje: 'emergency',
+        session_id: this.sessionId,
+        ...(userId ? { user_id: userId } : {})
+      };
+      return this.http.post(
+        `${this.apiUrl}/emergency-call`,
+        body,
+        { headers: this.getAuthHeaders() }
+      );
+    }),
+    catchError(this.manejarError.bind(this))
+  );
+}
+
   checkMood(mood: string): Observable<MoodCheckResponse> {
 
     return this.obtenerUserIdDelToken().pipe(

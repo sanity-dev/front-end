@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BottomNavComponent } from '../../../../shared/components/bottom-nav/bottom-nav.component';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-icons.component';
+import { EuphoriaService } from '../../../../core/services/euphoria.service';
 
 @Component({
     selector: 'app-confirm-emergency',
@@ -26,14 +27,14 @@ import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-
                   variant="primary"
                   [fullWidth]="true"
                   (click)="confirm()"
-                  class="shadow-none rounded-xl"
+                  customClass="shadow-none rounded-xl"
               >Enviar</app-button>
 
               <app-button
                   variant="secondary"
                   [fullWidth]="true"
                   (click)="cancel()"
-                   class="shadow-none rounded-xl"
+                  customClass="shadow-none rounded-xl"
               >Cancelar</app-button>
           </div>
       </div>
@@ -41,34 +42,23 @@ import { HeaderWithIconsComponent } from '../../../../layout/header/header-with-
     </div>
     
   `,
-    styles: [`
-    :host ::ng-deep app-button[variant="primary"] button {
-        background-color: #4C9EEB;
-        color: #ffffff;
-        font-weight: 600;
-        border-radius: 12px;
-    }
-    :host ::ng-deep app-button[variant="primary"] button:hover {
-        background-color: #3b82f6;
-    }
-
-    :host ::ng-deep app-button[variant="secondary"] button {
-        background-color: #f1f5f9;
-        color: #1d1d1d;
-        font-weight: 600;
-        border-radius: 12px;
-    }
-     :host ::ng-deep app-button[variant="secondary"] button:hover {
-        background-color: #e2e8f0;
-    }
-  `]
+    styles: []
 })
 export class ConfirmEmergencyComponent {
 
-    constructor(private router: Router) { }
+    constructor(private router: Router, private euphoriaService: EuphoriaService) { }
 
     confirm() {
-        this.router.navigate(['/user/emergency/sent']);
+        this.euphoriaService.triggerEmergencyCall().subscribe({
+            next: (response) => {
+                console.log('Emergencia ejecutada:', response);
+                this.router.navigate(['/user/emergency/sent']);
+            },
+            error: (error) => {
+                console.error('Error:', error);
+                this.router.navigate(['/user/emergency/sent']);
+            }
+        });
     }
 
     cancel() {
