@@ -94,7 +94,6 @@ export class AuthService {
             if (response.persona.tipoUsuario) {
               localStorage.setItem('userType', response.persona.tipoUsuario);
             }
-            localStorage.setItem('persona', JSON.stringify(response.persona));
             this.notificacionService.conectarSSE(response.persona.idPersona.toString());
           }
           this.isAuthenticatedSubject.next(true);
@@ -123,7 +122,6 @@ export class AuthService {
         if (response.token) {
           this.setToken(response.token);
           if (response.persona) {
-            localStorage.setItem('persona', JSON.stringify(response.persona));
             this.notificacionService.conectarSSE(response.persona.idPersona.toString());
           }
           this.isAuthenticatedSubject.next(true);
@@ -152,7 +150,6 @@ export class AuthService {
         if (response.token) {
           this.setToken(response.token);
           if (response.persona) {
-            localStorage.setItem('persona', JSON.stringify(response.persona));
             this.notificacionService.conectarSSE(response.persona.idPersona.toString());
           }
           this.isAuthenticatedSubject.next(true);
@@ -173,7 +170,6 @@ export class AuthService {
             if (response.persona.tipoUsuario) {
               localStorage.setItem('userType', response.persona.tipoUsuario);
             }
-            localStorage.setItem('persona', JSON.stringify(response.persona));
             this.notificacionService.conectarSSE(response.persona.idPersona.toString());
           }
           this.isAuthenticatedSubject.next(true);
@@ -204,7 +200,6 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userType');
-    localStorage.removeItem('persona');
     localStorage.removeItem('euphoria_session_id');
     this.notificacionService.desconectarSSE();
     this.isAuthenticatedSubject.next(false);
