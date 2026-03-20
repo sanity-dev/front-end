@@ -54,6 +54,7 @@ export class StandardUserLayoutComponent {
   onRightIconClick(): void {
     const actionMap: Record<string, string> = {
       settings: '/user/settings',
+      notification: '/user/notifications',
     };
     const route = actionMap[this.headerRightIcon];
     if (route) this.router.navigate([route]);
