@@ -184,7 +184,6 @@ export class AuthService {
   private removeToken(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userType');
-    localStorage.removeItem('persona'); 
   }
 
   /**

@@ -5,10 +5,7 @@ export interface DisponibilidadSlot {
 }
 
 export interface Specialist {
-  id: number;
   userId: number;
-  email?: string;
-  fotoPerfilUrl?: string | null;
   nombre?: string;
   tituloProfesional: string;
   presentacion: string;
@@ -61,6 +58,18 @@ export interface JwtPayload {
   sub: string;
   rol?: 'TERAPEUTA' | 'USUARIO';
   exp?: number;
+}
+
+export interface Specialist {
+  id: number;        // ← agrega este campo (PK de la tabla specialist)
+  userId: number;
+  nombre?: string;
+  tituloProfesional: string;
+  presentacion: string;
+  especialidades: string[];
+  servicios: string[];
+  disponibilidad: string;
+  citas?: Appointment[];
 }
 
 export function parseDisponibilidad(raw: string): DisponibilidadSlot[] {

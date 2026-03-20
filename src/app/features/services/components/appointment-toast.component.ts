@@ -31,33 +31,34 @@ import { Specialist, CreateAppointmentDto, parseDisponibilidad } from '../models
   template: `
     <div @fadeIn class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" (click)="close()"></div>
 
-    <div @slideUp class="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl flex flex-col">
+    <div
+      @slideUp
+      class="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl max-h-[82vh] flex flex-col"
+    >
       <!-- Handle -->
       <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
-        <div class="w-10 h-1 rounded-full bg-gray-200"></div>
+        <div class="w-10 h-1 rounded-full bg-white-sanity"></div>
       </div>
 
       <!-- Header -->
-      <div class="px-5 pt-1 pb-3 border-b border-gray-100 flex-shrink-0">
-        <div class="flex items-center gap-2 mb-2">
+      <div class="px-6 pt-2 pb-4 border-b border-white-sanity/50 flex-shrink-0">
+        <div class="flex items-center gap-3 mb-3">
           <div
-            class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+            class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
             style="background: linear-gradient(135deg, #4C9EEB, #4CA1AF)"
           >
             🧑‍⚕️
           </div>
           <div class="flex-1 min-w-0">
-            <h2 class="font-bold text-text-primary text-sm">
-              {{ specialist.nombre || 'Terapeuta' }}
-            </h2>
-            <p class="text-xs text-third-background truncate">{{ specialist.tituloProfesional }}</p>
+            <h2 class="font-bold text-text-primary">{{ specialist.nombre || 'Terapeuta' }}</h2>
+            <p class="text-sm text-third-background truncate">{{ specialist.tituloProfesional }}</p>
           </div>
           <button
             (click)="close()"
-            class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0"
+            class="w-9 h-9 rounded-full bg-white-sanity/40 flex items-center justify-center flex-shrink-0"
           >
             <svg
-              class="w-4 h-4 text-text-primary"
+              class="w-5 h-5 text-text-primary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -71,12 +72,11 @@ import { Specialist, CreateAppointmentDto, parseDisponibilidad } from '../models
             </svg>
           </button>
         </div>
-
         <!-- Slots de disponibilidad -->
         <div class="flex flex-wrap gap-1">
           <span
-            *ngFor="let slot of slots.slice(0, 3)"
-            class="px-2 py-0.5 rounded-lg text-[9px] font-bold bg-third-background/10 text-third-background"
+            *ngFor="let slot of slots.slice(0, 4)"
+            class="px-2 py-1 rounded-lg text-[10px] font-bold bg-third-background/10 text-third-background"
           >
             {{ slot.dia }} {{ slot.horaInicio }}–{{ slot.horaFin }}
           </span>
@@ -87,19 +87,17 @@ import { Specialist, CreateAppointmentDto, parseDisponibilidad } from '../models
       <form
         [formGroup]="form"
         (ngSubmit)="onSubmit()"
-        class="flex flex-col px-5 py-4 gap-3 flex-shrink-0 pb-24"
+        class="flex-1 overflow-y-auto px-6 py-4 space-y-4 pb-8 scrollbar-hide"
       >
         <!-- Tipo de sesión -->
         <div>
-          <label class="block text-xs font-semibold text-text-primary mb-1.5"
-            >Tipo de sesión *</label
-          >
+          <label class="block text-sm font-semibold text-text-primary mb-2">Tipo de sesión *</label>
           <div class="grid grid-cols-2 gap-2">
             <button
               type="button"
               *ngFor="let tipo of specialist.servicios"
               (click)="form.patchValue({ tipoSesion: tipo })"
-              class="px-3 py-2.5 rounded-xl border text-xs font-semibold text-center transition-all"
+              class="px-4 py-3 rounded-xl border text-xs font-semibold text-center transition-all"
               [class]="
                 form.value.tipoSesion === tipo
                   ? 'bg-third-background text-white border-third-background'
@@ -109,21 +107,21 @@ import { Specialist, CreateAppointmentDto, parseDisponibilidad } from '../models
               {{ tipo }}
             </button>
           </div>
-          <p *ngIf="f['tipoSesion'].invalid && submitted" class="text-red-400 text-[10px] mt-1">
+          <p *ngIf="f['tipoSesion'].invalid && submitted" class="text-red-400 text-xs mt-1">
             Selecciona un tipo de sesión
           </p>
         </div>
 
         <!-- Fecha y hora -->
         <div>
-          <label class="block text-xs font-semibold text-text-primary mb-1.5">Fecha y hora *</label>
+          <label class="block text-sm font-semibold text-text-primary mb-1.5">Fecha y hora *</label>
           <input
             formControlName="fecha"
             type="datetime-local"
-            class="w-full rounded-xl border border-white-sanity bg-gray-50 px-3 py-2.5 text-sm text-text-primary
+            class="w-full rounded-xl border border-white-sanity bg-gray-50 px-4 py-3 text-sm text-text-primary
                    focus:outline-none focus:ring-2 focus:ring-secondary-background focus:border-transparent transition"
           />
-          <p *ngIf="f['fecha'].invalid && f['fecha'].touched" class="text-red-400 text-[10px] mt-1">
+          <p *ngIf="f['fecha'].invalid && f['fecha'].touched" class="text-red-400 text-xs mt-1">
             Selecciona fecha y hora
           </p>
         </div>
@@ -131,7 +129,7 @@ import { Specialist, CreateAppointmentDto, parseDisponibilidad } from '../models
         <!-- Error -->
         <div
           *ngIf="errorMsg"
-          class="bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-xs text-red-500"
+          class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-500"
         >
           {{ errorMsg }}
         </div>
@@ -139,7 +137,7 @@ import { Specialist, CreateAppointmentDto, parseDisponibilidad } from '../models
         <!-- Éxito -->
         <div
           *ngIf="success"
-          class="rounded-xl px-3 py-2 text-xs font-semibold flex items-center gap-2 bg-third-background/10 text-third-background border border-third-background/30"
+          class="rounded-xl px-4 py-3 text-sm font-semibold flex items-center gap-2 bg-third-background/10 text-third-background border border-third-background/30"
         >
           ✅ ¡Cita agendada exitosamente!
         </div>
@@ -148,7 +146,7 @@ import { Specialist, CreateAppointmentDto, parseDisponibilidad } from '../models
         <button
           type="submit"
           [disabled]="loading || success"
-          class="w-full py-3.5 rounded-2xl text-white font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-60"
+          class="w-full py-4 rounded-2xl text-white font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-60"
           style="background: linear-gradient(135deg, #4C9EEB, #4CA1AF)"
         >
           <span *ngIf="!loading && !success">Confirmar cita 📅</span>
@@ -227,7 +225,7 @@ export class AppointmentToastComponent implements OnInit {
       pacienteID: user.userId,
       tipoSesion: this.form.value.tipoSesion,
       fecha: this.form.value.fecha,
-      specialistUserId: this.specialist.id,
+      specialistUserId: this.specialist.id, // ← cambia .userId por .id
     };
 
     this.specialistSvc.createAppointment(dto).subscribe({
