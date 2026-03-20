@@ -131,36 +131,32 @@ export class JournalEntryComponent implements OnInit, AfterViewChecked {
   onImageSelected(event: any) {
     const file = event.target.files[0];
     if (file && this.activeDiarioId) {
-      // AQUÍ IDEALMENTE SUBIRÍAS LA IMAGEN A UN STORAGE (S3, Cloudinary, etc.)
-      // Y OBTENDRÍAS LA URL. Simularemos esto leyendo el file local como base64:
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        const imageUrl = e.target.result;
+      // Create a local temporary URL for immediate preview
+      const tempUrl = URL.createObjectURL(file);
         
-        const msg: NuevoMensajeDTO = {
-          contenido: imageUrl,
-          tipo: 'IMAGEN'
-        };
-
-        const optimisticMsg: MensajeDiarioDTO = {
-          id: 'temp-img-' + Date.now(),
-          contenido: imageUrl,
-          tipo: 'IMAGEN',
-          fechaEnvio: new Date().toISOString()
-        };
-        this.mensajes.push(optimisticMsg);
-
-        this.journalService.agregarMensaje(this.activeDiarioId!, msg).subscribe({
-          next: (savedMsg) => {
-            const index = this.mensajes.findIndex(m => m.id === optimisticMsg.id);
-            if (index !== -1) {
-              this.mensajes[index] = savedMsg;
-            }
-          },
-          error: (err) => console.error('Error subiendo imagen:', err)
-        });
+      const optimisticMsg: MensajeDiarioDTO = {
+        id: 'temp-img-' + Date.now(),
+        contenido: tempUrl,
+        tipo: 'IMAGEN',
+        fechaEnvio: new Date().toISOString()
       };
-      reader.readAsDataURL(file);
+      this.mensajes.push(optimisticMsg);
+
+      this.journalService.subirImagenMensaje(this.activeDiarioId!, file).subscribe({
+        next: (savedMsg) => {
+          const index = this.mensajes.findIndex(m => m.id === optimisticMsg.id);
+          if (index !== -1) {
+            this.mensajes[index] = savedMsg;
+            URL.revokeObjectURL(tempUrl); // Free memory
+          }
+        },
+        error: (err) => {
+          console.error('Error subiendo imagen:', err);
+          URL.revokeObjectURL(tempUrl); // Free memory
+          // We could remove the optimistic message on error:
+          this.mensajes = this.mensajes.filter(m => m.id !== optimisticMsg.id);
+        }
+      });
     }
     event.target.value = null; // reset input
   }

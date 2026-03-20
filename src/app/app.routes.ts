@@ -46,6 +46,12 @@ export const routes: Routes = [
                 .then(m => m.RESET_PASSWORD_ROUTES)
     },
     {
+        path: 'resetear-password',
+        loadComponent: () =>
+            import('./features/reset-password/reset-password.component')
+                .then(m => m.ResetPasswordComponent)
+    },
+    {
         path: 'euphoria/chat',
         loadComponent: () =>
             import('./features/euphoria/components/chat.component')
@@ -111,7 +117,20 @@ export const routes: Routes = [
                     import('./features/emergency/pages/sent/alert-sent.component')
                         .then(m => m.AlertSentComponent)
             },
-
+            {
+                path: 'notifications',
+                data: { headerText: 'Notificaciones' },
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('./features/notifications/notification-list.component').then(m => m.NotificationListComponent)
+                    },
+                    {
+                        path: 'preferences',
+                        loadComponent: () => import('./features/notifications/notification-preferences.component').then(m => m.NotificationPreferencesComponent)
+                    }
+                ]
+            }
         ]
     },
 ];

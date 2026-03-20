@@ -50,4 +50,11 @@ export class JournalService {
   agregarMensaje(diarioId: string, mensaje: NuevoMensajeDTO): Observable<MensajeDiarioDTO> {
     return this.http.post<MensajeDiarioDTO>(`${this.apiUrl}/${diarioId}/mensajes`, mensaje);
   }
+
+  // Subir imagen a Google Cloud y guardarla como un mensaje de diario
+  subirImagenMensaje(diarioId: string, file: File): Observable<MensajeDiarioDTO> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<MensajeDiarioDTO>(`${this.apiUrl}/${diarioId}/mensajes/upload`, formData);
+  }
 }

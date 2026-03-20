@@ -61,7 +61,22 @@ export class NotificacionService {
   obtenerMisNotificaciones(): Observable<Notificacion[]> {
     console.log('📬 Obteniendo notificaciones del usuario logueado');
 
-    return this.http.get<Notificacion[]>(`${this.apiUrl}/me`).pipe(
+    let usuarioId = '';
+    try {
+      const personaStr = localStorage.getItem('persona');
+      if (personaStr) {
+        const p = JSON.parse(personaStr);
+        if (p && p.idPersona) {
+          usuarioId = p.idPersona.toString();
+        }
+      }
+    } catch (e) {
+      console.error('Error al leer idPersona para obtener notificaciones', e);
+    }
+
+    const endpoint = usuarioId ? `${this.apiUrl}/usuario/${usuarioId}` : `${this.apiUrl}/me`;
+
+    return this.http.get<Notificacion[]>(endpoint).pipe(
       tap(notificaciones => {
         console.log(`✅ ${notificaciones.length} notificaciones recibidas`);
         this.notificacionesSubject.next(notificaciones);
@@ -160,6 +175,61 @@ export class NotificacionService {
   private actualizarContadorNoLeidas(notificaciones: Notificacion[]): void {
     const noLeidas = notificaciones.filter(n => !n.leida).length;
     this.noLeidasSubject.next(noLeidas);
+  }
+
+  // ============================================
+  // SSE PUSH NOTIFICATIONS
+  // ============================================
+
+  private eventSource: EventSource | null = null;
+
+  /**
+   * Conectar al stream de Eventos (SSE) para recibir notificaciones push en tiempo real.
+   */
+  conectarSSE(usuarioId: string): void {
+    if (this.eventSource) {
+      console.log('⚠️ Ya existe una conexión SSE activa.');
+      return;
+    }
+
+    const token = localStorage.getItem('authToken');
+    const sseUrl = `${this.apiUrl}/stream/${usuarioId}?token=${token}`;
+    console.log('🔌 Conectando a SSE en:', sseUrl);
+
+    this.eventSource = new EventSource(sseUrl);
+
+    this.eventSource.onopen = (event) => {
+      console.log('✅ Conexión SSE establecida:', event);
+    };
+
+    this.eventSource.addEventListener('notification', (event: MessageEvent) => {
+      console.log('🔔 [SSE PUSH] Notificación recibida:', event.data);
+      try {
+        const nuevaNotificacion: Notificacion = JSON.parse(event.data);
+        const current = this.notificacionesSubject.value;
+        this.notificacionesSubject.next([nuevaNotificacion, ...current]);
+        this.actualizarContadorNoLeidas(this.notificacionesSubject.value);
+      } catch (error) {
+        console.error('❌ Error parseando la notificación SSE:', error);
+      }
+    });
+
+    this.eventSource.onerror = (error) => {
+      console.error('❌ Error en la conexión SSE:', error);
+      this.desconectarSSE();
+      // Simple exp backoff / retry strategy could be implemented here
+    };
+  }
+
+  /**
+   * Cierra la conexión SSE activa. Útil al hacer logout.
+   */
+  desconectarSSE(): void {
+    if (this.eventSource) {
+      console.log('🔌 Desconectando SSE...');
+      this.eventSource.close();
+      this.eventSource = null;
+    }
   }
 
   // ============================================
