@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { ButtonComponent } from '../../../../../shared/components/button/button.component';
 import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
 import { InputComponent } from '../../../../../shared/components/input/input.component';
@@ -33,7 +32,6 @@ import { environment } from '../../../../../../environments/environment';
           <div *ngIf="loginForm.get('email')?.errors?.['email']">Ingrese un correo válido.</div>
         </div>
       </div>
-
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
         <app-input
@@ -60,92 +58,61 @@ import { environment } from '../../../../../../environments/environment';
         >
           {{ isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
         </app-button>
-
+        
         <div class="relative flex items-center gap-4">
           <div class="flex-1 border-t border-gray-300"></div>
           <span class="text-gray-400 text-sm font-medium">O</span>
           <div class="flex-1 border-t border-gray-300"></div>
         </div>
-
+        
         <app-google-button
           text="Continuar con Google"
           (onClick)="handleGoogleLogin()"
         ></app-google-button>
       </div>
-
-      <div class="mt-12 text-xl text-center text-text-secondary space-y-2">
-        <a routerLink="/register" class="block underline font-semibold">Registrarse</a>
-      </div>
+      
+     <div class="mt-12 text-xl text-center text-text-secondary space-y-2">
+                <a routerLink="/register" class="block underline font-semibold">Registrarse</a>
+     </div>
     </form>
   `,
   styles: []
 })
 export class LoginFormComponent {
   loginForm: FormGroup;
-  isLoading    = false;
+  isLoading = false;
   errorMessage = '';
 
   constructor(
-    private fb:          FormBuilder,
+    private fb: FormBuilder,
     private authService: AuthService,
-    private http:        HttpClient,
-    private router:      Router
+    private router: Router
   ) {
     this.loginForm = this.fb.group({
-      email:    ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
   }
 
   onSubmit() {
     if (this.loginForm.valid) {
-      this.isLoading   = true;
+      this.isLoading = true;
       this.errorMessage = '';
 
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
-          // Guardar persona básica si viene en la respuesta
-          if (response.persona) {
-            localStorage.setItem('persona', JSON.stringify(response.persona));
-          }
-          // Cargar perfil completo con fotoPerfilUrl desde el backend
-          this.cargarPerfilCompleto(() => {
-            this.isLoading = false;
-            this.router.navigate([this.authService.getRedirectUrl()]);
-          });
+          this.isLoading = false;
+          // Redirige al dashboard según tipo de usuario
+          this.router.navigate([this.authService.getRedirectUrl()]);
         },
         error: (error) => {
           console.error('Error en el inicio de sesión', error);
-          this.isLoading   = false;
+          this.isLoading = false;
           this.errorMessage = error.error?.message || 'Error en el inicio de sesión. Verifica tus credenciales.';
         }
       });
     } else {
       this.loginForm.markAllAsTouched();
-    }
-  }
-
-  // ── Cargar perfil completo con fotoPerfilUrl ──────────────────────────────
-  private cargarPerfilCompleto(callback: () => void): void {
-    const token = localStorage.getItem('authToken');
-    if (!token) { callback(); return; }
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const email   = payload.sub;
-
-      this.http.get<any[]>(`${environment.apiUrl}/api/personas`).subscribe({
-        next: (personas) => {
-          const found = personas.find(p => p.correo === email);
-          if (found) {
-            localStorage.setItem('persona', JSON.stringify(found));
-          }
-          callback();
-        },
-        error: () => callback() // Si falla igual navega
-      });
-    } catch {
-      callback();
     }
   }
 
@@ -162,21 +129,16 @@ export class LoginFormComponent {
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {
-          this.isLoading   = true;
+          this.isLoading = true;
           this.errorMessage = '';
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
-              if (authResponse.persona) {
-                localStorage.setItem('persona', JSON.stringify(authResponse.persona));
-              }
-              this.cargarPerfilCompleto(() => {
-                this.isLoading = false;
-                this.router.navigate([this.authService.getRedirectUrl()]);
-              });
+              this.isLoading = false;
+              this.router.navigate([this.authService.getRedirectUrl()]);
             },
             error: (error) => {
               console.error('Error en inicio de sesión con Google', error);
-              this.isLoading   = false;
+              this.isLoading = false;
               this.errorMessage = 'Error al iniciar sesión con Google. Intenta nuevamente.';
             }
           });
