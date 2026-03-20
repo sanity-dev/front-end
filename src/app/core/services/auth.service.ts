@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, map } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { NotificacionService } from './notificacion.service';
 
 export interface LoginPayload {
   email: string;
@@ -57,7 +58,24 @@ export class AuthService {
 
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private notificacionService: NotificacionService,
+  ) {
+    if (this.hasToken()) {
+      const personaKey = localStorage.getItem('persona');
+      if (personaKey) {
+        try {
+          const p = JSON.parse(personaKey);
+          if (p && p.idPersona) {
+            this.notificacionService.conectarSSE(p.idPersona.toString());
+          }
+        } catch (e) {
+          console.error('Error parsing persona in AuthService', e);
+        }
+      }
+    }
+  }
 
   /**
    * Inicia sesión con email y contraseña
@@ -72,8 +90,12 @@ export class AuthService {
       tap((response) => {
         if (response.token) {
           this.setToken(response.token);
-          if (response.persona?.tipoUsuario) {
-            localStorage.setItem('userType', response.persona.tipoUsuario);
+          if (response.persona) {
+            if (response.persona.tipoUsuario) {
+              localStorage.setItem('userType', response.persona.tipoUsuario);
+            }
+            localStorage.setItem('persona', JSON.stringify(response.persona));
+            this.notificacionService.conectarSSE(response.persona.idPersona.toString());
           }
           this.isAuthenticatedSubject.next(true);
         }
@@ -100,6 +122,10 @@ export class AuthService {
       tap((response) => {
         if (response.token) {
           this.setToken(response.token);
+          if (response.persona) {
+            localStorage.setItem('persona', JSON.stringify(response.persona));
+            this.notificacionService.conectarSSE(response.persona.idPersona.toString());
+          }
           this.isAuthenticatedSubject.next(true);
         }
       }),
@@ -125,6 +151,10 @@ export class AuthService {
       tap((response) => {
         if (response.token) {
           this.setToken(response.token);
+          if (response.persona) {
+            localStorage.setItem('persona', JSON.stringify(response.persona));
+            this.notificacionService.conectarSSE(response.persona.idPersona.toString());
+          }
           this.isAuthenticatedSubject.next(true);
         }
       }),
@@ -139,8 +169,12 @@ export class AuthService {
       tap((response) => {
         if (response.token) {
           this.setToken(response.token);
-          if (response.persona?.tipoUsuario) {
-            localStorage.setItem('userType', response.persona.tipoUsuario);
+          if (response.persona) {
+            if (response.persona.tipoUsuario) {
+              localStorage.setItem('userType', response.persona.tipoUsuario);
+            }
+            localStorage.setItem('persona', JSON.stringify(response.persona));
+            this.notificacionService.conectarSSE(response.persona.idPersona.toString());
           }
           this.isAuthenticatedSubject.next(true);
         }
@@ -151,16 +185,28 @@ export class AuthService {
    * envia enlace para recuperar contraseña
    */
   forgotPassword(email: string): Observable<ForgotPasswordResponse> {
-    return this.http.post(`${this.apiUrl}/forgot-password`, { correo: email });
+    return this.http.post(`${environment.apiUrl}/api/recovery/forgot-password`, { correo: email });
   }
+
+  /**
+   * Resetea la contraseña usando un token
+   */
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/api/recovery/reset-password`, {
+      token: token,
+      nuevaPassword: newPassword,
+    });
+  }
+
   /**
    * Cierra la sesión
    */
   logout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userType');
-    localStorage.removeItem('persona'); 
-    localStorage.removeItem('euphoria_session_id'); 
+    localStorage.removeItem('persona');
+    localStorage.removeItem('euphoria_session_id');
+    this.notificacionService.desconectarSSE();
     this.isAuthenticatedSubject.next(false);
   }
 
@@ -184,6 +230,7 @@ export class AuthService {
   private removeToken(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userType');
+    localStorage.removeItem('persona');
   }
 
   /**

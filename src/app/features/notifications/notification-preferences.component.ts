@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BottomNavComponent } from '../../shared/components/bottom-nav/bottom-nav.component';
+import { SettingsItemComponent } from '../../shared/components/setting-button/settings-item.component';
 
 interface NotificationPreference {
     label: string;
@@ -22,71 +24,57 @@ interface NotificationMethod {
 @Component({
     selector: 'app-notification-preferences',
     standalone: true,
-    imports: [CommonModule, BottomNavComponent],
+    imports: [CommonModule, BottomNavComponent, SettingsItemComponent],
     template: `
-    <div class="min-h-screen bg-gradient-to-b from-[#6eb5e8] via-[#a8d4f0] to-[#d0e8f5] flex flex-col font-sans pb-20">
+    <div class="flex flex-col min-h-screen bg-linear-to-b from-grey-400 to-grey-600 pb-20">
 
       <!-- Header -->
-      <header class="flex items-center px-4 sm:px-6 py-4 bg-[#6eb5e8]">
+      <header class="flex items-center px-4 sm:px-6 py-4 mt-2">
         <button (click)="goBack()" class="p-2 rounded-full hover:bg-white/20 transition-colors mr-3">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-[#1e293b]">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-text-primary">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
           </svg>
         </button>
-        <h1 class="text-lg font-semibold text-[#1e293b]">Notificaciones</h1>
+        <h1 class="text-xl font-bold text-text-primary">Notificaciones</h1>
       </header>
 
       <!-- Content -->
-      <main class="flex-1 px-4 sm:px-6 py-4 max-w-4xl mx-auto w-full space-y-6">
+      <main class="flex-1 px-5 py-4 w-full space-y-6">
 
         <!-- Notification sections -->
-        <div *ngFor="let section of sections" class="space-y-1">
-          <h2 class="text-base font-bold text-[#1e293b] mb-3">{{ section.title }}</h2>
-
-          <div *ngFor="let pref of section.preferences"
-               class="bg-white/40 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/50 flex items-center justify-between gap-3 mb-2">
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-[#1e293b]">{{ pref.label }}</p>
-              <p class="text-xs text-[#1e293b]/60 mt-0.5">{{ pref.description }}</p>
-            </div>
-
-            <!-- Toggle switch -->
-            <button
-              (click)="togglePreference(pref)"
-              class="relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0"
-              [class.bg-blue-500]="pref.enabled"
-              [class.bg-gray-300]="!pref.enabled"
+        <div *ngFor="let section of sections" class="space-y-2">
+          <h2 class="text-base font-bold text-text-primary px-1">{{ section.title }}</h2>
+          <div class="flex flex-col gap-2">
+            <app-settings-item
+              *ngFor="let pref of section.preferences"
+              [label]="pref.label"
+              [description]="pref.description"
+              type="toggle"
+              [(checked)]="pref.enabled"
+              (checkedChange)="onPreferenceChange()"
             >
-              <span
-                class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200"
-                [class.translate-x-5]="pref.enabled"
-                [class.translate-x-0.5]="!pref.enabled"
-              ></span>
-            </button>
+              <svg icon xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+            </app-settings-item>
           </div>
         </div>
 
         <!-- Notification methods -->
-        <div class="space-y-1">
-          <h2 class="text-base font-bold text-[#1e293b] mb-3">Método de notificación</h2>
-
-          <div *ngFor="let method of methods"
-               class="bg-white/40 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/50 flex items-center justify-between gap-3 mb-2">
-            <p class="text-sm font-medium text-[#1e293b]">{{ method.label }}</p>
-
-            <!-- Toggle switch -->
-            <button
-              (click)="toggleMethod(method)"
-              class="relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0"
-              [class.bg-blue-500]="method.enabled"
-              [class.bg-gray-300]="!method.enabled"
+        <div class="space-y-2">
+          <h2 class="text-base font-bold text-text-primary px-1">Método de notificación</h2>
+          <div class="flex flex-col gap-2">
+            <app-settings-item
+              *ngFor="let method of methods"
+              [label]="method.label"
+              type="toggle"
+              [(checked)]="method.enabled"
+              (checkedChange)="onMethodChange()"
             >
-              <span
-                class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200"
-                [class.translate-x-5]="method.enabled"
-                [class.translate-x-0.5]="!method.enabled"
-              ></span>
-            </button>
+              <svg icon xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+            </app-settings-item>
           </div>
         </div>
 
@@ -98,7 +86,11 @@ interface NotificationMethod {
   `,
     styles: []
 })
-export class NotificationPreferencesComponent {
+export class NotificationPreferencesComponent implements OnInit {
+
+    private router = inject(Router);
+    private http = inject(HttpClient);
+    private apiUrl = 'http://localhost:8080/api/notifications/usuarios';
 
     sections: NotificationSection[] = [
         {
@@ -143,21 +135,104 @@ export class NotificationPreferencesComponent {
         { label: 'Correo electrónico', enabled: true }
     ];
 
-    constructor(private router: Router) { }
-
-    togglePreference(pref: NotificationPreference): void {
-        pref.enabled = !pref.enabled;
-        console.log(`📬 Preferencia "${pref.label}": ${pref.enabled ? 'activada' : 'desactivada'}`);
-        // TODO: Guardar preferencia en el backend cuando el endpoint esté disponible
+    ngOnInit(): void {
+        this.loadPreferences();
     }
 
-    toggleMethod(method: NotificationMethod): void {
-        method.enabled = !method.enabled;
-        console.log(`📨 Método "${method.label}": ${method.enabled ? 'activado' : 'desactivado'}`);
-        // TODO: Guardar preferencia en el backend cuando el endpoint esté disponible
+    getUserId(): string | null {
+        const token = localStorage.getItem('authToken');
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.id || payload.idPersona || payload.sub;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    loadPreferences(): void {
+        const userId = this.getUserId();
+        if (!userId) return;
+
+        this.http.get<any>(`${this.apiUrl}/${userId}/preferencias`).subscribe({
+            next: (data) => {
+                const pushMethod = this.methods.find(m => m.label === 'Notificaciones push');
+                if (pushMethod) pushMethod.enabled = data.pushEnabled ?? true;
+                
+                const emailMethod = this.methods.find(m => m.label === 'Correo electrónico');
+                if (emailMethod) emailMethod.enabled = data.emailEnabled ?? true;
+
+                // Recordatorios
+                const recordatoriosSection = this.sections.find(s => s.title === 'Recordatorios');
+                if (recordatoriosSection) {
+                    const citas = recordatoriosSection.preferences.find(p => p.label === 'Recordatorios de citas');
+                    if (citas) citas.enabled = data.recordatoriosCitas ?? true;
+
+                    const actividades = recordatoriosSection.preferences.find(p => p.label === 'Recordatorios de actividades');
+                    if (actividades) actividades.enabled = data.recordatoriosActividades ?? true;
+
+                    const habitos = recordatoriosSection.preferences.find(p => p.label === 'Recordatorios de hábitos');
+                    if (habitos) habitos.enabled = data.recordatoriosHabitos ?? true;
+                }
+
+                // Actualizaciones
+                const actualizacionesSection = this.sections.find(s => s.title === 'Actualizaciones');
+                if (actualizacionesSection) {
+                    const nuevasActividades = actualizacionesSection.preferences.find(p => p.label === 'Nuevas actividades');
+                    if (nuevasActividades) nuevasActividades.enabled = data.nuevasActividades ?? false;
+
+                    const mensajesIa = actualizacionesSection.preferences.find(p => p.label === 'Mensajes del agente de IA');
+                    if (mensajesIa) mensajesIa.enabled = data.mensajesIa ?? true;
+                }
+            },
+            error: (err) => console.error('Error loading preferences', err)
+        });
+    }
+
+    savePreferences(): void {
+        const userId = this.getUserId();
+        if (!userId) return;
+
+        const pushMethod = this.methods.find(m => m.label === 'Notificaciones push');
+        const emailMethod = this.methods.find(m => m.label === 'Correo electrónico');
+
+        // Extract preferences
+        const recordatoriosSection = this.sections.find(s => s.title === 'Recordatorios');
+        const recordatoriosCitas = recordatoriosSection?.preferences.find(p => p.label === 'Recordatorios de citas')?.enabled ?? true;
+        const recordatoriosActividades = recordatoriosSection?.preferences.find(p => p.label === 'Recordatorios de actividades')?.enabled ?? true;
+        const recordatoriosHabitos = recordatoriosSection?.preferences.find(p => p.label === 'Recordatorios de hábitos')?.enabled ?? true;
+
+        const actualizacionesSection = this.sections.find(s => s.title === 'Actualizaciones');
+        const nuevasActividades = actualizacionesSection?.preferences.find(p => p.label === 'Nuevas actividades')?.enabled ?? false;
+        const mensajesIa = actualizacionesSection?.preferences.find(p => p.label === 'Mensajes del agente de IA')?.enabled ?? true;
+
+        const payload = {
+            pushEnabled: pushMethod ? pushMethod.enabled : true,
+            emailEnabled: emailMethod ? emailMethod.enabled : true,
+            recordatoriosCitas: recordatoriosCitas,
+            recordatoriosActividades: recordatoriosActividades,
+            recordatoriosHabitos: recordatoriosHabitos,
+            nuevasActividades: nuevasActividades,
+            mensajesIa: mensajesIa
+        };
+
+        this.http.put(`${this.apiUrl}/${userId}/preferencias`, payload).subscribe({
+            next: () => console.log('Preferencias guardadas'),
+            error: (err) => console.error('Error saving preferences', err)
+        });
+    }
+
+    onPreferenceChange(): void {
+        console.log(`Preferencia actualizada`);
+        this.savePreferences();
+    }
+
+    onMethodChange(): void {
+        console.log(`Método actualizado`);
+        this.savePreferences();
     }
 
     goBack(): void {
-        this.router.navigate(['/notificaciones']);
+        this.router.navigate(['/user/settings']);
     }
 }

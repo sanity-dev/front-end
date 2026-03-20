@@ -41,13 +41,24 @@ import { Specialist, parseDisponibilidad } from '../models/specialist.model';
 
           <!-- Top -->
           <div class="p-5 flex items-start gap-4 bg-gradient-to-r from-secondary-background/5 to-third-background/5">
-            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
-                 style="background: linear-gradient(135deg, #4C9EEB, #4CA1AF)">
-              ⚕️
+
+            <!-- Foto de perfil -->
+            <div
+              class="w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0"
+              style="background: linear-gradient(135deg, #4C9EEB, #4CA1AF)"
+            >
+              <img
+                *ngIf="s.fotoPerfilUrl"
+                [src]="s.fotoPerfilUrl"
+                class="w-full h-full object-cover"
+                alt="foto"
+              />
+              <span *ngIf="!s.fotoPerfilUrl" style="font-size: 1.5rem">⚕️</span>
             </div>
+
             <div class="flex-1 min-w-0">
-              <h3 class="font-bold text-text-primary truncate">{{ s.nombre || 'Terapeuta' }}</h3>
-              <p class="text-xs font-semibold text-third-background truncate mt-0.5">{{ s.tituloProfesional }}</p>
+            <h3 class="font-bold text-text-primary truncate">{{ (s.nombre || s.email || '') | uppercase }}</h3>
+            <p class="text-xs font-semibold text-third-background truncate mt-0.5">{{ s.tituloProfesional }}</p>
               <div class="flex flex-wrap gap-1 mt-2">
                 <span *ngFor="let esp of s.especialidades.slice(0, 2)"
                   class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-third-background/10 text-third-background">

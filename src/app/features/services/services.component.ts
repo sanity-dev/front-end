@@ -1,6 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { trigger, style, animate, transition } from '@angular/animations';
+import { Subscription, interval } from 'rxjs';
+import { switchMap, takeWhile } from 'rxjs/operators';
 import { BottomNavComponent } from '../../shared/components/bottom-nav/bottom-nav.component';
 import { SpecialistService } from './services/specialist.service';
 import { AuthHelperService } from './services/auth-helper.service';
@@ -36,13 +39,33 @@ import { Specialist } from './models/specialist.model';
   template: `
     <div class="min-h-screen" style="background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%)">
 
-      <!-- Top bar -->
-      <header class="bg-white border-b sticky top-0 z-40 px-5 flex items-center justify-between"
-        style="padding-top: 1rem; padding-bottom: 1rem; border-color: #D9D9D9">
-        <div>
-          <p class="text-xs font-medium text-gray-400">{{ saludo }}</p>
-        </div>
-      </header>
+      <!-- Banner de pago exitoso -->
+      <div *ngIf="paymentSuccess" @fadeIn
+        class="mx-5 mt-4 rounded-2xl text-white text-sm font-medium flex items-center gap-2"
+        style="padding: 0.875rem 1rem; background: linear-gradient(135deg, #2ecc71, #27ae60)">
+        ✅ ¡Pago exitoso! Tu membresía ya está activa.
+      </div>
+
+      <!-- Banner esperando pago -->
+      <div *ngIf="waitingPayment" @fadeIn
+        class="mx-5 mt-4 rounded-2xl text-white text-sm font-medium flex items-center gap-2"
+        style="padding: 0.875rem 1rem; background: linear-gradient(135deg, #4C9EEB, #4CA1AF)">
+        ⏳ Esperando confirmación del pago...
+      </div>
+
+      <!-- Banner de pago pendiente -->
+      <div *ngIf="paymentPending" @fadeIn
+        class="mx-5 mt-4 rounded-2xl text-white text-sm font-medium flex items-center gap-2"
+        style="padding: 0.875rem 1rem; background: linear-gradient(135deg, #f39c12, #e67e22)">
+        ⏳ Tu pago está pendiente de confirmación.
+      </div>
+
+      <!-- Banner de pago fallido -->
+      <div *ngIf="paymentFailed" @fadeIn
+        class="mx-5 mt-4 rounded-2xl text-white text-sm font-medium flex items-center gap-2"
+        style="padding: 0.875rem 1rem; background: linear-gradient(135deg, #e74c3c, #c0392b)">
+        ❌ El pago no pudo procesarse. Intenta de nuevo.
+      </div>
 
       <main class="px-5 pt-5">
 
@@ -73,7 +96,6 @@ import { Specialist } from './models/specialist.model';
                 </div>
               </div>
 
-              <!-- Título y descripción -->
               <h2 class="text-2xl font-bold"
                 style="color: #1d1d1d; font-family: Manrope, sans-serif; margin-bottom: 0.5rem">
                 {{ membership?.status === 'EXPIRED' ? '¡Renueva tu membresía!' : '¡Haz crecer tu práctica!' }}
@@ -84,7 +106,7 @@ import { Specialist } from './models/specialist.model';
                   : 'Elige cómo quieres empezar. Puedes probar gratis o activar tu membresía completa desde el primer día.' }}
               </p>
 
-              <!-- Opción 1: Trial gratis — solo si NO tiene membresía previa -->
+              <!-- Trial -->
               <ng-container *ngIf="!membership">
                 <div class="w-full max-w-sm rounded-3xl text-left relative overflow-hidden"
                   style="margin-bottom: 1rem; background: linear-gradient(135deg, #4C9EEB15, #4CA1AF25); border: 2px solid #4CA1AF50; padding: 1.25rem">
@@ -114,7 +136,7 @@ import { Specialist } from './models/specialist.model';
                 </div>
               </ng-container>
 
-              <!-- Opción 2: Pago mensual — siempre visible -->
+              <!-- Pago mensual -->
               <div class="w-full max-w-sm rounded-3xl text-left"
                 style="border: 1.5px solid #E5E7EB; padding: 1.25rem; background: white; margin-bottom: 1rem">
                 <div class="flex items-start justify-between" style="margin-bottom: 0.75rem">
@@ -133,11 +155,11 @@ import { Specialist } from './models/specialist.model';
                   <li>✓ Perfil destacado en búsquedas</li>
                   <li>✓ Soporte prioritario</li>
                 </ul>
-                <button (click)="onPagar()" [disabled]="payLoading"
+                <button (click)="onPagar()" [disabled]="payLoading || waitingPayment"
                   class="w-full rounded-2xl font-bold text-sm border-2"
                   style="padding: 0.875rem; border-color: #4C9EEB; color: #4C9EEB; background: white; transition: opacity 0.2s"
-                  [style.opacity]="payLoading ? '0.7' : '1'">
-                  {{ payLoading ? '⏳ Redirigiendo...' : '💳 Pagar membresía' }}
+                  [style.opacity]="payLoading || waitingPayment ? '0.7' : '1'">
+                  {{ payLoading ? '⏳ Redirigiendo...' : waitingPayment ? '⏳ Esperando pago...' : '💳 Pagar membresía' }}
                 </button>
               </div>
 
@@ -216,10 +238,11 @@ import { Specialist } from './models/specialist.model';
     </div>
   `,
 })
-export class ServicesComponent implements OnInit {
+export class ServicesComponent implements OnInit, OnDestroy {
   private specialistSvc = inject(SpecialistService);
   private authSvc       = inject(AuthHelperService);
   private membershipSvc = inject(MembershipService);
+  private route         = inject(ActivatedRoute);
 
   loading              = true;
   isTherapist          = false;
@@ -231,15 +254,15 @@ export class ServicesComponent implements OnInit {
   trialLoading         = false;
   payLoading           = false;
   membershipError      = '';
+  waitingPayment       = false;
+
+  paymentSuccess = false;
+  paymentPending = false;
+  paymentFailed  = false;
+
+  private pollingSub?: Subscription;
 
   chips = ['Sin comisiones', 'Citas ilimitadas', 'Cancela cuando quieras'];
-
-  get saludo(): string {
-    const h = new Date().getHours();
-    if (h < 12) return 'Buenos días ☀️';
-    if (h < 19) return 'Buenas tardes 🌤️';
-    return 'Buenas noches 🌙';
-  }
 
   get inicial(): string {
     return this.authSvc.getAuthUser()?.nombre?.charAt(0).toUpperCase() ?? '?';
@@ -247,7 +270,26 @@ export class ServicesComponent implements OnInit {
 
   ngOnInit(): void {
     this.isTherapist = this.authSvc.isTherapist();
+
+    this.route.queryParams.subscribe(params => {
+      if (params['payment'] === 'success') {
+        this.paymentSuccess = true;
+        setTimeout(() => this.loadTherapistView(), 3000);
+        setTimeout(() => this.paymentSuccess = false, 6000);
+      } else if (params['payment'] === 'pending') {
+        this.paymentPending = true;
+        setTimeout(() => this.paymentPending = false, 6000);
+      } else if (params['payment'] === 'failure') {
+        this.paymentFailed = true;
+        setTimeout(() => this.paymentFailed = false, 6000);
+      }
+    });
+
     this.isTherapist ? this.loadTherapistView() : this.loadPatientView();
+  }
+
+  ngOnDestroy(): void {
+    this.stopPolling();
   }
 
   private loadTherapistView(): void {
@@ -270,6 +312,31 @@ export class ServicesComponent implements OnInit {
     });
   }
 
+  // ── Polling — consulta el estado cada 5 segundos hasta que sea ACTIVE ────
+  private startPolling(): void {
+    this.stopPolling();
+    this.pollingSub = interval(5000).pipe(
+      switchMap(() => this.membershipSvc.getStatus()),
+      takeWhile(m => m?.status !== 'ACTIVE', true)
+    ).subscribe({
+      next: m => {
+        if (m?.status === 'ACTIVE') {
+          this.membership     = m;
+          this.waitingPayment = false;
+          this.paymentSuccess = true;
+          this.stopPolling();
+          setTimeout(() => this.paymentSuccess = false, 6000);
+        }
+      },
+      error: () => this.stopPolling()
+    });
+  }
+
+  private stopPolling(): void {
+    this.pollingSub?.unsubscribe();
+    this.pollingSub = undefined;
+  }
+
   onStartTrial(): void {
     this.trialLoading    = true;
     this.membershipError = '';
@@ -290,7 +357,12 @@ export class ServicesComponent implements OnInit {
     this.payLoading      = true;
     this.membershipError = '';
     this.membershipSvc.checkout().subscribe({
-      next: ({ checkoutUrl }) => { this.payLoading = false; window.open(checkoutUrl, '_blank'); },
+      next: ({ checkoutUrl }) => {
+        this.payLoading     = false;
+        this.waitingPayment = true;
+        window.open(checkoutUrl, '_blank');
+        this.startPolling();
+      },
       error: () => {
         this.membershipError = 'No se pudo conectar con el sistema de pagos.';
         this.payLoading      = false;
