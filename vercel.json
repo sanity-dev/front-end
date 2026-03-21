@@ -1,24 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/users/:path*",
-      "destination": "http://3.151.143.108:8081/:path*"
-    },
-    {
-      "source": "/api/specialists/:path*",
-      "destination": "http://3.151.143.108:8082/:path*"
-    },
-    {
-      "source": "/api/diary/:path*",
-      "destination": "http://4.242.43.59:8083/:path*"
-    },
-    {
-      "source": "/api/notifications/:path*",
-      "destination": "http://4.242.43.59:8085/:path*"
-    },
-    {
-      "source": "/api/euphoria/:path*",
-      "destination": "http://20.85.243.149:8000/:path*"
+      "source": "/api/(.*)",
+      "destination": "http://3.151.143.108:8080/api/$1"
     }
   ]
 }
