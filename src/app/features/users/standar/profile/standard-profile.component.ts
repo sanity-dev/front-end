@@ -8,6 +8,7 @@ import { InfoFieldComponent } from '../../../../shared/components/info-field/inf
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { EditFieldModalComponent, EditFieldConfig } from '../../../../shared/components/edit-field-modal/edit-field-modal.component';
 import { environment } from '../../../../../environments/environment';
+import { SettingsItemComponent } from "../../../../shared/components/setting-button/settings-item.component";
 
 interface UserProfile {
   idPersona: number;
@@ -21,7 +22,7 @@ interface UserProfile {
 @Component({
   selector: 'app-standard-profile',
   standalone: true,
-  imports: [CommonModule, ToggleSwitchComponent, InfoFieldComponent, EditFieldModalComponent],
+  imports: [CommonModule, InfoFieldComponent, EditFieldModalComponent, SettingsItemComponent],
   template: `
     <div class="flex flex-col px-5 pb-8">
 
@@ -72,22 +73,17 @@ interface UserProfile {
 
       <!-- Divider -->
       <div class="h-px bg-linear-to-r from-transparent via-gray-300 to-transparent my-2"></div>
-
-      <!-- Notificaciones -->
-      <section class="py-3">
-        <h3 class="text-lg font-bold text-text-primary mb-3">Notificaciones</h3>
-
-        <div class="flex items-center justify-between py-2.5">
-          <span class="text-sm text-text-primary">Notificaciones push</span>
-          <app-toggle-switch [(checked)]="pushNotifications" />
+      <div class="flex flex-col gap-2">
+          <app-settings-item
+            label="Cerrar sesión"
+            type="danger"
+            (itemClick)="logout()"
+          >
+            <svg icon xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+          </app-settings-item>
         </div>
-
-        <div class="flex items-center justify-between py-2.5">
-          <span class="text-sm text-text-primary">Notificaciones por correo electrónico</span>
-          <app-toggle-switch [(checked)]="emailNotifications" />
-        </div>
-      </section>
-
       <!-- Estado de subida -->
       <div
         *ngIf="uploadStatus"

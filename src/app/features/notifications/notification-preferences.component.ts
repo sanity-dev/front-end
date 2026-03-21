@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BottomNavComponent } from '../../shared/components/bottom-nav/bottom-nav.component';
 import { SettingsItemComponent } from '../../shared/components/setting-button/settings-item.component';
+import { environment } from '../../../environments/environment';
 
 interface NotificationPreference {
     label: string;
@@ -90,7 +91,7 @@ export class NotificationPreferencesComponent implements OnInit {
 
     private router = inject(Router);
     private http = inject(HttpClient);
-    private apiUrl = 'http://localhost:8080/api/notifications/usuarios';
+    private apiUrl =  `${environment.apiUrl}/api/notifications/usuarios`;
 
     sections: NotificationSection[] = [
         {
