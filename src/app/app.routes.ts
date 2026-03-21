@@ -100,6 +100,13 @@ export const routes: Routes = [
                         .then(m => m.JournalEntryComponent)
             },
             {
+                path: 'habits',
+                data: { headerText: 'Habitos' },
+                loadComponent: () =>
+                    import('./features/users/standar/habits/habit-list.component')
+                        .then(m => m.HabitListComponent)
+            },
+            {
                 path: 'services',
                 loadComponent: () => import('./features/services/services.component').then(m => m.ServicesComponent)
             },
