@@ -44,7 +44,7 @@ import { Specialist, CreateAppointmentDto, parseDisponibilidad } from '../models
             class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
             style="background: linear-gradient(135deg, #4C9EEB, #4CA1AF)"
           >
-            🧑‍⚕️
+            📅​
           </div>
           <div class="flex-1 min-w-0">
             <h2 class="font-bold text-text-primary text-sm">

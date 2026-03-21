@@ -12,29 +12,50 @@ import { environment } from '../../../../environments/environment';
   template: `
     <div style="display: flex; flex-direction: column; gap: 1rem; padding-bottom: 7rem">
 
-      <!-- ── BANNER MEMBRESÍA ─────────────────────────────────────────── -->
+<!-- ── BANNER MEMBRESÍA ─────────────────────────────────────────── -->
 
       <!-- TRIAL activo — días restantes -->
-      <div *ngIf="membership && membership.isTrial && membership.daysLeft > 0">
-        <div class="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/10"></div>
-        <div class="flex items-center justify-between">
-          <button
-            (click)="onPagar()"
-            class="bg-white font-bold rounded-xl text-xs"
-            style="padding: 0.5rem 0.875rem; color: #F59E0B; white-space: nowrap"
-          >
-            Activar $70.000
-          </button>
+      <div
+        *ngIf="membership && membership.isTrial && membership.daysLeft > 0"
+        class="flex items-center justify-between rounded-2xl"
+        style="padding: 0.75rem 1rem; background: #FFF8E7; border: 1px solid #FDE68A"
+      >
+        <div>
+          <p class="font-semibold text-xs" style="color: #92400E">🎁 Prueba gratuita</p>
+          <p style="font-size: 11px; color: #B45309; margin-top: 0.125rem">
+            Te quedan <strong>{{ membership!.daysLeft }} días</strong> gratis
+          </p>
+          <div class="rounded-full overflow-hidden" style="height: 3px; margin-top: 0.375rem; width: 120px; background: #FDE68A">
+            <div class="h-full rounded-full transition-all" style="background: #F59E0B" [style.width]="trialProgress + '%'"></div>
+          </div>
         </div>
-        <div
-          class="rounded-full bg-white/20 overflow-hidden"
-          style="height: 4px; margin-top: 0.75rem"
+        <button
+          (click)="onPagar()"
+          class="font-bold rounded-xl text-xs"
+          style="padding: 0.5rem 0.875rem; background: #F59E0B; color: white; white-space: nowrap; border: none"
         >
-          <div
-            class="h-full rounded-full bg-white transition-all"
-            [style.width]="trialProgress + '%'"
-          ></div>
+          Activar $70.000
+        </button>
+      </div>
+
+      <!-- ACTIVO — membresía pagada -->
+      <div
+        *ngIf="membership?.status === 'ACTIVE'"
+        class="flex items-center justify-between rounded-2xl"
+        style="padding: 0.75rem 1rem; background: #F0FDF4; border: 1px solid #BBF7D0"
+      >
+        <div>
+          <p class="font-semibold text-xs" style="color: #166534">✅ Membresía activa</p>
+          <p style="font-size: 11px; color: #15803D; margin-top: 0.125rem">
+            Vence el {{ membership!.expiresAt | date: 'dd/MM/yyyy' }} · {{ membership!.daysLeft }} días restantes
+          </p>
         </div>
+        <span
+          class="font-bold rounded-xl text-xs"
+          style="padding: 0.375rem 0.75rem; background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0"
+        >
+          ✓ Pro
+        </span>
       </div>
 
       <!-- EXPIRADO — advertencia -->
@@ -74,12 +95,19 @@ import { environment } from '../../../../environments/environment';
             class="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center"
             style="flex-shrink: 0; background: rgba(255,255,255,0.2)"
           >
-            <img *ngIf="fotoTerapeuta" [src]="fotoTerapeuta" class="w-full h-full object-cover" alt="foto perfil" />
+            <img
+              *ngIf="fotoTerapeuta"
+              [src]="fotoTerapeuta"
+              class="w-full h-full object-cover"
+              alt="foto perfil"
+            />
             <span *ngIf="!fotoTerapeuta" style="font-size: 2rem">🩺</span>
           </div>
           <div style="flex: 1; min-width: 0">
-            <p class="text-white/60 font-bold uppercase" style="font-size: 10px; letter-spacing: 0.1em">Perfil activo</p>
-            <h2 class="text-lg font-bold truncate">{{ specialist.nombre || 'Terapeuta' }}</h2>
+            <p class="text-white/60 font-bold uppercase" style="font-size: 10px; letter-spacing: 0.1em">
+              Perfil activo
+            </p>
+            <h2 class="text-lg font-bold truncate">{{ nombreTerapeuta || specialist.nombre || 'Terapeuta' }}</h2>
             <p class="text-white/80 text-sm truncate">{{ specialist.tituloProfesional }}</p>
           </div>
         </div>
@@ -109,9 +137,11 @@ import { environment } from '../../../../environments/environment';
           Especialidades
         </p>
         <div class="flex flex-wrap" style="gap: 0.5rem">
-          <span *ngFor="let esp of specialist.especialidades"
+          <span
+            *ngFor="let esp of specialist.especialidades"
             class="rounded-lg text-xs font-bold"
-            style="padding: 0.375rem 0.75rem; background: #4CA1AF1A; color: #4CA1AF; border: 1px solid #4CA1AF30">
+            style="padding: 0.375rem 0.75rem; background: #4CA1AF1A; color: #4CA1AF; border: 1px solid #4CA1AF30"
+          >
             {{ esp }}
           </span>
         </div>
@@ -123,9 +153,11 @@ import { environment } from '../../../../environments/environment';
           Servicios
         </p>
         <div class="flex flex-wrap" style="gap: 0.5rem">
-          <span *ngFor="let srv of specialist.servicios"
+          <span
+            *ngFor="let srv of specialist.servicios"
             class="rounded-lg text-xs font-bold"
-            style="padding: 0.375rem 0.75rem; background: #4C9EEB1A; color: #4C9EEB; border: 1px solid #4C9EEB30">
+            style="padding: 0.375rem 0.75rem; background: #4C9EEB1A; color: #4C9EEB; border: 1px solid #4C9EEB30"
+          >
             {{ srv }}
           </span>
         </div>
@@ -137,9 +169,11 @@ import { environment } from '../../../../environments/environment';
           Disponibilidad
         </p>
         <div style="display: flex; flex-direction: column; gap: 0.5rem">
-          <div *ngFor="let slot of slots"
+          <div
+            *ngFor="let slot of slots"
             class="flex items-center justify-between bg-gray-50 rounded-xl border border-gray-100"
-            style="padding: 0.75rem 1rem">
+            style="padding: 0.75rem 1rem"
+          >
             <span class="font-bold text-gray-800 text-sm" style="width: 2.5rem">{{ slot.dia }}</span>
             <div class="flex items-center" style="gap: 0.5rem; font-size: 12px">
               <span class="font-bold rounded-lg" style="padding: 0.25rem 0.5rem; background: #4CA1AF1A; color: #4CA1AF">
@@ -164,13 +198,16 @@ import { environment } from '../../../../environments/environment';
         </p>
         <ng-container *ngIf="specialist.citas?.length; else noCitas">
           <div style="display: flex; flex-direction: column; gap: 0.5rem">
-            <div *ngFor="let cita of specialist.citas!.slice(0, 5)"
+            <div
+              *ngFor="let cita of specialist.citas!.slice(0, 5)"
               class="flex items-center bg-gray-50 rounded-xl border border-gray-100 cursor-pointer active:scale-[0.98] transition-all"
               style="gap: 0.75rem; padding: 0.75rem"
-              (click)="verPaciente(cita)">
+              (click)="verPaciente(cita)"
+            >
               <div
                 class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm text-white"
-                style="background: #4C9EEB; flex-shrink: 0">
+                style="background: #4C9EEB; flex-shrink: 0"
+              >
                 {{ cita.fecha | date: 'dd' }}
               </div>
               <div style="flex: 1; min-width: 0">
@@ -179,7 +216,8 @@ import { environment } from '../../../../environments/environment';
               </div>
               <span
                 class="text-xs font-bold rounded-lg"
-                style="padding: 0.25rem 0.5rem; background: #4CA1AF1A; color: #4CA1AF; flex-shrink: 0">
+                style="padding: 0.25rem 0.5rem; background: #4CA1AF1A; color: #4CA1AF; flex-shrink: 0"
+              >
                 {{ cita.fecha | date: 'HH:mm' }}
               </span>
             </div>
@@ -203,14 +241,16 @@ import { environment } from '../../../../environments/environment';
       </button>
     </div>
 
-    <!-- ── TOAST PACIENTE ─────────────────────────────────────────────── -->
-    <div *ngIf="showPacienteToast"
+    <!-- ── MODAL PACIENTE ─────────────────────────────────────────────── -->
+    <div
+      *ngIf="showPacienteToast"
       class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center"
-      (click)="cerrarToast()">
-
-      <div class="bg-white rounded-t-3xl w-full"
-        (click)="$event.stopPropagation()">
-
+      (click)="cerrarToast()"
+    >
+      <div
+        class="bg-white rounded-t-3xl w-full"
+        (click)="$event.stopPropagation()"
+      >
         <!-- Handle -->
         <div class="flex justify-center pt-3 pb-1">
           <div class="w-10 h-1 rounded-full bg-gray-200"></div>
@@ -224,16 +264,21 @@ import { environment } from '../../../../environments/environment';
         </div>
 
         <!-- Info paciente -->
-        <div *ngIf="!loadingPaciente && pacienteSeleccionado"
-          class="flex flex-col items-center px-6 py-5 pb-10 gap-4">
-
+        <div
+          *ngIf="!loadingPaciente && pacienteSeleccionado"
+          class="flex flex-col items-center px-6 py-5 pb-10 gap-4"
+        >
           <!-- Foto -->
-          <div class="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center"
-            style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF22); border: 3px solid #4CA1AF40">
-            <img *ngIf="pacienteSeleccionado.fotoPerfilUrl"
+          <div
+            class="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center"
+            style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF22); border: 3px solid #4CA1AF40"
+          >
+            <img
+              *ngIf="pacienteSeleccionado.fotoPerfilUrl"
               [src]="pacienteSeleccionado.fotoPerfilUrl"
               class="w-full h-full object-cover"
-              alt="foto paciente" />
+              alt="foto paciente"
+            />
             <span *ngIf="!pacienteSeleccionado.fotoPerfilUrl" style="font-size: 3rem">🌱</span>
           </div>
 
@@ -245,24 +290,27 @@ import { environment } from '../../../../environments/environment';
           </div>
 
           <!-- Detalle cita -->
-          <div *ngIf="citaSeleccionada"
+          <div
+            *ngIf="citaSeleccionada"
             class="w-full rounded-2xl flex items-center justify-between"
-            style="background: #4CA1AF0D; border: 1px solid #4CA1AF20; padding: 0.875rem 1rem">
+            style="background: #4CA1AF0D; border: 1px solid #4CA1AF20; padding: 0.875rem 1rem"
+          >
             <div>
               <p class="text-xs font-bold text-gray-500">{{ citaSeleccionada.tipoSesion }}</p>
               <p class="text-sm font-bold" style="color: #4CA1AF">
-                {{ citaSeleccionada.fecha | date: 'EEEE dd \' MMMM · HH:mm' }}
+                {{ citaSeleccionada.fecha | date: 'EEE dd MMM · HH:mm' }}
               </p>
             </div>
             <span style="font-size: 1.5rem">📅</span>
           </div>
 
           <!-- Cerrar -->
-          <button (click)="cerrarToast()"
-            class="w-full py-3.5 rounded-2xl font-bold text-sm text-gray-500 bg-gray-100 active:scale-[0.98] transition-all">
+          <button
+            (click)="cerrarToast()"
+            class="w-full py-3.5 rounded-2xl font-bold text-sm text-gray-500 bg-gray-100 active:scale-[0.98] transition-all"
+          >
             Cerrar
           </button>
-
         </div>
       </div>
     </div>
@@ -277,6 +325,8 @@ export class TherapistProfileComponent implements OnInit {
   loadingPaciente = false;
   pacienteSeleccionado: any = null;
   citaSeleccionada: any = null;
+  fotoTerapeuta: string | null = null;
+  nombreTerapeuta: string | null = null;
 
   private membershipSvc = inject(MembershipService);
   private http = inject(HttpClient);
@@ -290,27 +340,31 @@ export class TherapistProfileComponent implements OnInit {
     return Math.round((this.membership.daysLeft / 7) * 100);
   }
 
-  get fotoTerapeuta(): string | null {
-    try {
-      const persona = localStorage.getItem('persona');
-      if (persona) return JSON.parse(persona)?.fotoPerfilUrl || null;
-      return null;
-    } catch {
-      return null;
-    }
-  }
-
   ngOnInit(): void {
     this.membershipSvc.getStatus().subscribe({
       next: (m) => (this.membership = m),
       error: () => (this.membership = null),
     });
+
+    // Cargar foto y nombre desde el microservicio de usuarios por correo
+    if (this.specialist?.email) {
+      this.http.get<any[]>(`${environment.apiUrl}/api/personas`).subscribe({
+        next: (personas) => {
+          const persona = personas.find((p) => p.correo === this.specialist.email);
+          if (persona) {
+            this.fotoTerapeuta  = persona.fotoPerfilUrl || null;
+            this.nombreTerapeuta = persona.nombre || null;
+          }
+        },
+        error: () => {},
+      });
+    }
   }
 
   verPaciente(cita: any): void {
-    this.citaSeleccionada = cita;
+    this.citaSeleccionada  = cita;
     this.showPacienteToast = true;
-    this.loadingPaciente = true;
+    this.loadingPaciente   = true;
     this.pacienteSeleccionado = null;
 
     this.http.get<any>(`${environment.apiUrl}/api/personas/${cita.pacienteID}`).subscribe({
@@ -326,9 +380,9 @@ export class TherapistProfileComponent implements OnInit {
   }
 
   cerrarToast(): void {
-    this.showPacienteToast = false;
+    this.showPacienteToast    = false;
     this.pacienteSeleccionado = null;
-    this.citaSeleccionada = null;
+    this.citaSeleccionada     = null;
   }
 
   onPagar(): void {

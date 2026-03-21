@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -27,6 +27,11 @@ export interface Habit {
     id: number;
     label: string;
     progress: number; // 0-100
+    time?: string | null;
+    description?: string | null;
+    frequency?: string | null;
+    reminderDays?: string[];
+    createdAt?: string | null;
 }
 
 export interface DiaryEntry {
@@ -146,17 +151,57 @@ export class DashboardService {
      * Obtiene los hábitos del usuario desde /api/habits/user/{userId}
      */
     getHabits(userId: number): Observable<Habit[]> {
-        return this.http.get<any[]>(`${this.gatewayUrl}/api/habits/user/${userId}`).pipe(
-            map(habits => {
-                if (!habits || habits.length === 0) return [];
-                return habits.map(h => ({
-                    id: h.id || h.idHabito,
-                    label: h.label || h.nombre || h.name || 'Hábito',
-                    progress: h.progress || h.progreso || 0
+        const token = localStorage.getItem('authToken');
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        });
+
+        return this.http.get<any>(`${this.gatewayUrl}/api/euphoria/reminders/${userId}`, {
+            headers
+        }).pipe(
+            map(response => {
+                if (!response?.reminders || response.reminders.length === 0) return [];
+                return response.reminders.map((h: any) => ({
+                    id: h.id,
+                    label: h.habit_name,
+                    progress: this.calcularProgreso(h),
+                    time: h.reminder_time || null,
+                    description: h.description || h.habit_description || null,
+                    frequency: h.frequency || h.reminder_frequency || null,
+                    reminderDays: Array.isArray(h.reminder_days) ? h.reminder_days : [],
+                    createdAt: h.created_at || null
                 }));
             }),
             catchError(() => of([]))
         );
+    }
+
+    private calcularProgreso(habit: any): number {
+        if (habit.reminder_time) {
+            const [hours, minutes] = habit.reminder_time.split(':').map(Number);
+            const ahora = new Date();
+            const horaHabito = hours * 60 + minutes;
+            const horaActual = ahora.getHours() * 60 + ahora.getMinutes();
+
+            // Cuando llega o pasa la hora → 100%
+            if (horaActual >= horaHabito) return 100;
+
+            // Ej: hábito a las 9am, ahora son las 6am → (360/540) * 100 = 66%
+            return Math.round((horaActual / horaHabito) * 100);
+        }
+
+        if (habit.created_at) {
+            const creado = new Date(habit.created_at);
+            const ahora = new Date();
+            const diasTranscurridos = Math.floor(
+                (ahora.getTime() - creado.getTime()) / (1000 * 60 * 60 * 24)
+            );
+            const meta = habit.frequency === 'semanal' ? 7 : 1;
+            return Math.min(100, Math.round((diasTranscurridos % meta) / meta * 100));
+        }
+
+        return 0;
     }
 
     // ============================================

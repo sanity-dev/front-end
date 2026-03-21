@@ -25,6 +25,7 @@ export class ButtonComponent {
     @Input() fullWidth: boolean = false;
     @Input() disabled: boolean = false;
     @Input() route: string | null = null;
+    @Input() customClass: string = '';
 
     constructor(private router: Router) { }
 
@@ -62,6 +63,6 @@ export class ButtonComponent {
 
         const widthClass = this.fullWidth ? 'w-full' : '';
 
-        return `${baseClasses} ${variantClasses} ${widthClass}`;
+        return `${baseClasses} ${variantClasses} ${widthClass} ${this.customClass}`;
     }
 }

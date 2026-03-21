@@ -253,6 +253,12 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
   volverAtras(): void { }
   obtenerIniciales(): string { return 'Tú'; }
 
+  autoResize(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  }
+
   ngOnDestroy(): void {
     if (this.vpHandler && window.visualViewport)
       window.visualViewport.removeEventListener('resize', this.vpHandler);

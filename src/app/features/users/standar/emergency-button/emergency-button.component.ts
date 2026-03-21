@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { InputComponent } from '../../../../shared/components/input/input.component';
 import { TextareaComponent } from '../../../../shared/components/textarea/textarea.component';
+import { environment } from '../../../../../environments/environment';
 
 interface EmergencyConfig {
   contactName: string;
@@ -103,7 +104,7 @@ export class EmergencyButtonComponent implements OnInit {
   statusMessage = '';
   statusType: 'success' | 'error' = 'success';
 
-  private apiUrl = 'http://localhost:8080/api/personas';
+  private apiUrl = `${environment.apiUrl}/api/personas`;
   private userId: number | null = null;
 
   ngOnInit(): void {

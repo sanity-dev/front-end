@@ -14,18 +14,7 @@ export const routes: Routes = [
                 .then(m => m.ContactPageComponent)
     },
 
-    {
-        path: 'emergency/confirm',
-        loadComponent: () =>
-            import('./features/emergency/pages/confirm/confirm-emergency.component')
-                .then(m => m.ConfirmEmergencyComponent)
-    },
-    {
-        path: 'emergency/sent',
-        loadComponent: () =>
-            import('./features/emergency/pages/sent/alert-sent.component')
-                .then(m => m.AlertSentComponent)
-    },
+
     {
         path: 'analytics',
         loadComponent: () =>
@@ -111,8 +100,29 @@ export const routes: Routes = [
                         .then(m => m.JournalEntryComponent)
             },
             {
+                path: 'habits',
+                data: { headerText: 'Habitos' },
+                loadComponent: () =>
+                    import('./features/users/standar/habits/habit-list.component')
+                        .then(m => m.HabitListComponent)
+            },
+            {
                 path: 'services',
                 loadComponent: () => import('./features/services/services.component').then(m => m.ServicesComponent)
+            },
+            {
+                path: 'emergency/confirm',
+                data: { headerText: 'Confirmar emergencia' },
+                loadComponent: () =>
+                    import('./features/emergency/pages/confirm/confirm-emergency.component')
+                        .then(m => m.ConfirmEmergencyComponent)
+            },
+            {
+                path: 'emergency/sent',
+                data: { headerText: 'Confirmar emergencia' },
+                loadComponent: () =>
+                    import('./features/emergency/pages/sent/alert-sent.component')
+                        .then(m => m.AlertSentComponent)
             },
             {
                 path: 'notifications',
