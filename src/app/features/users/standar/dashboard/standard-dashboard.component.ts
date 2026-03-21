@@ -134,7 +134,7 @@ import { filter } from 'rxjs/operators';
       <div>
         <div class="flex items-center justify-between mb-3">
           <h2 class="text-base font-bold text-text-primary">Progreso de Hábitos</h2>
-          <button class="text-text-secondary text-sm font-semibold">Ver todos</button>
+          <button (click)="goToHabits()" class="text-text-secondary text-sm font-semibold">Ver todos</button>
         </div>
         <div class="flex gap-4" *ngIf="habits.length > 0; else noHabits">
           <div
@@ -289,6 +289,10 @@ export class StandardDashboardComponent implements OnInit {
 
   onEmergency() {
     this.router.navigate(['user/emergency/confirm']);
+  }
+
+  goToHabits() {
+    this.router.navigate(['user/habits']);
   }
 
   formatDate(dateStr: string): string {

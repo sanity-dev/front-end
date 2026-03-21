@@ -28,6 +28,10 @@ export interface Habit {
     label: string;
     progress: number; // 0-100
     time?: string | null;
+    description?: string | null;
+    frequency?: string | null;
+    reminderDays?: string[];
+    createdAt?: string | null;
 }
 
 export interface DiaryEntry {
@@ -162,7 +166,11 @@ export class DashboardService {
                     id: h.id,
                     label: h.habit_name,
                     progress: this.calcularProgreso(h),
-                    time: h.reminder_time || null
+                    time: h.reminder_time || null,
+                    description: h.description || h.habit_description || null,
+                    frequency: h.frequency || h.reminder_frequency || null,
+                    reminderDays: Array.isArray(h.reminder_days) ? h.reminder_days : [],
+                    createdAt: h.created_at || null
                 }));
             }),
             catchError(() => of([]))
