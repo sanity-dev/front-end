@@ -23,6 +23,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
   @ViewChild('cameraInput') private cameraInput!: ElementRef;
+  @ViewChild('textarea') private textarea!: ElementRef;
 
   mensajes: Mensaje[] = [];
   mensajeActual: string = '';
@@ -152,6 +153,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.mensajes.push({ texto: this.mensajeActual, esUsuario: true, timestamp: new Date() });
     const textoMensaje = this.mensajeActual;
     this.mensajeActual = '';
+    this.resetearTextarea();
     this.cargando = true;
     this.debeHacerScroll = true;
 
@@ -257,6 +259,14 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
     const textarea = event.target as HTMLTextAreaElement;
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + 'px';
+  }
+
+  private resetearTextarea(): void {
+    if (this.textarea && this.textarea.nativeElement) {
+      const element = this.textarea.nativeElement;
+      element.style.height = 'auto';
+      element.style.height = '1.5rem';
+    }
   }
 
   ngOnDestroy(): void {
