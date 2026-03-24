@@ -68,6 +68,7 @@ interface UserProfile {
 
         <app-info-field [value]="user.nombre" label="Nombre" (edit)="editField('nombre')" />
         <app-info-field [value]="user.correo" label="Correo electrónico" (edit)="editField('correo')" />
+        <app-info-field [value]="user.telefono || '-'" label="Teléfono" (edit)="editField('telefono')" />
         <app-info-field value="********" label="Contraseña" (edit)="editField('contraseña')" />
       </section>
 
