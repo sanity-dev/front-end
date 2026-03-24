@@ -163,7 +163,7 @@
           </svg>
         </button>
 
-        <textarea [(ngModel)]="mensajeActual" (keydown)="manejarEnter($event)" (input)="autoResize($event)"
+        <textarea #textarea [(ngModel)]="mensajeActual" (keydown)="manejarEnter($event)" (input)="autoResize($event)"
           [disabled]="cargando" placeholder="Escribe un mensaje..." rows="1"
           class="mb-1.5 flex-1 border-none outline-none resize-none bg-transparent leading-6 scrollbar-hide overflow-hidden"
           style="min-height:1.5rem; max-height:7rem; font-family:var(--font-sans); color:var(--color-text-primary); font-size:15px">

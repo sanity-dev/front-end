@@ -96,7 +96,7 @@ export class DashboardService {
      * Retorna la próxima cita (la más cercana en el futuro)
      */
     getNextAppointment(userId: number): Observable<Appointment | null> {
-        return this.http.get<any[]>(`${this.gatewayUrl}/api/appointments/user/${userId}`).pipe(
+        return this.http.get<any[]>(`${this.gatewayUrl}/api/appointment/user/${userId}`).pipe(
             map(appointments => {
                 if (!appointments || appointments.length === 0) return null;
 
@@ -127,7 +127,7 @@ export class DashboardService {
      * Usado por el dashboard del terapeuta
      */
     getAllAppointments(userId: number): Observable<Appointment[]> {
-        return this.http.get<any[]>(`${this.gatewayUrl}/api/appointments/user/${userId}`).pipe(
+        return this.http.get<any[]>(`${this.gatewayUrl}/api/appointment/user/${userId}`).pipe(
             map(appointments => {
                 if (!appointments || appointments.length === 0) return [];
                 return appointments.map(a => ({
@@ -148,7 +148,7 @@ export class DashboardService {
     // ============================================
 
     /**
-     * Obtiene los hábitos del usuario desde /api/habits/user/{userId}
+     * Obtiene los hábitos del usuario desde /api/euphoria/reminders{userId}
      */
     getHabits(userId: number): Observable<Habit[]> {
         const token = localStorage.getItem('authToken');
@@ -209,26 +209,26 @@ export class DashboardService {
     // ============================================
 
     /**
-     * Obtiene las entradas del diario del usuario desde /api/diary/user/{userId}
+     * Obtiene las entradas del diario del usuario desde /api/diary/user/{userId}/mensajes
      * Retorna la entrada más reciente
      */
     getLatestDiaryEntry(userId: number): Observable<DiaryEntry | null> {
-        return this.http.get<any[]>(`${this.gatewayUrl}/api/diary/user/${userId}`).pipe(
+        return this.http.get<any[]>(`${this.gatewayUrl}/api/diary/user/${userId}/mensajes`).pipe(
             map(entries => {
                 if (!entries || entries.length === 0) return null;
 
                 // Ordenar por fecha descendente y tomar la más reciente
                 const sorted = entries.sort((a, b) =>
-                    new Date(b.date || b.fecha || b.createdAt).getTime() -
-                    new Date(a.date || a.fecha || a.createdAt).getTime()
+                    new Date(b.fechaEnvio || b.date || b.fecha || b.createdAt).getTime() -
+                    new Date(a.fechaEnvio || a.date || a.fecha || a.createdAt).getTime()
                 );
 
                 const latest = sorted[0];
                 return {
-                    id: latest.id || latest.idEntrada,
-                    text: latest.text || latest.texto || latest.contenido || '',
-                    date: latest.date || latest.fecha || latest.createdAt || '',
-                    photoUrl: latest.photoUrl || latest.fotoUrl || latest.imageUrl || null
+                    id: latest.id,
+                    text: latest.contenido || latest.text || latest.texto || '',
+                    date: latest.fechaEnvio || latest.date || latest.fecha || latest.createdAt || '',
+                    photoUrl: latest.tipo === 'image' ? latest.contenido : null
                 } as DiaryEntry;
             }),
             catchError(() => of(null))
