@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { SettingsItemComponent } from '../../../../shared/components/setting-button/settings-item.component';
 import { EditFieldModalComponent, EditFieldConfig } from '../../../../shared/components/edit-field-modal/edit-field-modal.component';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
     selector: 'app-therapist-settings',
@@ -46,36 +47,10 @@ import { EditFieldModalComponent, EditFieldConfig } from '../../../../shared/com
           </app-settings-item>
         </div>
 
-        <!-- SUSCRIPCIÓN Y FACTURACIÓN -->
-        <h2 class="text-base font-bold text-text-primary mt-5 mb-2">Suscripción y Facturación</h2>
-
-        <div class="flex flex-col gap-2">
-          <app-settings-item
-            label="Gestionar Suscripción"
-            type="navigate"
-            (itemClick)="navigate('/users/therapist/settings/suscripcion')"
-          >
-            <svg icon xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-            </svg>
-          </app-settings-item>
-
-        </div>
-
         <!-- ACCIONES DE CUENTA -->
         <h2 class="text-base font-bold text-text-primary mt-5 mb-2">Acciones de Cuenta</h2>
 
         <div class="flex flex-col gap-2">
-          <app-settings-item
-            label="Cerrar Sesión"
-            type="danger"
-            (itemClick)="logout()"
-          >
-            <svg icon xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-          </app-settings-item>
-
           <app-settings-item
             label="Eliminar Cuenta"
             type="danger"
@@ -110,7 +85,7 @@ export class TherapistSettingsComponent implements OnInit {
     isSaving = false;
     modalConfig: EditFieldConfig = { field: '', label: '', value: '', type: 'text' };
 
-    private apiUrl = 'http://localhost:8080/api/terapeutas';
+    private apiUrl = `${environment.apiUrl}/api/terapeutas`;
 
     ngOnInit(): void { }
 

@@ -123,7 +123,7 @@
             [style.border-bottom-right-radius]="mensaje.esUsuario ? '4px' : '16px'"
             [style.border-bottom-left-radius]="!mensaje.esUsuario ? '4px' : '16px'"
             style="box-shadow: 0 2px 8px rgba(0,0,0,0.08)">
-            <p class="m-0 text-sm leading-relaxed whitespace-pre-wrap break-words">{{ mensaje.texto }}</p>
+            <p class="m-0 text-sm leading-relaxed whitespace-pre-wrap" [innerHTML]="mensaje.textoHtml || mensaje.texto"></p>
             <span class="block text-[0.65rem] mt-1 opacity-50">{{ mensaje.timestamp | date:'shortTime' }}</span>
           </div>
         </div>
@@ -163,7 +163,7 @@
           </svg>
         </button>
 
-        <textarea [(ngModel)]="mensajeActual" (keydown)="manejarEnter($event)" (input)="autoResize($event)"
+        <textarea #textarea [(ngModel)]="mensajeActual" (keydown)="manejarEnter($event)" (input)="autoResize($event)"
           [disabled]="cargando" placeholder="Escribe un mensaje..." rows="1"
           class="mb-1.5 flex-1 border-none outline-none resize-none bg-transparent leading-6 scrollbar-hide overflow-hidden"
           style="min-height:1.5rem; max-height:7rem; font-family:var(--font-sans); color:var(--color-text-primary); font-size:15px">

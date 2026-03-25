@@ -19,7 +19,7 @@ export class SpecialistService {
 
   getAllSpecialists(): Observable<Specialist[]> {
     return forkJoin({
-      specialists: this.http.get<Specialist[]>(`${API}/specialist`).pipe(catchError(() => of([]))),
+      specialists: this.http.get<Specialist[]>(`${API}/specialist/`).pipe(catchError(() => of([]))),
       personas:    this.http.get<any[]>(`${API}/personas`).pipe(catchError(() => of([]))),
     }).pipe(
       map(({ specialists, personas }) => {
