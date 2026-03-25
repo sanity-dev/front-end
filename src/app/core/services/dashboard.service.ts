@@ -92,19 +92,32 @@ export class DashboardService {
     // ============================================
 
     /**
-     * Obtiene las citas del usuario desde /api/appointments/user/{userId}
-     * Retorna la próxima cita (la más cercana en el futuro)
+        * Obtiene citas del usuario estándar desde /api/appointment/patient/{pacienteID}
+        * y retorna la próxima cita (la más cercana en el futuro).
      */
     getNextAppointment(userId: number): Observable<Appointment | null> {
-        return this.http.get<any[]>(`${this.gatewayUrl}/api/appointment/user/${userId}`).pipe(
+        return this.http.get<any[]>(`${this.gatewayUrl}/api/appointment/patient/${userId}`).pipe(
             map(appointments => {
                 if (!appointments || appointments.length === 0) return null;
 
                 // Filtrar citas futuras y ordenar por fecha
                 const now = new Date();
+                const toDate = (appointment: any) => {
+                    const baseDate = appointment.date || appointment.fecha || appointment.fechaCita;
+                    const time = appointment.time || appointment.hora || appointment.horaCita;
+
+                    if (!baseDate) return new Date('');
+
+                    if (time && typeof baseDate === 'string' && !baseDate.includes('T')) {
+                        return new Date(`${baseDate}T${time}`);
+                    }
+
+                    return new Date(baseDate);
+                };
+
                 const upcoming = appointments
-                    .filter(a => new Date(a.date || a.fecha) > now)
-                    .sort((a, b) => new Date(a.date || a.fecha).getTime() - new Date(b.date || b.fecha).getTime());
+                    .filter(a => toDate(a) > now)
+                    .sort((a, b) => toDate(a).getTime() - toDate(b).getTime());
 
                 if (upcoming.length === 0) return null;
 
@@ -123,11 +136,28 @@ export class DashboardService {
     }
 
     /**
-     * Obtiene TODAS las citas del usuario desde /api/appointments/user/{userId}
+     * Obtiene TODAS las citas del terapeuta desde /api/appointment/my-appointments
+     * enviando el header x-user-email requerido por el backend.
      * Usado por el dashboard del terapeuta
      */
     getAllAppointments(userId: number): Observable<Appointment[]> {
-        return this.http.get<any[]>(`${this.gatewayUrl}/api/appointment/user/${userId}`).pipe(
+        const token = localStorage.getItem('authToken');
+
+        if (!token) return of([]);
+
+        let email = '';
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            email = payload?.sub || payload?.email || '';
+        } catch {
+            return of([]);
+        }
+
+        if (!email) return of([]);
+
+        const headers = new HttpHeaders({ 'x-user-email': email });
+
+        return this.http.get<any[]>(`${this.gatewayUrl}/api/appointment/my-appointments`, { headers }).pipe(
             map(appointments => {
                 if (!appointments || appointments.length === 0) return [];
                 return appointments.map(a => ({
