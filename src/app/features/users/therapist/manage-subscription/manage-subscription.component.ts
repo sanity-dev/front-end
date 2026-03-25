@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
 
 interface PaymentMethod {
     type: 'visa' | 'mastercard' | 'pse';
@@ -51,7 +52,7 @@ export class GestionarSuscripcionComponent implements OnInit {
         { descripcion: 'Suscripción Premium', fecha: '15 de marzo de 2024', monto: 9.99, estado: 'pagado' },
     ];
 
-    private apiUrl = 'http://localhost:8080/api/terapeutas';
+    private apiUrl = `${environment.apiUrl}/api/terapeutas`;
 
     get planLabel(): string {
         const labels: Record<string, string> = {
