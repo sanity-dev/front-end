@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 
 interface PatientAppointment {
@@ -151,33 +151,42 @@ export class PatientHistoryComponent implements OnInit {
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const email = payload.sub;
+      const email = payload?.sub || payload?.email || '';
 
-      // Obtener el ID del terapeuta logueado
-      this.http.get<any[]>(`${this.apiUrl}/api/personas`).subscribe({
-        next: (personas) => {
-          const therapist = personas.find(p => p.correo === email);
-          if (therapist) {
-            this.loadAppointmentsWithPatient(therapist.idPersona);
-          } else {
-            this.isLoading = false;
-          }
-        },
-        error: () => { this.isLoading = false; }
-      });
+      if (!email) {
+        this.isLoading = false;
+        return;
+      }
+
+      this.loadAppointmentsWithPatient(email);
     } catch {
       this.isLoading = false;
     }
   }
 
-  private loadAppointmentsWithPatient(therapistId: number): void {
-    this.http.get<any[]>(`${this.apiUrl}/api/appointments/user/${therapistId}`).subscribe({
+  private loadAppointmentsWithPatient(email: string): void {
+    const headers = new HttpHeaders({ 'x-user-email': email });
+
+    this.http.get<any[]>(`${this.apiUrl}/api/appointment/my-appointments`, { headers }).subscribe({
       next: (allAppointments) => {
         // Filtrar las citas que correspondan al paciente seleccionado
+        const toDate = (appointment: any) => {
+          const baseDate = appointment.date || appointment.fecha || appointment.fechaCita;
+          const time = appointment.time || appointment.hora || appointment.horaCita;
+
+          if (!baseDate) return new Date('');
+
+          if (time && typeof baseDate === 'string' && !baseDate.includes('T')) {
+            return new Date(`${baseDate}T${time}`);
+          }
+
+          return new Date(baseDate);
+        };
+
         const patientAppointments = allAppointments
           .filter(a => {
-            const pid = a.patientId || a.idPaciente;
-            return pid === this.patientId;
+            const pid = a.patientId || a.idPaciente || a.pacienteID || a.patient?.idPersona;
+            return Number(pid) === this.patientId;
           })
           .map(a => ({
             id: a.id || a.idCita,
@@ -187,7 +196,11 @@ export class PatientHistoryComponent implements OnInit {
             modality: a.modality || a.modalidad || 'Online',
             notes: a.notes || a.notas || null
           }))
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          .sort((a, b) => {
+            const dateA = toDate(a).getTime();
+            const dateB = toDate(b).getTime();
+            return dateB - dateA;
+          });
 
         this.appointments = patientAppointments;
 

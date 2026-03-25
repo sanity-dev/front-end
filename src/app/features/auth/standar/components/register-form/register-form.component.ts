@@ -74,6 +74,21 @@ import { environment } from '../../../../../../environments/environment';
         </div>
       </div>
 
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Número de teléfono</label>
+        <app-input
+          type="number"
+          formControlName="phoneNumber"
+          placeholder="Número de teléfono"
+        ></app-input>
+        <div *ngIf="registerForm.get('phoneNumber')?.invalid && (registerForm.get('phoneNumber')?.dirty || registerForm.get('phoneNumber')?.touched)" class="text-red-500 text-xs mt-1">
+          <div *ngIf="registerForm.get('phoneNumber')?.errors?.['required']">El número de teléfono es requerido.</div>
+          <div *ngIf="registerForm.get('phoneNumber')?.errors?.['pattern']">Ingrese un número de teléfono válido.</div>
+        </div>
+      </div>
+
+      
+
       <!-- Términos y condiciones -->
       <div class="flex items-start gap-2 pt-2">
         <input
@@ -135,6 +150,7 @@ export class RegisterFormComponent {
         this.uppercaseValidator
       ]],
       confirmPassword: ['', Validators.required],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{7,}$/)]],
       acceptTerms: [false, Validators.requiredTrue]
     }, { validators: this.passwordMatchValidator });
   }

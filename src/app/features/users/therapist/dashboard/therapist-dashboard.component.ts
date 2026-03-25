@@ -204,23 +204,24 @@ export class TherapistDashboardComponent implements OnInit {
 
   private processAppointments(): void {
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
+    const todayKey = this.toLocalDateKey(now);
 
     // Citas de hoy
     this.todayAppointments = this.allAppointments
       .filter(a => {
-        const dateStr = new Date(a.date).toISOString().split('T')[0];
-        return dateStr === todayStr;
+        const appointmentDate = this.toAppointmentDate(a);
+        if (isNaN(appointmentDate.getTime())) return false;
+        return this.toLocalDateKey(appointmentDate) === todayKey;
       })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => this.toAppointmentDate(a).getTime() - this.toAppointmentDate(b).getTime());
 
     // Citas restantes hoy (futuras)
     this.remainingTodayCount = this.todayAppointments
-      .filter(a => new Date(a.date) > now).length;
+      .filter(a => this.toAppointmentDate(a) > now).length;
 
     // Citas del mes actual
     const monthAppointments = this.allAppointments.filter(a => {
-      const d = new Date(a.date);
+      const d = this.toAppointmentDate(a);
       return d.getMonth() === this.currentMonth && d.getFullYear() === this.currentYear;
     });
     this.monthAppointmentsCount = monthAppointments.length;
@@ -232,10 +233,30 @@ export class TherapistDashboardComponent implements OnInit {
   private updateCalendarAppointmentDays(): void {
     this.appointmentDays = this.allAppointments
       .filter(a => {
-        const d = new Date(a.date);
+        const d = this.toAppointmentDate(a);
         return d.getMonth() === this.currentMonth && d.getFullYear() === this.currentYear;
       })
-      .map(a => new Date(a.date).getDate());
+      .map(a => this.toAppointmentDate(a).getDate());
+  }
+
+  private toAppointmentDate(appointment: Appointment): Date {
+    const baseDate = appointment.date;
+    const time = appointment.time;
+
+    if (!baseDate) return new Date('');
+
+    if (time && typeof baseDate === 'string' && !baseDate.includes('T')) {
+      return new Date(`${baseDate}T${time}`);
+    }
+
+    return new Date(baseDate);
+  }
+
+  private toLocalDateKey(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   // ============================================
@@ -281,7 +302,7 @@ export class TherapistDashboardComponent implements OnInit {
 
     // Actualizar conteo del mes
     this.monthAppointmentsCount = this.allAppointments.filter(a => {
-      const d = new Date(a.date);
+      const d = this.toAppointmentDate(a);
       return d.getMonth() === this.currentMonth && d.getFullYear() === this.currentYear;
     }).length;
   }
@@ -297,7 +318,7 @@ export class TherapistDashboardComponent implements OnInit {
 
     // Actualizar conteo del mes
     this.monthAppointmentsCount = this.allAppointments.filter(a => {
-      const d = new Date(a.date);
+      const d = this.toAppointmentDate(a);
       return d.getMonth() === this.currentMonth && d.getFullYear() === this.currentYear;
     }).length;
   }
@@ -331,6 +352,6 @@ export class TherapistDashboardComponent implements OnInit {
   }
 
   onAppointmentClick(appointment: any) {
-    this.router.navigate(['/users/therapist/session']);
+    this.router.navigate(['/users/therapist/services']);
   }
 }

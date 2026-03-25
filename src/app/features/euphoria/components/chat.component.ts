@@ -1,12 +1,14 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { EuphoriaService, MensajeResponse, HistorialItem, ConversationResponse } from '../../../core/services/euphoria.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { BottomNavComponent } from '../../../shared/components/bottom-nav/bottom-nav.component';
 
 interface Mensaje {
   texto: string;
+  textoHtml?: SafeHtml;
   esUsuario: boolean;
   timestamp: Date;
   emociones?: string[];
@@ -23,6 +25,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
   @ViewChild('cameraInput') private cameraInput!: ElementRef;
+  @ViewChild('textarea') private textarea!: ElementRef;
 
   mensajes: Mensaje[] = [];
   mensajeActual: string = '';
@@ -42,7 +45,8 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   constructor(
     private euphoriaService: EuphoriaService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit(): void {
@@ -83,11 +87,15 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.euphoriaService.obtenerHistorial(sessionId).subscribe({
       next: (respuesta) => {
         if (respuesta.historial?.length > 0) {
-          this.mensajes = respuesta.historial.map((item: HistorialItem) => ({
-            texto: item.mensaje,
-            esUsuario: item.rol === 'usuario',
-            timestamp: new Date(item.timestamp)
-          }));
+          this.mensajes = respuesta.historial.map((item: HistorialItem) => {
+            const mensaje: Mensaje = {
+              texto: item.mensaje,
+              textoHtml: this.procesarMarkdown(item.mensaje),
+              esUsuario: item.rol === 'usuario',
+              timestamp: new Date(item.timestamp)
+            };
+            return mensaje;
+          });
           this.debeHacerScroll = true;
         } else {
           this.mensajes = [];
@@ -146,12 +154,18 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
     return fecha.toLocaleDateString('es', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   }
 
-  async enviarMensaje(): Promise<void> {
+  enviarMensaje(): void {
     if (!this.mensajeActual.trim() || this.cargando || this.chatSoloLectura) return;
 
-    this.mensajes.push({ texto: this.mensajeActual, esUsuario: true, timestamp: new Date() });
+    this.mensajes.push({ 
+      texto: this.mensajeActual, 
+      textoHtml: this.procesarMarkdown(this.mensajeActual),
+      esUsuario: true, 
+      timestamp: new Date() 
+    });
     const textoMensaje = this.mensajeActual;
     this.mensajeActual = '';
+    this.resetearTextarea();
     this.cargando = true;
     this.debeHacerScroll = true;
 
@@ -159,6 +173,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
       next: (respuesta: MensajeResponse) => {
         this.mensajes.push({
           texto: respuesta.respuesta,
+          textoHtml: this.procesarMarkdown(respuesta.respuesta),
           esUsuario: false,
           timestamp: new Date(respuesta.timestamp),
           emociones: respuesta.emociones_detectadas
@@ -171,8 +186,10 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
         }
       },
       error: () => {
+        const mensajeError = 'Lo siento, hubo un problema. Verifica que el servidor esté corriendo.';
         this.mensajes.push({
-          texto: 'Lo siento, hubo un problema. Verifica que el servidor esté corriendo.',
+          texto: mensajeError,
+          textoHtml: this.procesarMarkdown(mensajeError),
           esUsuario: false,
           timestamp: new Date()
         });
@@ -257,6 +274,30 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
     const textarea = event.target as HTMLTextAreaElement;
     textarea.style.height = 'auto';
     textarea.style.height = textarea.scrollHeight + 'px';
+  }
+
+  private resetearTextarea(): void {
+    if (this.textarea && this.textarea.nativeElement) {
+      const element = this.textarea.nativeElement;
+      element.style.height = 'auto';
+      element.style.height = '1.5rem';
+    }
+  }
+
+  private procesarMarkdown(texto: string): SafeHtml {
+    // Procesar **texto** a <strong>texto</strong>
+    let html = texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Procesar *texto* a <em>texto</em>
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Procesar saltos de línea a <br>
+    html = html.replace(/\n/g, '<br>');
+    
+    // Procesar listas con ** o *
+    html = html.replace(/• (.*?)(?=<br>|$)/g, '<li style="margin-left: 1.25rem;">$1</li>');
+    
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   ngOnDestroy(): void {
