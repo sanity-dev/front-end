@@ -7,22 +7,23 @@ import { InfoFieldComponent } from '../../../../../shared/components/info-field/
 import { ButtonComponent } from '../../../../../shared/components/button/button.component';
 import { EditFieldModalComponent, EditFieldConfig } from '../../../../../shared/components/edit-field-modal/edit-field-modal.component';
 import { environment } from '../../../../../../environments/environment';
+import { SettingsItemComponent } from "../../../../../shared/components/setting-button/settings-item.component";
 
 interface TherapistProfile {
-    idPersona: number;
-    nombre: string;
-    correo: string;
-    telefono: string;
-    cedula: string;
-    tarjetaProfesional: string;
-    fotoPerfilUrl: string | null;
+  idPersona: number;
+  nombre: string;
+  correo: string;
+  telefono: string;
+  cedula: string;
+  tarjetaProfesional: string;
+  fotoPerfilUrl: string | null;
 }
 
 @Component({
-    selector: 'app-therapist-profile',
-    standalone: true,
-    imports: [CommonModule, ToggleSwitchComponent, InfoFieldComponent, ButtonComponent, EditFieldModalComponent],
-    template: `
+  selector: 'app-therapist-profile',
+  standalone: true,
+  imports: [CommonModule, ToggleSwitchComponent, InfoFieldComponent, ButtonComponent, EditFieldModalComponent, SettingsItemComponent],
+  template: `
     <div class="flex flex-col px-5 pb-8">
 
       <!-- Foto de perfil + nombre + badge -->
@@ -131,7 +132,7 @@ interface TherapistProfile {
       <div class="h-px bg-linear-to-r from-transparent via-gray-300 to-transparent my-2"></div>
 
       <!-- Notificaciones -->
-      <section class="py-3">
+      <!-- <section class="py-3">
         <h3 class="text-lg font-bold text-text-primary mb-3">Notificaciones</h3>
 
         <div class="flex items-center justify-between py-2.5">
@@ -149,7 +150,18 @@ interface TherapistProfile {
           <app-toggle-switch [(checked)]="appointmentReminders" />
         </div>
       </section>
-
+       -->
+      <div class="flex flex-col gap-2">
+          <app-settings-item
+            label="Cerrar Sesión"
+            type="danger"
+            (itemClick)="logout()"
+          >
+            <svg icon xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+          </app-settings-item>
+        </div>
       <!-- Estado de subida -->
       <div
         *ngIf="uploadStatus"
@@ -173,199 +185,199 @@ interface TherapistProfile {
       (close$)="showEditModal = false"
     />
   `,
-    styles: []
+  styles: []
 })
 export class TherapistProfileComponent implements OnInit {
-    private router = inject(Router);
-    private http = inject(HttpClient);
+  private router = inject(Router);
+  private http = inject(HttpClient);
 
-    therapist: TherapistProfile = {
-        idPersona: 0,
-        nombre: '',
-        correo: '',
-        telefono: '',
-        cedula: '',
-        tarjetaProfesional: '',
-        fotoPerfilUrl: null
+  therapist: TherapistProfile = {
+    idPersona: 0,
+    nombre: '',
+    correo: '',
+    telefono: '',
+    cedula: '',
+    tarjetaProfesional: '',
+    fotoPerfilUrl: null
+  };
+
+  // Configuración de consulta
+  availableForPatients = true;
+  onlineAppointments = true;
+  inPersonAppointments = false;
+
+  // Notificaciones
+  pushNotifications = true;
+  emailNotifications = true;
+  appointmentReminders = true;
+
+  // Verificación
+  verificationState: 'VERIFICADO' | 'PENDIENTE' | 'RECHAZADO' | 'SIN_DOCUMENTOS' = 'SIN_DOCUMENTOS';
+
+  // Edit modal
+  showEditModal = false;
+  isSaving = false;
+  editConfig: EditFieldConfig = { field: '', label: '', value: '', type: 'text' };
+
+  // Upload
+  uploadStatus: 'success' | 'error' | null = null;
+  uploadMessage = '';
+
+  private apiUrl = `${environment.apiUrl}/api/personas`;
+
+  get verificationLabel(): string {
+    const labels: Record<string, string> = {
+      VERIFICADO: 'Documentos verificados',
+      PENDIENTE: 'Verificación pendiente',
+      RECHAZADO: 'Documentos rechazados',
+      SIN_DOCUMENTOS: 'Documentos sin subir'
+    };
+    return labels[this.verificationState];
+  }
+
+  ngOnInit(): void {
+    this.loadProfile();
+    this.loadVerificationStatus();
+  }
+
+  loadProfile(): void {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const email = payload.sub;
+
+      this.http.get<TherapistProfile[]>(this.apiUrl).subscribe({
+        next: (personas) => {
+          const found = personas.find(p => p.correo === email);
+          if (found) {
+            this.therapist = found;
+          }
+        },
+        error: (err) => console.error('Error loading profile:', err)
+      });
+    } catch (e) {
+      console.error('Error decoding token:', e);
+    }
+  }
+
+  loadVerificationStatus(): void {
+    this.http.get<any>(`${environment.apiUrl}/api/documents/verification-status`).subscribe({
+      next: (response) => {
+        switch (response.status) {
+          case 'verified':
+            this.verificationState = 'VERIFICADO';
+            break;
+          case 'rejected':
+            this.verificationState = 'RECHAZADO';
+            break;
+          case 'pending':
+            if (response.documents && response.documents.length > 0) {
+              this.verificationState = 'PENDIENTE';
+            } else {
+              this.verificationState = 'SIN_DOCUMENTOS';
+            }
+            break;
+          default:
+            this.verificationState = 'SIN_DOCUMENTOS';
+        }
+      },
+      error: () => this.verificationState = 'SIN_DOCUMENTOS'
+    });
+  }
+
+  triggerFileInput(): void {
+    const input = document.querySelector<HTMLInputElement>('input[type="file"]');
+    input?.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.showStatus('error', 'La imagen es demasiado grande (máx. 5MB)');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.http.post<TherapistProfile>(
+      `${this.apiUrl}/${this.therapist.idPersona}/foto-perfil`,
+      formData
+    ).subscribe({
+      next: (updated) => {
+        this.therapist = updated;
+        this.showStatus('success', '✓ Foto de perfil actualizada');
+      },
+      error: (err) => {
+        console.error('Error uploading photo:', err);
+        this.showStatus('error', 'Error al subir la foto');
+      }
+    });
+  }
+
+  editField(field: string): void {
+    const fieldMap: Record<string, EditFieldConfig> = {
+      nombre: { field: 'nombre', label: 'Nombre', value: this.therapist.nombre, type: 'text' },
+      correo: { field: 'correo', label: 'Correo electrónico', value: this.therapist.correo, type: 'email' },
+      'contraseña': { field: 'contraseña', label: 'Contraseña', value: '', type: 'password' },
+      telefono: { field: 'telefono', label: 'Teléfono', value: this.therapist.telefono || '', type: 'tel' }
     };
 
-    // Configuración de consulta
-    availableForPatients = true;
-    onlineAppointments = true;
-    inPersonAppointments = false;
-
-    // Notificaciones
-    pushNotifications = true;
-    emailNotifications = true;
-    appointmentReminders = true;
-
-    // Verificación
-    verificationState: 'VERIFICADO' | 'PENDIENTE' | 'RECHAZADO' | 'SIN_DOCUMENTOS' = 'SIN_DOCUMENTOS';
-
-    // Edit modal
-    showEditModal = false;
-    isSaving = false;
-    editConfig: EditFieldConfig = { field: '', label: '', value: '', type: 'text' };
-
-    // Upload
-    uploadStatus: 'success' | 'error' | null = null;
-    uploadMessage = '';
-
-    private apiUrl = `${environment.apiUrl}/api/personas`;
-
-    get verificationLabel(): string {
-        const labels: Record<string, string> = {
-            VERIFICADO: 'Documentos verificados',
-            PENDIENTE: 'Verificación pendiente',
-            RECHAZADO: 'Documentos rechazados',
-            SIN_DOCUMENTOS: 'Documentos sin subir'
-        };
-        return labels[this.verificationState];
+    const config = fieldMap[field];
+    if (config) {
+      this.editConfig = config;
+      this.showEditModal = true;
     }
+  }
 
-    ngOnInit(): void {
-        this.loadProfile();
-        this.loadVerificationStatus();
-    }
+  saveField(data: Record<string, string>): void {
+    this.isSaving = true;
 
-    loadProfile(): void {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            this.router.navigate(['/login']);
-            return;
-        }
+    const payload: any = {};
+    if (data['nombre']) payload.nombre = data['nombre'];
+    if (data['correo']) payload.correo = data['correo'];
+    if (data['contraseña']) payload.contraseña = data['contraseña'];
+    if (data['telefono']) payload.telefono = data['telefono'];
 
-        try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const email = payload.sub;
+    this.http.put<any>(
+      `${this.apiUrl}/${this.therapist.idPersona}/basica`,
+      payload
+    ).subscribe({
+      next: (updated) => {
+        this.therapist = { ...this.therapist, ...updated };
+        this.isSaving = false;
+        this.showEditModal = false;
+        this.showStatus('success', '✓ Perfil actualizado');
+      },
+      error: (err) => {
+        this.isSaving = false;
+        console.error('Error updating profile:', err);
+        this.showStatus('error', err.error?.message || 'Error al actualizar');
+      }
+    });
+  }
 
-            this.http.get<TherapistProfile[]>(this.apiUrl).subscribe({
-                next: (personas) => {
-                    const found = personas.find(p => p.correo === email);
-                    if (found) {
-                        this.therapist = found;
-                    }
-                },
-                error: (err) => console.error('Error loading profile:', err)
-            });
-        } catch (e) {
-            console.error('Error decoding token:', e);
-        }
-    }
+  goToVerification(): void {
+    this.router.navigate(['/users/therapist/verification']);
+  }
 
-    loadVerificationStatus(): void {
-        this.http.get<any>('http://localhost:8080/api/documents/verification-status').subscribe({
-            next: (response) => {
-                switch (response.status) {
-                    case 'verified':
-                        this.verificationState = 'VERIFICADO';
-                        break;
-                    case 'rejected':
-                        this.verificationState = 'RECHAZADO';
-                        break;
-                    case 'pending':
-                        if (response.documents && response.documents.length > 0) {
-                            this.verificationState = 'PENDIENTE';
-                        } else {
-                            this.verificationState = 'SIN_DOCUMENTOS';
-                        }
-                        break;
-                    default:
-                        this.verificationState = 'SIN_DOCUMENTOS';
-                }
-            },
-            error: () => this.verificationState = 'SIN_DOCUMENTOS'
-        });
-    }
+  logout(): void {
+    localStorage.removeItem('authToken');
+    this.router.navigate(['/login']);
+  }
 
-    triggerFileInput(): void {
-        const input = document.querySelector<HTMLInputElement>('input[type="file"]');
-        input?.click();
-    }
-
-    onFileSelected(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        if (!input.files || input.files.length === 0) return;
-
-        const file = input.files[0];
-
-        if (file.size > 5 * 1024 * 1024) {
-            this.showStatus('error', 'La imagen es demasiado grande (máx. 5MB)');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        this.http.post<TherapistProfile>(
-            `${this.apiUrl}/${this.therapist.idPersona}/foto-perfil`,
-            formData
-        ).subscribe({
-            next: (updated) => {
-                this.therapist = updated;
-                this.showStatus('success', '✓ Foto de perfil actualizada');
-            },
-            error: (err) => {
-                console.error('Error uploading photo:', err);
-                this.showStatus('error', 'Error al subir la foto');
-            }
-        });
-    }
-
-    editField(field: string): void {
-        const fieldMap: Record<string, EditFieldConfig> = {
-            nombre: { field: 'nombre', label: 'Nombre', value: this.therapist.nombre, type: 'text' },
-            correo: { field: 'correo', label: 'Correo electrónico', value: this.therapist.correo, type: 'email' },
-            'contraseña': { field: 'contraseña', label: 'Contraseña', value: '', type: 'password' },
-            telefono: { field: 'telefono', label: 'Teléfono', value: this.therapist.telefono || '', type: 'tel' }
-        };
-
-        const config = fieldMap[field];
-        if (config) {
-            this.editConfig = config;
-            this.showEditModal = true;
-        }
-    }
-
-    saveField(data: Record<string, string>): void {
-        this.isSaving = true;
-
-        const payload: any = {};
-        if (data['nombre']) payload.nombre = data['nombre'];
-        if (data['correo']) payload.correo = data['correo'];
-        if (data['contraseña']) payload.contraseña = data['contraseña'];
-        if (data['telefono']) payload.telefono = data['telefono'];
-
-        this.http.put<any>(
-            `${this.apiUrl}/${this.therapist.idPersona}/basica`,
-            payload
-        ).subscribe({
-            next: (updated) => {
-                this.therapist = { ...this.therapist, ...updated };
-                this.isSaving = false;
-                this.showEditModal = false;
-                this.showStatus('success', '✓ Perfil actualizado');
-            },
-            error: (err) => {
-                this.isSaving = false;
-                console.error('Error updating profile:', err);
-                this.showStatus('error', err.error?.message || 'Error al actualizar');
-            }
-        });
-    }
-
-    goToVerification(): void {
-        this.router.navigate(['/users/therapist/verification']);
-    }
-
-    logout(): void {
-        localStorage.removeItem('authToken');
-        this.router.navigate(['/login']);
-    }
-
-    private showStatus(type: 'success' | 'error', message: string): void {
-        this.uploadStatus = type;
-        this.uploadMessage = message;
-        setTimeout(() => { this.uploadStatus = null; }, 3000);
-    }
+  private showStatus(type: 'success' | 'error', message: string): void {
+    this.uploadStatus = type;
+    this.uploadMessage = message;
+    setTimeout(() => { this.uploadStatus = null; }, 3000);
+  }
 }

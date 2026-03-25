@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 
 interface Patient {
@@ -146,28 +146,37 @@ export class PatientListComponent implements OnInit {
     }
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const email = payload.sub;
-
-      // Primero obtener el ID del terapeuta logueado
-      this.http.get<any[]>(`${this.apiUrl}/api/personas`).subscribe({
-        next: (personas) => {
-          const therapist = personas.find(p => p.correo === email);
-          if (therapist) {
-            this.loadTherapistPatients(therapist.idPersona);
-          } else {
-            this.isLoading = false;
-          }
-        },
-        error: () => { this.isLoading = false; }
-      });
+      JSON.parse(atob(token.split('.')[1]));
+      this.loadTherapistPatients();
     } catch {
       this.isLoading = false;
     }
   }
 
-  private loadTherapistPatients(therapistId: number): void {
-    this.http.get<any[]>(`${this.apiUrl}/api/appointments/user/${therapistId}`).subscribe({
+  private loadTherapistPatients(): void {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      this.isLoading = false;
+      return;
+    }
+
+    let email = '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      email = payload?.sub || payload?.email || '';
+    } catch {
+      this.isLoading = false;
+      return;
+    }
+
+    if (!email) {
+      this.isLoading = false;
+      return;
+    }
+
+    const headers = new HttpHeaders({ 'x-user-email': email });
+
+    this.http.get<any[]>(`${this.apiUrl}/api/appointment/my-appointments`, { headers }).subscribe({
       next: (appointments) => {
         // Extraer pacientes únicos de las citas
         const patientMap = new Map<number, Patient>();

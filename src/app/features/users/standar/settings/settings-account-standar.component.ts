@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { SettingsItemComponent } from '../../../../shared/components/setting-button/settings-item.component';
 import { EditFieldModalComponent, EditFieldConfig } from '../../../../shared/components/edit-field-modal/edit-field-modal.component';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-configuracion',
@@ -101,7 +102,7 @@ export class ConfiguracionComponent implements OnInit {
   isSaving = false;
   modalConfig: EditFieldConfig = { field: '', label: '', value: '', type: 'text' };
 
-  private apiUrl = 'http://localhost:8080/api/personas';
+  private apiUrl = `${environment.apiUrl}/api/personas`;
 
   ngOnInit(): void { }
 
