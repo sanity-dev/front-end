@@ -17,6 +17,8 @@ export interface RegisterPayload {
   telefono?: string;
   cedula?: string;
   tipoUsuario?: string;
+  contactoEmergencia?: string;
+  telefonoContactoEmergencia?: string;
 }
 
 export interface TherapistRegisterPayload {
@@ -116,6 +118,8 @@ export class AuthService {
     if (data.telefono) payload.telefono = data.telefono;
     if (data.cedula) payload.cedula = data.cedula;
     if (data.tipoUsuario) payload.tipoUsuario = data.tipoUsuario;
+    if (data.contactoEmergencia) payload.contactoEmergencia = data.contactoEmergencia;
+    if (data.telefonoContactoEmergencia) payload.telefonoContactoEmergencia = data.telefonoContactoEmergencia;
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload).pipe(
       tap((response) => {
