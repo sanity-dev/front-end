@@ -37,25 +37,11 @@ interface EmergencyConfig {
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class="text-[0.8rem] font-semibold text-text-primary">Número de Teléfono o Correo Electrónico</label>
-            <app-input
-              type="text"
-              placeholder="Teléfono o Correo"
-              [(ngModel)]="config.contactInfo"
-            ></app-input>
-          </div>
-        </section>
-
-        <!-- Línea de Apoyo Alternativa -->
-        <section class="flex flex-col gap-3">
-          <h2 class="text-xl font-extrabold text-text-secondary m-0">Línea de Apoyo Alternativa</h2>
-
-          <div class="flex flex-col gap-1">
             <label class="text-[0.8rem] font-semibold text-text-primary">Número de Teléfono</label>
             <app-input
-              type="tel"
+              type="text"
               placeholder="Teléfono"
-              [(ngModel)]="config.alternatePhone"
+              [(ngModel)]="config.contactInfo"
             ></app-input>
           </div>
         </section>
