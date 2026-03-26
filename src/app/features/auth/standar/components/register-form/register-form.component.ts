@@ -87,7 +87,35 @@ import { environment } from '../../../../../../environments/environment';
         </div>
       </div>
 
-      
+      <!-- Contacto de Emergencia -->
+      <div class="border-t border-gray-200 pt-4 mt-2">
+        <h3 class="text-md font-semibold text-text-secondary mb-3">Contacto de Emergencia</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del contacto</label>
+            <app-input
+              type="text"
+              formControlName="emergencyContactName"
+              placeholder="Nombre del contacto de emergencia"
+            ></app-input>
+            <div *ngIf="registerForm.get('emergencyContactName')?.invalid && (registerForm.get('emergencyContactName')?.dirty || registerForm.get('emergencyContactName')?.touched)" class="text-red-500 text-xs mt-1">
+              <div *ngIf="registerForm.get('emergencyContactName')?.errors?.['required']">El nombre del contacto es requerido.</div>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono del contacto</label>
+            <app-input
+              type="text"
+              formControlName="emergencyContactPhone"
+              placeholder="Teléfono del contacto de emergencia"
+            ></app-input>
+            <div *ngIf="registerForm.get('emergencyContactPhone')?.invalid && (registerForm.get('emergencyContactPhone')?.dirty || registerForm.get('emergencyContactPhone')?.touched)" class="text-red-500 text-xs mt-1">
+              <div *ngIf="registerForm.get('emergencyContactPhone')?.errors?.['required']">El teléfono del contacto es requerido.</div>
+              <div *ngIf="registerForm.get('emergencyContactPhone')?.errors?.['pattern']">Ingrese un número de teléfono válido.</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Términos y condiciones -->
       <div class="flex items-start gap-2 pt-2">
@@ -151,6 +179,8 @@ export class RegisterFormComponent {
       ]],
       confirmPassword: ['', Validators.required],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{7,}$/)]],
+      emergencyContactName: ['', Validators.required],
+      emergencyContactPhone: ['', [Validators.required, Validators.pattern(/^\d{7,}$/)]],
       acceptTerms: [false, Validators.requiredTrue]
     }, { validators: this.passwordMatchValidator });
   }
@@ -199,9 +229,15 @@ export class RegisterFormComponent {
       this.isLoading = true;
       this.errorMessage = '';
 
-      const { confirmPassword, acceptTerms, ...registerData } = this.registerForm.value;
+      const { confirmPassword, acceptTerms, emergencyContactName, emergencyContactPhone, ...registerData } = this.registerForm.value;
 
-      this.authService.register(registerData).subscribe({
+      const payload = {
+        ...registerData,
+        contactoEmergencia: emergencyContactName,
+        telefonoContactoEmergencia: emergencyContactPhone
+      };
+
+      this.authService.register(payload).subscribe({
         next: (response) => {
           this.isLoading = false;
           this.successMessage = '¡Registro exitoso! Redirigiendo al inicio de sesión...';

@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { DashboardService, UserInfo, Appointment, Habit, DiaryEntry } from '../../../../core/services/dashboard.service';
-import { EuphoriaService, MensajeResponse } from '../../../../core/services/euphoria.service';
+import { EuphoriaService } from '../../../../core/services/euphoria.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -41,7 +41,7 @@ import { filter } from 'rxjs/operators';
         </div>
 
         <!-- Respuesta del Agente -->
-        <div *ngIf="isAgentLoading || agentMessage" class="mt-5 bg-indigo-50/50 border border-indigo-100/50 rounded-2xl p-4 flex gap-3 shadow-sm transition-all duration-300">
+        <div *ngIf="isAgentLoading || agentMessage" (click)="goToEuphoriaChat()" class="mt-5 bg-indigo-50/50 border border-indigo-100/50 rounded-2xl p-4 flex gap-3 shadow-sm transition-all duration-300 cursor-pointer hover:shadow-md">
           <div class="bg-indigo-100 text-indigo-500 rounded-full p-2 h-fit shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -265,16 +265,13 @@ export class StandardDashboardComponent implements OnInit {
     });
   }
 
-  async selectMood(key: string) {
-
+  selectMood(key: string): void {
     this.selectedMood = key;
     this.agentMessage = null;
     this.isAgentLoading = true;
 
-    const observable = await this.euphoriaService.checkMood(key);
-
-    observable.subscribe({
-      next: (response: MensajeResponse) => {
+    this.euphoriaService.checkMood(key).subscribe({
+      next: (response) => {
         this.agentMessage = response.respuesta;
         this.isAgentLoading = false;
       },
@@ -284,7 +281,6 @@ export class StandardDashboardComponent implements OnInit {
         this.isAgentLoading = false;
       }
     });
-
   }
 
   onEmergency() {
@@ -293,6 +289,10 @@ export class StandardDashboardComponent implements OnInit {
 
   goToHabits() {
     this.router.navigate(['user/habits']);
+  }
+
+  goToEuphoriaChat() {
+    this.router.navigate(['euphoria/chat']);
   }
 
   formatDate(dateStr: string): string {

@@ -2,11 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DashboardService, Appointment } from '../../../../core/services/dashboard.service';
+import { PatientToastComponent } from '../../../services/components/patient-info-modal.component';
 
 @Component({
   selector: 'app-therapist-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PatientToastComponent],
   template: `
     <div class="flex flex-col gap-5 px-4 py-5">
 
@@ -131,6 +132,7 @@ import { DashboardService, Appointment } from '../../../../core/services/dashboa
             <div
               *ngFor="let day of calendarDays"
               class="flex items-center justify-center"
+              (click)="hasAppointment(day) ? onCalendarDayClick(day) : null"
             >
               <span
                 class="w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold transition-colors"
@@ -138,6 +140,9 @@ import { DashboardService, Appointment } from '../../../../core/services/dashboa
                 [class.text-white]="hasAppointment(day) || isToday(day)"
                 [class.bg-orange-500]="isToday(day)"
                 [class.text-gray-700]="!hasAppointment(day) && !isToday(day)"
+                [class.cursor-pointer]="hasAppointment(day)"
+                [class.hover:ring-2]="hasAppointment(day)"
+                [class.hover:ring-blue-300]="hasAppointment(day)"
               >{{ day }}</span>
             </div>
           </div>
@@ -158,6 +163,13 @@ import { DashboardService, Appointment } from '../../../../core/services/dashboa
       </div>
 
     </div>
+
+    <!-- Modal info paciente -->
+    <app-patient-toast
+      [isOpen]="isPatientModalOpen"
+      [cita]="selectedCita"
+      (closed)="closePatientModal()"
+    ></app-patient-toast>
   `,
   styles: []
 })
@@ -172,6 +184,10 @@ export class TherapistDashboardComponent implements OnInit {
   appointmentDays: number[] = [];
   monthAppointmentsCount: number = 0;
   remainingTodayCount: number = 0;
+
+  // Modal paciente
+  isPatientModalOpen = false;
+  selectedCita: any = null;
 
   dayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
@@ -351,7 +367,29 @@ export class TherapistDashboardComponent implements OnInit {
     }
   }
 
-  onAppointmentClick(appointment: any) {
-    this.router.navigate(['/users/therapist/services']);
+  onAppointmentClick(appointment: Appointment) {
+    this.selectedCita = {
+      pacienteID: appointment.pacienteID,
+      tipoSesion: appointment.serviceType,
+      fecha: appointment.date + (appointment.time ? 'T' + appointment.time : '')
+    };
+    this.isPatientModalOpen = true;
+  }
+
+  closePatientModal() {
+    this.isPatientModalOpen = false;
+    this.selectedCita = null;
+  }
+
+  onCalendarDayClick(day: number) {
+    const appointment = this.allAppointments.find(a => {
+      const d = this.toAppointmentDate(a);
+      return d.getDate() === day
+        && d.getMonth() === this.currentMonth
+        && d.getFullYear() === this.currentYear;
+    });
+    if (appointment) {
+      this.onAppointmentClick(appointment);
+    }
   }
 }
