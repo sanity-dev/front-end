@@ -63,22 +63,29 @@ import { filter } from 'rxjs/operators';
 
       <!-- Próxima cita -->
       <div class="bg-gray-900 rounded-2xl p-4 flex items-center justify-between gap-4">
-        <div class="flex flex-col gap-1" *ngIf="nextAppointment; else noCita">
+        <div class="flex flex-col gap-1.5" *ngIf="nextAppointment; else noCita">
           <span class="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Próxima Cita</span>
           <h3 class="text-white font-extrabold text-lg leading-tight">{{ nextAppointment.therapistName }}</h3>
-          <p class="text-gray-400 text-sm">{{ nextAppointment.serviceType }}</p>
-          <div class="flex items-center gap-3 mt-1">
-            <div class="flex items-center gap-1 text-gray-300 text-xs">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <p class="text-text-secondary text-xs font-semibold">{{ nextAppointment.serviceType }}</p>
+
+          <!-- Fecha y hora -->
+          <div class="flex flex-col gap-1 mt-1">
+            <div class="flex items-center gap-1.5 text-gray-300 text-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
               </svg>
-              {{ formatDate(nextAppointment.date) }}
+              <span>{{ formatAppointmentDate(nextAppointment.date) }}</span>
             </div>
-            <div class="flex items-center gap-1 text-text-secondary text-xs font-semibold">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="flex items-center gap-1.5 text-text-secondary text-xs font-semibold">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              </svg>
+              <span>{{ getAppointmentTime(nextAppointment) }}</span>
+              <span class="text-gray-600">·</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
               </svg>
-              {{ nextAppointment.modality }}
+              <span>{{ nextAppointment.modality }}</span>
             </div>
           </div>
         </div>
@@ -312,6 +319,35 @@ export class StandardDashboardComponent implements OnInit {
     } catch {
       return dateStr;
     }
+  }
+
+  /** Devuelve "Hoy · lun 30 mar" o "lun 30 mar 2026" */
+  formatAppointmentDate(dateStr: string): string {
+    try {
+      const date = new Date(dateStr);
+      const now  = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(now.getDate() + 1);
+
+      const dayLabel = date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+
+      if (date.toDateString() === now.toDateString())       return `Hoy · ${dayLabel}`;
+      if (date.toDateString() === tomorrow.toDateString())  return `Mañana · ${dayLabel}`;
+      return date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    } catch { return dateStr; }
+  }
+
+  /** Extrae la hora HH:mm del campo time o del ISO datestring */
+  getAppointmentTime(appointment: any): string {
+    try {
+      if (appointment.time) {
+        return appointment.time.split(':').slice(0, 2).join(':');
+      }
+      if (appointment.date?.includes('T')) {
+        return new Date(appointment.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      }
+      return '--:--';
+    } catch { return '--:--'; }
   }
 
   truncateText(text: string, maxLength: number): string {
