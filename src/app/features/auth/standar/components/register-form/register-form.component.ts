@@ -89,7 +89,7 @@ import { environment } from '../../../../../../environments/environment';
 
       <!-- Contacto de Emergencia -->
       <div class="border-t border-gray-200 pt-4 mt-2">
-        <h3 class="text-sm font-semibold text-text-secondary mb-3">Contacto de Emergencia</h3>
+        <h3 class="text-md font-semibold text-text-secondary mb-3">Contacto de Emergencia</h3>
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del contacto</label>

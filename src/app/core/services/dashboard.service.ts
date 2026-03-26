@@ -21,6 +21,7 @@ export interface Appointment {
     date: string;
     time: string;
     modality: string; // 'Online' | 'Presencial'
+    pacienteID?: number;
 }
 
 export interface Habit {
@@ -166,7 +167,8 @@ export class DashboardService {
                     serviceType: a.serviceType || a.tipoServicio || 'Consulta',
                     date: a.date || a.fecha,
                     time: a.time || a.hora || '',
-                    modality: a.modality || a.modalidad || 'Online'
+                    modality: a.modality || a.modalidad || 'Online',
+                    pacienteID: a.pacienteID || a.idPaciente
                 }));
             }),
             catchError(() => of([]))
