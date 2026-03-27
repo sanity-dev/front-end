@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../../../core/services/auth.service';
 import { SettingsItemComponent } from '../../../../shared/components/setting-button/settings-item.component';
 import { EditFieldModalComponent, EditFieldConfig } from '../../../../shared/components/edit-field-modal/edit-field-modal.component';
 import { environment } from '../../../../../environments/environment';
@@ -80,6 +81,7 @@ import { environment } from '../../../../../environments/environment';
 export class TherapistSettingsComponent implements OnInit {
     private router = inject(Router);
     private http = inject(HttpClient);
+    private authService = inject(AuthService);
     privacyEnabled = true;
     showModal = false;
     isSaving = false;
@@ -169,7 +171,7 @@ export class TherapistSettingsComponent implements OnInit {
                 body: { contraseña: password }
             }).subscribe({
                 next: () => {
-                    localStorage.removeItem('authToken');
+                    this.authService.logout();
                     this.router.navigate(['/login']);
                 },
                 error: (err) => {
@@ -184,7 +186,7 @@ export class TherapistSettingsComponent implements OnInit {
     }
 
     logout(): void {
-        localStorage.removeItem('authToken');
+        this.authService.logout();
         this.router.navigate(['/login']);
     }
 }
