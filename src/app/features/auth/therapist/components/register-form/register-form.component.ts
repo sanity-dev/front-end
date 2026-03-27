@@ -180,7 +180,7 @@ export class TherapistRegisterFormComponent {
       confirmPassword: ['', Validators.required],
       documentNumber: ['', Validators.required],
       professionalLicenseNumber: ['', Validators.required],
-      phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{7,}$/)]],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?\d{7,15}$/)]],
       acceptTerms: [false, Validators.requiredTrue]
     }, { validators: this.passwordMatchValidator });
   }
