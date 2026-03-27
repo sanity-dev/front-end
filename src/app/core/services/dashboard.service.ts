@@ -196,7 +196,7 @@ export class DashboardService {
                     date: a.date || a.fecha,
                     time: a.time || a.hora || '',
                     modality: a.modality || a.modalidad || 'Online',
-                    pacienteID: a.pacienteID || a.idPaciente
+                    pacienteID: a.pacienteID || a.idPaciente || a.patientId || a.pacienteId || 0
                 }));
             }),
             catchError(() => of([]))
