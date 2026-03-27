@@ -177,9 +177,9 @@ export class RegisterFormComponent {
         this.uppercaseValidator
       ]],
       confirmPassword: ['', Validators.required],
-      phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{7,}$/)]],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?\d{7,15}$/)]],
       emergencyContactName: ['', Validators.required],
-      emergencyContactPhone: ['', [Validators.required, Validators.pattern(/^\d{7,}$/)]],
+      emergencyContactPhone: ['', [Validators.required, Validators.pattern(/^\+?\d{7,15}$/)]],
       acceptTerms: [false, Validators.requiredTrue]
     }, { validators: this.passwordMatchValidator });
   }
