@@ -5,13 +5,14 @@ import { Router } from '@angular/router';
 import { ButtonComponent } from '../../../../../shared/components/button/button.component';
 import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
 import { InputComponent } from '../../../../../shared/components/input/input.component';
+import { PhoneInputComponent } from '../../../../../shared/components/phone-input/phone-input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-register-form',
   standalone: true,
-  imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent],
+  imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent, PhoneInputComponent],
   template: `
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4 w-full">
       <!-- Mensaje de error general -->
@@ -75,15 +76,14 @@ import { environment } from '../../../../../../environments/environment';
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Número de teléfono</label>
-        <app-input
-          type="number"
+        <app-phone-input
           formControlName="phoneNumber"
-          placeholder="Número de teléfono"
-        ></app-input>
+          label="Número de teléfono"
+          placeholder="3001234567"
+        ></app-phone-input>
         <div *ngIf="registerForm.get('phoneNumber')?.invalid && (registerForm.get('phoneNumber')?.dirty || registerForm.get('phoneNumber')?.touched)" class="text-red-500 text-xs mt-1">
           <div *ngIf="registerForm.get('phoneNumber')?.errors?.['required']">El número de teléfono es requerido.</div>
-          <div *ngIf="registerForm.get('phoneNumber')?.errors?.['pattern']">Ingrese un número de teléfono válido.</div>
+          <div *ngIf="registerForm.get('phoneNumber')?.errors?.['pattern']">Ingrese un número de teléfono válido (10 dígitos).</div>
         </div>
       </div>
 
@@ -103,15 +103,14 @@ import { environment } from '../../../../../../environments/environment';
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono del contacto</label>
-            <app-input
-              type="text"
+            <app-phone-input
               formControlName="emergencyContactPhone"
-              placeholder="Teléfono del contacto de emergencia"
-            ></app-input>
+              label="Teléfono del contacto"
+              placeholder="3001234567"
+            ></app-phone-input>
             <div *ngIf="registerForm.get('emergencyContactPhone')?.invalid && (registerForm.get('emergencyContactPhone')?.dirty || registerForm.get('emergencyContactPhone')?.touched)" class="text-red-500 text-xs mt-1">
               <div *ngIf="registerForm.get('emergencyContactPhone')?.errors?.['required']">El teléfono del contacto es requerido.</div>
-              <div *ngIf="registerForm.get('emergencyContactPhone')?.errors?.['pattern']">Ingrese un número de teléfono válido.</div>
+              <div *ngIf="registerForm.get('emergencyContactPhone')?.errors?.['pattern']">Ingrese un número de teléfono válido (10 dígitos).</div>
             </div>
           </div>
         </div>
@@ -231,10 +230,15 @@ export class RegisterFormComponent {
 
       const { confirmPassword, acceptTerms, emergencyContactName, emergencyContactPhone, ...registerData } = this.registerForm.value;
 
+      const rawPhone = (emergencyContactPhone || '').trim().replace(/\s/g, '');
+      const fullPhone = rawPhone.startsWith('+57')
+        ? rawPhone
+        : '+57' + rawPhone.replace(/^0+/, '');
+
       const payload = {
         ...registerData,
         contactoEmergencia: emergencyContactName,
-        telefonoContactoEmergencia: emergencyContactPhone
+        telefonoContactoEmergencia: fullPhone
       };
 
       this.authService.register(payload).subscribe({

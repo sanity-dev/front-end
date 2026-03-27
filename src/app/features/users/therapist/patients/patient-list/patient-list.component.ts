@@ -8,7 +8,9 @@ import { environment } from '../../../../../../environments/environment';
 interface Patient {
   idPersona: number;
   nombre: string;
+  correo: string;
   fotoPerfilUrl: string | null;
+  appointmentCount: number;
 }
 
 @Component({
@@ -81,10 +83,14 @@ interface Patient {
             />
           </div>
 
-          <!-- Nombre -->
+          <!-- Nombre y conteo -->
           <div class="flex-1 min-w-0">
             <p class="text-sm font-semibold text-text-primary truncate group-hover:text-secondary-background transition-colors duration-200">
               {{ patient.nombre }}
+            </p>
+            <p class="text-xs text-gray-400 mt-0.5">{{ patient.correo }}</p>
+            <p class="text-[10px] text-secondary-background font-bold mt-0.5">
+              {{ patient.appointmentCount }} cita{{ patient.appointmentCount !== 1 ? 's' : '' }}
             </p>
           </div>
 
@@ -155,49 +161,62 @@ export class PatientListComponent implements OnInit {
 
   private loadTherapistPatients(): void {
     const token = localStorage.getItem('authToken');
-    if (!token) {
-      this.isLoading = false;
-      return;
-    }
+    if (!token) { this.isLoading = false; return; }
 
     let email = '';
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       email = payload?.sub || payload?.email || '';
-    } catch {
-      this.isLoading = false;
-      return;
-    }
+    } catch { this.isLoading = false; return; }
 
-    if (!email) {
-      this.isLoading = false;
-      return;
-    }
+    if (!email) { this.isLoading = false; return; }
 
     const headers = new HttpHeaders({ 'x-user-email': email });
+    const now = new Date();
 
+    // 1) Traer todas las citas del terapeuta
     this.http.get<any[]>(`${this.apiUrl}/api/appointment/my-appointments`, { headers }).subscribe({
       next: (appointments) => {
-        // Extraer pacientes únicos de las citas
-        const patientMap = new Map<number, Patient>();
+        // 2) Filtrar solo citas PASADAS
+        const past = appointments.filter(a => {
+          const base = a.date || a.fecha || '';
+          const time = a.time || a.hora || '';
+          const dt = time && !base.includes('T')
+            ? new Date(`${base}T${time}`)
+            : new Date(base);
+          return dt < now;
+        });
 
-        for (const apt of appointments) {
-          const patientId = apt.patientId || apt.idPaciente;
-          const patientName = apt.patientName || apt.nombrePaciente || '';
-          const patientPhoto = apt.patientPhotoUrl || apt.fotoPacienteUrl || null;
+        if (past.length === 0) { this.isLoading = false; return; }
 
-          if (patientId && !patientMap.has(patientId)) {
-            patientMap.set(patientId, {
-              idPersona: patientId,
-              nombre: patientName,
-              fotoPerfilUrl: patientPhoto
-            });
-          }
+        // 3) Contar citas por pacienteID
+        const countMap = new Map<number, number>();
+        for (const a of past) {
+          const pid = Number(a.pacienteID || a.patientId || a.idPaciente);
+          if (pid) countMap.set(pid, (countMap.get(pid) || 0) + 1);
         }
 
-        this.patients = Array.from(patientMap.values())
-          .sort((a, b) => a.nombre.localeCompare(b.nombre));
-        this.isLoading = false;
+        // 4) Enriquecer con datos de persona
+        this.http.get<any[]>(`${this.apiUrl}/api/personas`).subscribe({
+          next: (personas) => {
+            const patients: Patient[] = [];
+            for (const [id, count] of countMap.entries()) {
+              const persona = personas.find(p => p.idPersona === id);
+              if (persona) {
+                patients.push({
+                  idPersona: id,
+                  nombre: persona.nombre || 'Paciente',
+                  correo: persona.correo || '',
+                  fotoPerfilUrl: persona.fotoPerfilUrl || null,
+                  appointmentCount: count,
+                });
+              }
+            }
+            this.patients = patients.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            this.isLoading = false;
+          },
+          error: () => { this.isLoading = false; }
+        });
       },
       error: () => { this.isLoading = false; }
     });

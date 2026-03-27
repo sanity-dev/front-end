@@ -38,11 +38,11 @@ interface EmergencyConfig {
 
           <div class="flex flex-col gap-1">
             <label class="text-[0.8rem] font-semibold text-text-primary">Número de Teléfono</label>
-            <app-input
+            <app-phone-input
               type="text"
               placeholder="Teléfono"
               [(ngModel)]="config.contactInfo"
-            ></app-input>
+            ></app-phone-input>
           </div>
         </section>
 
