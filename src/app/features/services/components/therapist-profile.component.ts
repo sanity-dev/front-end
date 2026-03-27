@@ -6,11 +6,12 @@ import { Specialist, parseDisponibilidad } from '../models/specialist.model';
 import { MembershipService, MembershipStatus } from '../membership.service';
 import { environment } from '../../../../environments/environment';
 import { CancelAppointmentModalComponent } from './cancel-appointment-modal.component';
+import { PatientToastComponent } from './patient-info-modal.component';
 
 @Component({
   selector: 'app-therapist-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, CancelAppointmentModalComponent],
+  imports: [CommonModule, FormsModule, CancelAppointmentModalComponent, PatientToastComponent],
   template: `
     <div style="display: flex; flex-direction: column; gap: 1rem; padding-bottom: 7rem">
       <!-- ── BANNER MEMBRESÍA ─────────────────────────────────────────── -->
@@ -320,73 +321,14 @@ import { CancelAppointmentModalComponent } from './cancel-appointment-modal.comp
     <!-- ══════════════════════════════════════════════════════════════
          MODAL: VER PACIENTE
     ══════════════════════════════════════════════════════════════ -->
-    <div
-      *ngIf="showPacienteToast"
-      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center"
-      (click)="cerrarToast()"
-    >
-      <div class="bg-white rounded-t-3xl w-full" (click)="$event.stopPropagation()">
-        <div class="flex justify-center pt-3 pb-1">
-          <div class="w-10 h-1 rounded-full bg-gray-200"></div>
-        </div>
-
-        <div *ngIf="loadingPaciente" class="flex flex-col items-center py-10 gap-3">
-          <div class="w-20 h-20 rounded-full bg-gray-100 animate-pulse"></div>
-          <div class="h-4 w-36 bg-gray-100 rounded animate-pulse"></div>
-          <div class="h-3 w-24 bg-gray-100 rounded animate-pulse"></div>
-        </div>
-
-        <div
-          *ngIf="!loadingPaciente && pacienteSeleccionado"
-          class="flex flex-col items-center px-6 py-5 pb-10 gap-4"
-        >
-          <div
-            class="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center"
-            style="background: linear-gradient(135deg, #4C9EEB22, #4CA1AF22); border: 3px solid #4CA1AF40"
-          >
-            <img
-              *ngIf="pacienteSeleccionado.fotoPerfilUrl"
-              [src]="pacienteSeleccionado.fotoPerfilUrl"
-              class="w-full h-full object-cover"
-              alt="foto paciente"
-            />
-            <span *ngIf="!pacienteSeleccionado.fotoPerfilUrl" style="font-size: 3rem">🌱</span>
-          </div>
-
-          <div class="text-center">
-            <p
-              class="font-bold uppercase tracking-widest text-gray-400 mb-1"
-              style="font-size: 10px"
-            >
-              Paciente
-            </p>
-            <h3 class="text-xl font-bold text-gray-900">{{ pacienteSeleccionado.nombre }}</h3>
-            <p class="text-sm text-gray-400 mt-0.5">{{ pacienteSeleccionado.correo }}</p>
-          </div>
-
-          <div
-            *ngIf="citaSeleccionada"
-            class="w-full rounded-2xl flex items-center justify-between"
-            style="background: #4CA1AF0D; border: 1px solid #4CA1AF20; padding: 0.875rem 1rem"
-          >
-            <div>
-              <p class="text-xs font-bold text-gray-500">{{ citaSeleccionada.tipoSesion }}</p>
-              <p class="text-sm font-bold" style="color: #4CA1AF">
-                {{ citaSeleccionada.fecha | date: 'EEE dd MMM · HH:mm':'UTC' }}
-              </p>
-            </div>
-            <span style="font-size: 1.5rem">📅</span>
-          </div>
-
-          <button
-            (click)="cerrarToast()"
-            class="w-full py-3.5 rounded-2xl font-bold text-sm text-gray-500 bg-gray-100 active:scale-[0.98] transition-all"
-          >
-            Cerrar
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- ══════════════════════════════════════════════════════════════
+         MODAL: VER PACIENTE (componente reutilizable)
+    ══════════════════════════════════════════════════════════════ -->
+    <app-patient-toast
+      [isOpen]="showPacienteToast"
+      [cita]="citaSeleccionada"
+      (closed)="cerrarToast()"
+    ></app-patient-toast>
 
     <!-- ══════════════════════════════════════════════════════════════
          MODAL: CANCELAR CITA (componente reutilizable)
@@ -410,8 +352,6 @@ export class TherapistProfileComponent implements OnInit {
 
   // Modal ver paciente
   showPacienteToast = false;
-  loadingPaciente = false;
-  pacienteSeleccionado: any = null;
   citaSeleccionada: any = null;
 
   @ViewChild('cancelModal') cancelModal!: CancelAppointmentModalComponent;
@@ -473,39 +413,12 @@ export class TherapistProfileComponent implements OnInit {
 
   // ── Ver paciente ────────────────────────────────────────────────
   verPaciente(cita: any): void {
-      console.log('CITA COMPLETA:', cita);
-  console.log('pacienteID:', cita.pacienteID);
     this.citaSeleccionada = cita;
     this.showPacienteToast = true;
-    this.loadingPaciente = true;
-    this.pacienteSeleccionado = null;
-
-    this.http.get<any[]>(`${environment.apiUrl}/api/personas`).subscribe({
-      next: (personas) => {
-        const found = personas.find((p) => p.idPersona === cita.pacienteID);
-        this.pacienteSeleccionado = found || {
-          nombre: 'Paciente desconocido',
-          correo: '',
-          telefono: '',
-          fotoPerfilUrl: null,
-        };
-        this.loadingPaciente = false;
-      },
-      error: () => {
-        this.pacienteSeleccionado = {
-          nombre: 'Paciente desconocido',
-          correo: '',
-          telefono: '',
-          fotoPerfilUrl: null,
-        };
-        this.loadingPaciente = false;
-      },
-    });
   }
 
   cerrarToast(): void {
     this.showPacienteToast = false;
-    this.pacienteSeleccionado = null;
     this.citaSeleccionada = null;
   }
 

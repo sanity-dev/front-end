@@ -361,26 +361,35 @@ export class StandardDashboardComponent implements OnInit {
   formatAppointmentDate(dateStr: string): string {
     try {
       const date = new Date(dateStr);
-      const now  = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(now.getDate() + 1);
+      const tz   = 'UTC';
 
-      const dayLabel = date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+      // Comparamos fecha en UTC para no desfasar
+      const dateUTCStr = date.toLocaleDateString('es-ES', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
+      const now        = new Date();
+      const nowUTCStr  = now.toLocaleDateString('es-ES', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
+      const tom        = new Date(now); tom.setUTCDate(now.getUTCDate() + 1);
+      const tomUTCStr  = tom.toLocaleDateString('es-ES', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
 
-      if (date.toDateString() === now.toDateString())       return `Hoy · ${dayLabel}`;
-      if (date.toDateString() === tomorrow.toDateString())  return `Mañana · ${dayLabel}`;
-      return date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+      const dayLabel   = date.toLocaleDateString('es-ES', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short' });
+
+      if (dateUTCStr === nowUTCStr)  return `Hoy · ${dayLabel}`;
+      if (dateUTCStr === tomUTCStr)  return `Mañana · ${dayLabel}`;
+      return date.toLocaleDateString('es-ES', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
     } catch { return dateStr; }
   }
 
-  /** Extrae la hora HH:mm del campo time o del ISO datestring */
+  /** Extrae la hora HH:mm del campo time o del ISO datestring (siempre en UTC) */
   getAppointmentTime(appointment: any): string {
     try {
       if (appointment.time) {
         return appointment.time.split(':').slice(0, 2).join(':');
       }
       if (appointment.date?.includes('T')) {
-        return new Date(appointment.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        return new Date(appointment.date).toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'UTC',       // ← evita la conversión a hora local
+        });
       }
       return '--:--';
     } catch { return '--:--'; }

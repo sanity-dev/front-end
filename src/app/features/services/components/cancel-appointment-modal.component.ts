@@ -156,7 +156,6 @@ export class CancelAppointmentModalComponent implements OnChanges {
     'Emergencia personal',
     'Enfermedad',
     'Conflicto de agenda',
-    'Solicitud del paciente',
     'Fuerza mayor',
   ];
 
