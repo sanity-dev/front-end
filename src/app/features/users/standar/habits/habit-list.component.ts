@@ -28,16 +28,35 @@ import { DashboardService, Habit } from '../../../../core/services/dashboard.ser
           class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-3"
         >
           <div class="flex items-start justify-between gap-3">
-            <div>
+            <div class="flex-1 min-w-0">
               <h2 class="text-base font-bold text-text-secondary">{{ habit.label }}</h2>
               <p class="text-sm text-gray-500" *ngIf="habit.description; else noDescription">{{ habit.description }}</p>
               <ng-template #noDescription>
                 <p class="text-sm text-gray-400">Sin descripcion disponible.</p>
               </ng-template>
             </div>
-            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">
-              {{ habit.progress }}%
-            </span>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">
+                {{ habit.progress }}%
+              </span>
+              <!-- Botón eliminar -->
+              <button
+                (click)="confirmDelete(habit)"
+                [disabled]="deletingId === habit.id"
+                class="flex items-center justify-center w-8 h-8 rounded-full text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors active:scale-90 disabled:opacity-40"
+                title="Eliminar hábito"
+                [attr.aria-label]="'Eliminar ' + habit.label"
+              >
+                <svg *ngIf="deletingId !== habit.id" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                <!-- Spinner cargando -->
+                <svg *ngIf="deletingId === habit.id" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2 text-xs">
@@ -82,6 +101,9 @@ export class HabitListComponent implements OnInit {
 
   habits: Habit[] = [];
   isLoading = true;
+  deletingId: number | null = null;
+
+  private userId: number | null = null;
 
   ngOnInit(): void {
     this.loadHabits();
@@ -95,10 +117,31 @@ export class HabitListComponent implements OnInit {
         return;
       }
 
+      this.userId = user.idPersona;
       this.dashboardService.getHabits(user.idPersona).subscribe(habits => {
         this.habits = habits;
         this.isLoading = false;
       });
+    });
+  }
+
+  confirmDelete(habit: Habit): void {
+    const ok = confirm(`¿Eliminar el hábito "${habit.label}"? Esta acción no se puede deshacer.`);
+    if (!ok) return;
+    this.deleteHabit(habit);
+  }
+
+  deleteHabit(habit: Habit): void {
+    this.deletingId = habit.id;
+    this.dashboardService.deleteHabit(habit.id).subscribe({
+      next: () => {
+        this.habits = this.habits.filter(h => h.id !== habit.id);
+        this.deletingId = null;
+      },
+      error: () => {
+        this.deletingId = null;
+        alert('No se pudo eliminar el hábito. Intenta de nuevo.');
+      }
     });
   }
 

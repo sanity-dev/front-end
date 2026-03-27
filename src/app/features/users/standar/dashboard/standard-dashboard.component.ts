@@ -171,32 +171,89 @@ import { environment } from '../../../../../environments/environment';
           <h2 class="text-base font-bold text-text-primary">Progreso de Hábitos</h2>
           <button (click)="goToHabits()" class="text-text-secondary text-sm font-semibold">Ver todos</button>
         </div>
-        <div class="flex gap-4" *ngIf="habits.length > 0; else noHabits">
-          <div
-            *ngFor="let habit of habits"
-            class="flex-1 bg-white rounded-2xl p-4 flex flex-col items-center gap-2 shadow-sm border border-gray-100"
-          >
-            <!-- Círculo de progreso -->
-            <div class="relative w-16 h-16">
-              <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
-                <circle cx="32" cy="32" r="26" fill="none" stroke="#f3f4f6" stroke-width="6"/>
-                <circle
-                  cx="32" cy="32" r="26" fill="none"
-                  stroke="#4C9EEB" stroke-width="6"
-                  stroke-linecap="round"
-                  [attr.stroke-dasharray]="163"
-                  [attr.stroke-dashoffset]="163 - (163 * habit.progress / 100)"
-                />
-              </svg>
-              <span class="absolute inset-0 flex items-center justify-center text-sm font-extrabold text-gray-800">
-                {{ habit.progress }}%
-              </span>
+
+        <ng-container *ngIf="habits.length > 0; else noHabits">
+
+          <!-- Layout normal: ≤ 4 hábitos -->
+          <div *ngIf="habits.length <= 4" class="flex gap-3">
+            <div
+              *ngFor="let habit of habits"
+              class="flex-1 bg-white rounded-2xl p-4 flex flex-col items-center gap-2 shadow-sm border border-gray-100 min-w-0"
+            >
+              <!-- Círculo de progreso -->
+              <div class="relative w-16 h-16">
+                <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+                  <circle cx="32" cy="32" r="26" fill="none" stroke="#f3f4f6" stroke-width="6"/>
+                  <circle
+                    cx="32" cy="32" r="26" fill="none"
+                    stroke="#4C9EEB" stroke-width="6"
+                    stroke-linecap="round"
+                    [attr.stroke-dasharray]="163"
+                    [attr.stroke-dashoffset]="163 - (163 * habit.progress / 100)"
+                  />
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-sm font-extrabold text-gray-800">
+                  {{ habit.progress }}%
+                </span>
+              </div>
+              <span *ngIf="habit.time" class="text-[10px] text-gray-400 text-center">{{ habit.time }}</span>
+              <span class="text-xs font-semibold text-gray-600 text-center">{{ habit.label }}</span>
             </div>
-            <!-- Detalle del hábito -->
-            <span *ngIf="habit.time" class="text-[10px] text-gray-400 text-center">{{ habit.time }}</span>
-            <span class="text-xs font-semibold text-gray-600 text-center">{{ habit.label }}</span>
           </div>
-        </div>
+
+          <!-- Carrusel: > 4 hábitos -->
+          <div *ngIf="habits.length > 4">
+            <!-- Track deslizable -->
+            <div
+              id="habitsCarouselTrack"
+              class="habits-carousel"
+              (scroll)="onCarouselScroll($event)"
+            >
+              <!-- Slide de 4 en 4 -->
+              <div
+                *ngFor="let slide of habitSlides; let i = index"
+                class="habits-slide"
+              >
+                <div
+                  *ngFor="let habit of slide"
+                  class="bg-white rounded-2xl p-4 flex flex-col items-center gap-2 shadow-sm border border-gray-100"
+                  style="min-width: 0;"
+                >
+                  <!-- Círculo de progreso -->
+                  <div class="relative w-14 h-14">
+                    <svg class="w-14 h-14 -rotate-90" viewBox="0 0 64 64">
+                      <circle cx="32" cy="32" r="26" fill="none" stroke="#f3f4f6" stroke-width="6"/>
+                      <circle
+                        cx="32" cy="32" r="26" fill="none"
+                        stroke="#4C9EEB" stroke-width="6"
+                        stroke-linecap="round"
+                        [attr.stroke-dasharray]="163"
+                        [attr.stroke-dashoffset]="163 - (163 * habit.progress / 100)"
+                      />
+                    </svg>
+                    <span class="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-gray-800">
+                      {{ habit.progress }}%
+                    </span>
+                  </div>
+                  <span *ngIf="habit.time" class="text-[10px] text-gray-400 text-center">{{ habit.time }}</span>
+                  <span class="text-[11px] font-semibold text-gray-600 text-center leading-tight">{{ habit.label }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Puntos de paginación -->
+            <div class="flex justify-center gap-1.5 mt-3">
+              <button
+                *ngFor="let slide of habitSlides; let i = index"
+                (click)="goToSlide(i)"
+                [class]="i === carouselIndex ? 'w-5 h-2 rounded-full bg-blue-500 transition-all duration-300' : 'w-2 h-2 rounded-full bg-gray-300 transition-all duration-300'"
+                [attr.aria-label]="'Ir a página ' + (i + 1)"
+              ></button>
+            </div>
+          </div>
+
+        </ng-container>
+
         <ng-template #noHabits>
           <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
             <p class="text-gray-400 text-sm">Aún no tienes hábitos registrados</p>
@@ -227,7 +284,28 @@ import { environment } from '../../../../../environments/environment';
 
     </div>
   `,
-  styles: []
+  styles: [`
+    .habits-carousel {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      gap: 0;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .habits-carousel::-webkit-scrollbar {
+      display: none;
+    }
+    .habits-slide {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      min-width: 100%;
+      scroll-snap-align: start;
+      flex-shrink: 0;
+    }
+  `]
 })
 export class StandardDashboardComponent implements OnInit {
   private router = inject(Router);
@@ -242,6 +320,8 @@ export class StandardDashboardComponent implements OnInit {
   selectedMood: string = 'feliz';
   nextAppointment: Appointment | null = null;
   habits: Habit[] = [];
+  habitSlides: Habit[][] = [];
+  carouselIndex: number = 0;
   diaryEntry: DiaryEntry | null = null;
 
   // Modal cancelar cita
@@ -299,6 +379,12 @@ export class StandardDashboardComponent implements OnInit {
   private loadHabits(userId: number): void {
     this.dashboardService.getHabits(userId).subscribe(habits => {
       this.habits = habits;
+      // Agrupar en páginas de 4 para el carrusel
+      this.habitSlides = [];
+      for (let i = 0; i < habits.length; i += 4) {
+        this.habitSlides.push(habits.slice(i, i + 4));
+      }
+      this.carouselIndex = 0;
     });
   }
 
@@ -332,6 +418,22 @@ export class StandardDashboardComponent implements OnInit {
 
   goToHabits() {
     this.router.navigate(['user/habits']);
+  }
+
+  goToSlide(index: number): void {
+    this.carouselIndex = index;
+    const track = document.getElementById('habitsCarouselTrack');
+    if (track) {
+      track.scrollTo({ left: track.clientWidth * index, behavior: 'smooth' });
+    }
+  }
+
+  onCarouselScroll(event: Event): void {
+    const el = event.target as HTMLElement;
+    const slideWidth = el.clientWidth;
+    if (slideWidth > 0) {
+      this.carouselIndex = Math.round(el.scrollLeft / slideWidth);
+    }
   }
 
   goToEuphoriaChat() {

@@ -237,6 +237,21 @@ export class DashboardService {
         );
     }
 
+    /**
+     * Elimina un hábito por su ID
+     */
+    deleteHabit(habitId: number): Observable<any> {
+        const token = localStorage.getItem('authToken');
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        });
+
+        return this.http.delete(`${this.gatewayUrl}/api/euphoria/reminders/${habitId}`, { headers }).pipe(
+            catchError(() => of(null))
+        );
+    }
+
     private calcularProgreso(habit: any): number {
         if (habit.reminder_time) {
             const [hours, minutes] = habit.reminder_time.split(':').map(Number);
