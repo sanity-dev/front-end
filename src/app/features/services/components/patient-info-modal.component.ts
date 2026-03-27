@@ -100,8 +100,9 @@ export class PatientToastComponent implements OnChanges {
   loading = false;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['isOpen']?.currentValue === true && this.cita?.pacienteID) {
-      this.load(this.cita.pacienteID);
+    const pid = this.cita?.pacienteID || this.cita?.idPaciente || this.cita?.patientId || this.cita?.pacienteId;
+    if (changes['isOpen']?.currentValue === true && pid) {
+      this.load(pid);
     }
     if (changes['isOpen']?.currentValue === false) {
       this.paciente = null;

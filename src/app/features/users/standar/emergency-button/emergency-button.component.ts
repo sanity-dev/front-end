@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { InputComponent } from '../../../../shared/components/input/input.component';
 import { TextareaComponent } from '../../../../shared/components/textarea/textarea.component';
+import { PhoneInputComponent } from '../../../../shared/components/phone-input/phone-input.component';
 import { environment } from '../../../../../environments/environment';
 
 interface EmergencyConfig {
@@ -18,7 +19,7 @@ interface EmergencyConfig {
 @Component({
   selector: 'app-emergency-button',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, ],
+  imports: [CommonModule, FormsModule, ButtonComponent, InputComponent, PhoneInputComponent],
   template: `
     <div class="min-h-full px-5 py-4 pb-8">
       <div class="flex flex-col gap-5">
@@ -32,6 +33,7 @@ interface EmergencyConfig {
             <app-input
               type="text"
               placeholder="Nombre"
+              name="contactName"
               [(ngModel)]="config.contactName"
             ></app-input>
           </div>
@@ -41,6 +43,7 @@ interface EmergencyConfig {
             <app-phone-input
               type="text"
               placeholder="Teléfono"
+              name="contactInfo"
               [(ngModel)]="config.contactInfo"
             ></app-phone-input>
           </div>

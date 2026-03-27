@@ -93,6 +93,9 @@ export class AuthService {
         if (response.token) {
           this.setToken(response.token);
           if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
             if (response.persona.tipoUsuario) {
               localStorage.setItem('userType', response.persona.tipoUsuario);
             }
@@ -126,6 +129,12 @@ export class AuthService {
         if (response.token) {
           this.setToken(response.token);
           if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
+            if (response.persona.tipoUsuario) {
+              localStorage.setItem('userType', response.persona.tipoUsuario);
+            }
             this.notificacionService.conectarSSE(response.persona.idPersona.toString());
           }
           this.isAuthenticatedSubject.next(true);
@@ -154,6 +163,12 @@ export class AuthService {
         if (response.token) {
           this.setToken(response.token);
           if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
+            if (response.persona.tipoUsuario) {
+              localStorage.setItem('userType', response.persona.tipoUsuario);
+            }
             this.notificacionService.conectarSSE(response.persona.idPersona.toString());
           }
           this.isAuthenticatedSubject.next(true);
@@ -171,6 +186,9 @@ export class AuthService {
         if (response.token) {
           this.setToken(response.token);
           if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
             if (response.persona.tipoUsuario) {
               localStorage.setItem('userType', response.persona.tipoUsuario);
             }
