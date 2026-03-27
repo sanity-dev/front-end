@@ -7,11 +7,12 @@ import { GoogleButtonComponent } from '../../../../../shared/components/google-b
 import { InputComponent } from '../../../../../shared/components/input/input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { environment } from '../../../../../../environments/environment';
+import { PhoneInputComponent } from "../../../../../shared/components/phone-input/phone-input.component";
 
 @Component({
   selector: 'app-therapist-register-form',
   standalone: true,
-  imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent],
+  imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent, PhoneInputComponent],
   template: `
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4 w-full">
       <!-- Mensaje de éxito -->
@@ -103,11 +104,10 @@ import { environment } from '../../../../../../environments/environment';
       
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Número de teléfono</label>
-        <app-input
-          type="number"
+        <app-phone-input
           formControlName="phoneNumber"
           placeholder="Número de teléfono"
-        ></app-input>
+        ></app-phone-input>
         <div *ngIf="registerForm.get('phoneNumber')?.invalid && (registerForm.get('phoneNumber')?.dirty || registerForm.get('phoneNumber')?.touched)" class="text-red-500 text-xs mt-1">
           <div *ngIf="registerForm.get('phoneNumber')?.errors?.['required']">El número de teléfono es requerido.</div>
           <div *ngIf="registerForm.get('phoneNumber')?.errors?.['pattern']">Ingrese un número de teléfono válido.</div>

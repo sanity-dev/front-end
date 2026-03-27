@@ -10,7 +10,7 @@ import { DashboardService, Habit } from '../../../../core/services/dashboard.ser
   template: `
     <div class="flex flex-col gap-4 px-4 py-5">
       <div class="flex items-center justify-between">
-        <h1 class="text-xl font-extrabold text-text-primary">Todos mis habitos</h1>
+        <h1 class="text-xl font-extrabold text-text-secondary">Todos mis habitos</h1>
         <span class="text-xs font-semibold text-gray-500" *ngIf="!isLoading">{{ habits.length }} registrados</span>
       </div>
 
@@ -29,7 +29,7 @@ import { DashboardService, Habit } from '../../../../core/services/dashboard.ser
         >
           <div class="flex items-start justify-between gap-3">
             <div>
-              <h2 class="text-base font-bold text-text-primary">{{ habit.label }}</h2>
+              <h2 class="text-base font-bold text-text-secondary">{{ habit.label }}</h2>
               <p class="text-sm text-gray-500" *ngIf="habit.description; else noDescription">{{ habit.description }}</p>
               <ng-template #noDescription>
                 <p class="text-sm text-gray-400">Sin descripcion disponible.</p>

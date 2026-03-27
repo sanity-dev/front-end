@@ -1,14 +1,17 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { DashboardService, UserInfo, Appointment, Habit, DiaryEntry } from '../../../../core/services/dashboard.service';
 import { EuphoriaService } from '../../../../core/services/euphoria.service';
+import { CancelAppointmentModalComponent } from '../../../services/components/cancel-appointment-modal.component';
 import { filter } from 'rxjs/operators';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-standard-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CancelAppointmentModalComponent],
   template: `
     <div class="flex flex-col gap-5 px-4 py-5">
 
@@ -88,6 +91,22 @@ import { filter } from 'rxjs/operators';
               <span>{{ nextAppointment.modality }}</span>
             </div>
           </div>
+
+          <!-- Cancelar cita -->
+          <div class="mt-2">
+            <button
+              (click)="openCancelModal()"
+              class="flex items-center gap-1.5 text-red-400 text-xs font-semibold active:opacity-70 transition-opacity"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+              Cancelar cita
+            </button>
+            <p *ngIf="cancelBlockedMsg" class="text-orange-400 text-[10px] font-semibold mt-1 leading-tight">
+              ⚠️ {{ cancelBlockedMsg }}
+            </p>
+          </div>
         </div>
         <ng-template #noCita>
           <div class="flex flex-col gap-1">
@@ -101,6 +120,15 @@ import { filter } from 'rxjs/operators';
           </svg>
         </div>
       </div>
+
+      <!-- Modal cancelar cita -->
+      <app-cancel-appointment-modal
+        #cancelModal
+        [isOpen]="cancelModalOpen"
+        [cita]="citaParaCancelar"
+        (confirmed)="onCancelConfirmed($event)"
+        (closed)="cancelModalOpen = false"
+      ></app-cancel-appointment-modal>
 
       <!-- Diario Destacado -->
       <div>
@@ -205,6 +233,9 @@ export class StandardDashboardComponent implements OnInit {
   private router = inject(Router);
   private dashboardService = inject(DashboardService);
   private euphoriaService = inject(EuphoriaService);
+  private http = inject(HttpClient);
+
+  @ViewChild('cancelModal') cancelModal!: CancelAppointmentModalComponent;
 
   userName: string = '';
   userId: number | null = null;
@@ -212,6 +243,11 @@ export class StandardDashboardComponent implements OnInit {
   nextAppointment: Appointment | null = null;
   habits: Habit[] = [];
   diaryEntry: DiaryEntry | null = null;
+
+  // Modal cancelar cita
+  cancelModalOpen = false;
+  citaParaCancelar: any = null;
+  cancelBlockedMsg = '';
 
   agentMessage: string | null = null;
   isAgentLoading: boolean = false;
@@ -353,5 +389,52 @@ export class StandardDashboardComponent implements OnInit {
   truncateText(text: string, maxLength: number): string {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength).trim() + '...';
+  }
+
+  // ── Cancelar cita ──────────────────────────────────────────────────
+  openCancelModal(): void {
+    if (!this.nextAppointment) return;
+
+    // Validar que falten al menos 24 horas
+    const dateTime = this.nextAppointment.time
+      ? `${this.nextAppointment.date}T${this.nextAppointment.time}`
+      : this.nextAppointment.date;
+    const appointmentDate = new Date(dateTime);
+    const hoursUntil = (appointmentDate.getTime() - Date.now()) / 36e5; // ms → horas
+
+    if (hoursUntil < 24) {
+      this.cancelBlockedMsg = 'Solo puedes cancelar con al menos 24 h de anticipación.';
+      return;
+    }
+
+    this.cancelBlockedMsg = '';
+    this.citaParaCancelar = {
+      id: this.nextAppointment.id,
+      fecha: dateTime,
+      tipoSesion: this.nextAppointment.serviceType,
+    };
+    this.cancelModalOpen = true;
+  }
+
+  onCancelConfirmed(motivo: string): void {
+    const citaId = this.citaParaCancelar?.id;
+    this.cancelModal.setLoading(true);
+
+    this.http
+      .delete(`${environment.apiUrl}/api/appointment/${citaId}`, {
+        body: { motivo },
+      })
+      .subscribe({
+        next: () => {
+          this.cancelModal.setLoading(false);
+          this.cancelModalOpen = false;
+          this.nextAppointment = null;   // Limpiar la cita de la vista
+        },
+        error: (err) => {
+          this.cancelModal.setError(
+            err?.error?.message ?? 'No se pudo cancelar. Intenta de nuevo.'
+          );
+        },
+      });
   }
 }
