@@ -8,6 +8,7 @@ import { InfoFieldComponent } from '../../../../shared/components/info-field/inf
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { EditFieldModalComponent, EditFieldConfig } from '../../../../shared/components/edit-field-modal/edit-field-modal.component';
 import { environment } from '../../../../../environments/environment';
+import { AuthService } from '../../../../core/services/auth.service';
 import { SettingsItemComponent } from "../../../../shared/components/setting-button/settings-item.component";
 
 interface UserProfile {
@@ -113,6 +114,7 @@ interface UserProfile {
 export class StandardProfileComponent implements OnInit {
   private router = inject(Router);
   private http = inject(HttpClient);
+  private authService = inject(AuthService);
 
   user: UserProfile = {
     idPersona: 0,
@@ -241,7 +243,7 @@ export class StandardProfileComponent implements OnInit {
   }
 
   logout(): void {
-    localStorage.removeItem('authToken');
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 

@@ -204,6 +204,10 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userType');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('persona');
     localStorage.removeItem('euphoria_session_id');
     this.notificacionService.desconectarSSE();
     this.isAuthenticatedSubject.next(false);
