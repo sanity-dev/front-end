@@ -228,15 +228,23 @@ export class RegisterFormComponent {
       this.isLoading = true;
       this.errorMessage = '';
 
-      const { confirmPassword, acceptTerms, emergencyContactName, emergencyContactPhone, ...registerData } = this.registerForm.value;
+      const { confirmPassword, acceptTerms, emergencyContactName, emergencyContactPhone, phoneNumber, name, email, password } = this.registerForm.value;
 
       const rawPhone = (emergencyContactPhone || '').trim().replace(/\s/g, '');
       const fullPhone = rawPhone.startsWith('+57')
         ? rawPhone
         : '+57' + rawPhone.replace(/^0+/, '');
 
+      const userRawPhone = (phoneNumber || '').trim().replace(/\s/g, '');
+      const fullUserPhone = userRawPhone.startsWith('+57')
+        ? userRawPhone
+        : '+57' + userRawPhone.replace(/^0+/, '');
+
       const payload = {
-        ...registerData,
+        name,
+        email,
+        password,
+        telefono: fullUserPhone,
         contactoEmergencia: emergencyContactName,
         telefonoContactoEmergencia: fullPhone
       };
