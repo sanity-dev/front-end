@@ -143,7 +143,7 @@ export class AuthService {
                 contactoEmergencia: data.contactoEmergencia,
                 telefonoContactoEmergencia: data.telefonoContactoEmergencia
               };
-              return this.http.put(`${environment.apiUrl}/api/personas/${response.persona.idPersona}`, putPayload).pipe(
+              return this.http.put(`${environment.apiUrl}/api/personas/${response.persona.idPersona}/usuario`, putPayload).pipe(
                 tap(() => this.isAuthenticatedSubject.next(true)),
                 switchMap(() => of(response)),
                 catchError(() => {
