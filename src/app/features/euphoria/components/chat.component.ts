@@ -92,7 +92,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
               texto: item.mensaje,
               textoHtml: this.procesarMarkdown(item.mensaje),
               esUsuario: item.rol === 'usuario',
-              timestamp: new Date(item.timestamp)
+              timestamp: new Date(this.normalizarTimestamp(item.timestamp))
             };
             return mensaje;
           });
@@ -175,7 +175,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
           texto: respuesta.respuesta,
           textoHtml: this.procesarMarkdown(respuesta.respuesta),
           esUsuario: false,
-          timestamp: new Date(respuesta.timestamp),
+          timestamp: new Date(this.normalizarTimestamp(respuesta.timestamp)),
           emociones: respuesta.emociones_detectadas
         });
         this.cargando = false;
@@ -269,6 +269,18 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   volverAtras(): void { }
   obtenerIniciales(): string { return 'Tú'; }
+
+  /**
+   * Garantiza que el string de fecha del backend sea interpretado como UTC.
+   * El backend manda timestamps sin 'Z' (ej: "2026-03-27T20:02:00"),
+   * el navegador los parsea como hora local. Agregamos 'Z' para forzar UTC.
+   */
+  private normalizarTimestamp(ts: string): string {
+    if (!ts) return ts;
+    // Si ya tiene zona horaria (Z, +00:00, -05:00, etc.) no tocamos nada
+    if (/[Zz]$/.test(ts) || /[+-]\d{2}:\d{2}$/.test(ts)) return ts;
+    return ts + 'Z';
+  }
 
   autoResize(event: Event): void {
     const textarea = event.target as HTMLTextAreaElement;

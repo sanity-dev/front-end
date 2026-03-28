@@ -13,7 +13,7 @@ import { environment } from '../../../../environments/environment';
       class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center"
       (click)="closed.emit()"
     >
-      <div class="bg-white rounded-t-3xl w-full" (click)="$event.stopPropagation()">
+      <div class="bg-white rounded-t-3xl w-full mb-[68px]" (click)="$event.stopPropagation()">
 
         <!-- Handle -->
         <div class="flex justify-center pt-3 pb-1">
@@ -30,7 +30,7 @@ import { environment } from '../../../../environments/environment';
         <!-- Info paciente -->
         <div
           *ngIf="!loading && paciente"
-          class="flex flex-col items-center px-6 py-5 pb-10 gap-4"
+          class="flex flex-col items-center px-6 py-5 pb-6 gap-4"
         >
           <!-- Foto -->
           <div
@@ -70,7 +70,7 @@ import { environment } from '../../../../environments/environment';
             <div>
               <p class="text-xs font-bold text-gray-500">{{ cita.tipoSesion }}</p>
               <p class="text-sm font-bold" style="color: #4CA1AF">
-                {{ cita.fecha | date: 'EEE dd MMM · HH:mm' }}
+                {{ cita.fecha | date: 'EEE dd MMM · HH:mm':'UTC' }}
               </p>
             </div>
             <span style="font-size: 1.5rem">📅</span>
@@ -100,8 +100,9 @@ export class PatientToastComponent implements OnChanges {
   loading = false;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['isOpen']?.currentValue === true && this.cita?.pacienteID) {
-      this.load(this.cita.pacienteID);
+    const pid = this.cita?.pacienteID || this.cita?.idPaciente || this.cita?.patientId || this.cita?.pacienteId;
+    if (changes['isOpen']?.currentValue === true && pid) {
+      this.load(pid);
     }
     if (changes['isOpen']?.currentValue === false) {
       this.paciente = null;

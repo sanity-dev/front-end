@@ -11,6 +11,7 @@ interface PatientAppointment {
   time: string;
   modality: string;
   notes: string | null;
+  isPast: boolean;
 }
 
 @Component({
@@ -61,10 +62,16 @@ interface PatientAppointment {
         <div
           *ngFor="let apt of appointments; trackBy: trackByAppointment"
           class="bg-white rounded-2xl px-4 py-3.5 flex items-center gap-4 border border-gray-100 shadow-sm transition-all duration-200 hover:shadow-md"
+          [class.opacity-60]="apt.isPast"
         >
           <!-- Ícono de calendario -->
-          <div class="w-10 h-10 rounded-xl bg-secondary-background/10 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-secondary-background" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div
+            class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+            [class.bg-secondary-background]="!apt.isPast"
+            [class.bg-gray-100]="apt.isPast"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+              [class.text-white]="!apt.isPast" [class.text-gray-400]="apt.isPast">
               <rect x="3" y="4" width="18" height="18" rx="2"/>
               <line x1="16" y1="2" x2="16" y2="6"/>
               <line x1="8" y1="2" x2="8" y2="6"/>
@@ -74,8 +81,14 @@ interface PatientAppointment {
 
           <!-- Info de la cita -->
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-text-primary truncate">{{ apt.serviceType }}</p>
-            <p class="text-xs text-gray-400 mt-0.5">{{ formatDate(apt.date) }}</p>
+            <div class="flex items-center gap-2">
+              <p class="text-sm font-semibold text-text-primary truncate">{{ apt.serviceType }}</p>
+              <span *ngIf="!apt.isPast"
+                class="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 shrink-0">
+                Próxima
+              </span>
+            </div>
+            <p class="text-xs text-gray-400 mt-0.5">{{ formatDate(apt.date, apt.time) }}</p>
           </div>
 
           <!-- Badge modalidad -->
@@ -166,68 +179,62 @@ export class PatientHistoryComponent implements OnInit {
 
   private loadAppointmentsWithPatient(email: string): void {
     const headers = new HttpHeaders({ 'x-user-email': email });
+    const now = new Date();
 
     this.http.get<any[]>(`${this.apiUrl}/api/appointment/my-appointments`, { headers }).subscribe({
       next: (allAppointments) => {
-        // Filtrar las citas que correspondan al paciente seleccionado
-        const toDate = (appointment: any) => {
-          const baseDate = appointment.date || appointment.fecha || appointment.fechaCita;
-          const time = appointment.time || appointment.hora || appointment.horaCita;
-
-          if (!baseDate) return new Date('');
-
-          if (time && typeof baseDate === 'string' && !baseDate.includes('T')) {
-            return new Date(`${baseDate}T${time}`);
-          }
-
-          return new Date(baseDate);
+        const toDate = (a: any): Date => {
+          const base = a.date || a.fecha || '';
+          const time = a.time || a.hora || '';
+          if (!base) return new Date('');
+          return time && !base.includes('T')
+            ? new Date(`${base}T${time}`)
+            : new Date(base);
         };
 
-        const patientAppointments = allAppointments
+        this.appointments = allAppointments
           .filter(a => {
-            const pid = a.patientId || a.idPaciente || a.pacienteID || a.patient?.idPersona;
-            return Number(pid) === this.patientId;
+            const pid = Number(a.pacienteID || a.patientId || a.idPaciente);
+            return pid === this.patientId;
           })
           .map(a => ({
             id: a.id || a.idCita,
-            serviceType: a.serviceType || a.tipoServicio || 'Consulta',
-            date: a.date || a.fecha,
+            serviceType: a.tipoSesion || a.serviceType || a.tipoServicio || 'Consulta',
+            date: a.date || a.fecha || '',
             time: a.time || a.hora || '',
             modality: a.modality || a.modalidad || 'Online',
-            notes: a.notes || a.notas || null
+            notes: a.notes || a.notas || null,
+            isPast: toDate(a) < now,
           }))
           .sort((a, b) => {
-            const dateA = toDate(a).getTime();
-            const dateB = toDate(b).getTime();
-            return dateB - dateA;
+            // Próximas primero, luego las más recientes
+            if (!a.isPast && b.isPast) return -1;
+            if (a.isPast && !b.isPast) return 1;
+            const da = toDate(a).getTime();
+            const db = toDate(b).getTime();
+            return a.isPast ? db - da : da - db;
           });
 
-        this.appointments = patientAppointments;
-
-        // Combinar notas de todas las citas
-        const allNotes = patientAppointments
+        const allNotes = this.appointments
           .filter(a => a.notes)
           .map(a => a.notes)
           .join('\n\n');
         this.therapistNotes = allNotes || null;
-
         this.isLoading = false;
       },
       error: () => { this.isLoading = false; }
     });
   }
 
-  formatDate(dateStr: string): string {
+  formatDate(dateStr: string, time?: string): string {
     try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString('es-ES', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      });
-    } catch {
-      return dateStr;
-    }
+      const dt = time && !dateStr.includes('T')
+        ? new Date(`${dateStr}T${time}`)
+        : new Date(dateStr);
+      return dt.toLocaleDateString('es-ES', {
+        weekday: 'short', day: 'numeric', month: 'long', year: 'numeric'
+      }) + (time ? ' · ' + dt.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '');
+    } catch { return dateStr; }
   }
 
   trackByAppointment(_: number, apt: PatientAppointment): number {

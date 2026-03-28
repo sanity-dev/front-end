@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, map } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, of } from 'rxjs';
+import { tap, switchMap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { NotificacionService } from './notificacion.service';
 
@@ -93,6 +93,9 @@ export class AuthService {
         if (response.token) {
           this.setToken(response.token);
           if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
             if (response.persona.tipoUsuario) {
               localStorage.setItem('userType', response.persona.tipoUsuario);
             }
@@ -122,15 +125,38 @@ export class AuthService {
     if (data.telefonoContactoEmergencia) payload.telefonoContactoEmergencia = data.telefonoContactoEmergencia;
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload).pipe(
-      tap((response) => {
+      switchMap((response) => {
         if (response.token) {
           this.setToken(response.token);
           if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
+            if (response.persona.tipoUsuario) {
+              localStorage.setItem('userType', response.persona.tipoUsuario);
+            }
             this.notificacionService.conectarSSE(response.persona.idPersona.toString());
+
+            // Actualizar emergencia si fueron provistos
+            if (data.contactoEmergencia || data.telefonoContactoEmergencia) {
+              const putPayload = {
+                contactoEmergencia: data.contactoEmergencia,
+                telefonoContactoEmergencia: data.telefonoContactoEmergencia
+              };
+              return this.http.put(`${environment.apiUrl}/api/personas/${response.persona.idPersona}/usuario`, putPayload).pipe(
+                tap(() => this.isAuthenticatedSubject.next(true)),
+                switchMap(() => of(response)),
+                catchError(() => {
+                  this.isAuthenticatedSubject.next(true);
+                  return of(response);
+                })
+              );
+            }
           }
           this.isAuthenticatedSubject.next(true);
         }
-      }),
+        return of(response);
+      })
     );
   }
 
@@ -154,6 +180,12 @@ export class AuthService {
         if (response.token) {
           this.setToken(response.token);
           if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
+            if (response.persona.tipoUsuario) {
+              localStorage.setItem('userType', response.persona.tipoUsuario);
+            }
             this.notificacionService.conectarSSE(response.persona.idPersona.toString());
           }
           this.isAuthenticatedSubject.next(true);
@@ -171,6 +203,9 @@ export class AuthService {
         if (response.token) {
           this.setToken(response.token);
           if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
             if (response.persona.tipoUsuario) {
               localStorage.setItem('userType', response.persona.tipoUsuario);
             }
@@ -204,6 +239,10 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userType');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('persona');
     localStorage.removeItem('euphoria_session_id');
     this.notificacionService.desconectarSSE();
     this.isAuthenticatedSubject.next(false);

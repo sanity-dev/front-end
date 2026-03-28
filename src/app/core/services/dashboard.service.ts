@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, of, forkJoin } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 // ============================================
@@ -97,40 +97,68 @@ export class DashboardService {
         * y retorna la próxima cita (la más cercana en el futuro).
      */
     getNextAppointment(userId: number): Observable<Appointment | null> {
+        const toDate = (a: any): Date => {
+            const base = a.date || a.fecha || a.fechaCita || '';
+            const time = a.time || a.hora || a.horaCita || '';
+            if (!base) return new Date('');
+            if (time && typeof base === 'string' && !base.includes('T')) {
+                return new Date(`${base}T${time}`);
+            }
+            return new Date(base);
+        };
+
         return this.http.get<any[]>(`${this.gatewayUrl}/api/appointment/patient/${userId}`).pipe(
-            map(appointments => {
-                if (!appointments || appointments.length === 0) return null;
+            switchMap(appointments => {
+                if (!appointments || appointments.length === 0) return of(null);
 
-                // Filtrar citas futuras y ordenar por fecha
                 const now = new Date();
-                const toDate = (appointment: any) => {
-                    const baseDate = appointment.date || appointment.fecha || appointment.fechaCita;
-                    const time = appointment.time || appointment.hora || appointment.horaCita;
-
-                    if (!baseDate) return new Date('');
-
-                    if (time && typeof baseDate === 'string' && !baseDate.includes('T')) {
-                        return new Date(`${baseDate}T${time}`);
-                    }
-
-                    return new Date(baseDate);
-                };
-
                 const upcoming = appointments
                     .filter(a => toDate(a) > now)
                     .sort((a, b) => toDate(a).getTime() - toDate(b).getTime());
 
-                if (upcoming.length === 0) return null;
+                if (upcoming.length === 0) return of(null);
 
                 const next = upcoming[0];
-                return {
-                    id: next.id || next.idCita,
-                    therapistName: next.therapistName || next.nombreTerapeuta || 'Terapeuta',
-                    serviceType: next.serviceType || next.tipoServicio || 'Consulta',
-                    date: next.date || next.fecha,
-                    time: next.time || next.hora || '',
-                    modality: next.modality || next.modalidad || 'Online'
-                } as Appointment;
+
+                // Si ya viene con nombre de terapeuta, úsalo directamente
+                if (next.nombreTerapeuta || next.therapistName) {
+                    return of({
+                        id: next.id || next.idCita,
+                        therapistName: next.nombreTerapeuta || next.therapistName,
+                        serviceType: next.tipoSesion || next.serviceType || next.tipoServicio || 'Consulta',
+                        date: next.date || next.fecha,
+                        time: next.time || next.hora || '',
+                        modality: next.modality || next.modalidad || 'Online'
+                    } as Appointment);
+                }
+
+                // Resolver nombre del terapeuta via specialists + personas
+                return forkJoin({
+                    specialists: this.http.get<any[]>(`${this.gatewayUrl}/api/specialist/`).pipe(catchError(() => of([]))),
+                    personas: this.http.get<any[]>(`${this.gatewayUrl}/api/personas`).pipe(catchError(() => of([])))
+                }).pipe(
+                    map(({ specialists, personas }) => {
+                        const specialistUserId = next.specialistUserId || next.terapeutaId || null;
+                        let therapistName = 'Terapeuta';
+
+                        if (specialistUserId) {
+                            const specialist = specialists.find((s: any) => s.id === specialistUserId || s.userId === specialistUserId);
+                            if (specialist) {
+                                const persona = personas.find((p: any) => p.correo === specialist.email);
+                                if (persona) therapistName = persona.nombre;
+                            }
+                        }
+
+                        return {
+                            id: next.id || next.idCita,
+                            therapistName,
+                            serviceType: next.tipoSesion || next.serviceType || next.tipoServicio || 'Consulta',
+                            date: next.date || next.fecha,
+                            time: next.time || next.hora || '',
+                            modality: next.modality || next.modalidad || 'Online'
+                        } as Appointment;
+                    })
+                );
             }),
             catchError(() => of(null))
         );
@@ -168,7 +196,7 @@ export class DashboardService {
                     date: a.date || a.fecha,
                     time: a.time || a.hora || '',
                     modality: a.modality || a.modalidad || 'Online',
-                    pacienteID: a.pacienteID || a.idPaciente
+                    pacienteID: a.pacienteID || a.idPaciente || a.patientId || a.pacienteId || 0
                 }));
             }),
             catchError(() => of([]))
@@ -206,6 +234,21 @@ export class DashboardService {
                 }));
             }),
             catchError(() => of([]))
+        );
+    }
+
+    /**
+     * Elimina un hábito por su ID
+     */
+    deleteHabit(habitId: number): Observable<any> {
+        const token = localStorage.getItem('authToken');
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        });
+
+        return this.http.delete(`${this.gatewayUrl}/api/euphoria/reminders/${habitId}`, { headers }).pipe(
+            catchError(() => of(null))
         );
     }
 

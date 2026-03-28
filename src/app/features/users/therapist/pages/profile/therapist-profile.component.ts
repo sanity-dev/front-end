@@ -7,6 +7,7 @@ import { InfoFieldComponent } from '../../../../../shared/components/info-field/
 import { ButtonComponent } from '../../../../../shared/components/button/button.component';
 import { EditFieldModalComponent, EditFieldConfig } from '../../../../../shared/components/edit-field-modal/edit-field-modal.component';
 import { environment } from '../../../../../../environments/environment';
+import { AuthService } from '../../../../../core/services/auth.service';
 import { SettingsItemComponent } from "../../../../../shared/components/setting-button/settings-item.component";
 
 interface TherapistProfile {
@@ -190,6 +191,7 @@ interface TherapistProfile {
 export class TherapistProfileComponent implements OnInit {
   private router = inject(Router);
   private http = inject(HttpClient);
+  private authService = inject(AuthService);
 
   therapist: TherapistProfile = {
     idPersona: 0,
@@ -371,7 +373,7 @@ export class TherapistProfileComponent implements OnInit {
   }
 
   logout(): void {
-    localStorage.removeItem('authToken');
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 
