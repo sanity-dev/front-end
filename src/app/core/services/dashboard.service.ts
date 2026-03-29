@@ -284,11 +284,11 @@ export class DashboardService {
     // ============================================
 
     /**
-     * Obtiene las entradas del diario del usuario desde /api/diary/user/{userId}/mensajes
+     * Obtiene las entradas del diario del usuario desde /api/diary/{userId}/mensajes
      * Retorna la entrada más reciente
      */
     getLatestDiaryEntry(userId: number): Observable<DiaryEntry | null> {
-        return this.http.get<any[]>(`${this.gatewayUrl}/api/diary/user/${userId}/mensajes`).pipe(
+        return this.http.get<any[]>(`${this.gatewayUrl}/api/diary/${userId}/mensajes`).pipe(
             map(entries => {
                 if (!entries || entries.length === 0) return null;
 
