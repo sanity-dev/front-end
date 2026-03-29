@@ -29,16 +29,6 @@ interface NotificationMethod {
     template: `
     <div class="flex flex-col min-h-screen bg-linear-to-b from-grey-400 to-grey-600 pb-20">
 
-      <!-- Header -->
-      <header class="flex items-center px-4 sm:px-6 py-4 mt-2">
-        <button (click)="goBack()" class="p-2 rounded-full hover:bg-white/20 transition-colors mr-3">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-text-primary">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-          </svg>
-        </button>
-        <h1 class="text-xl font-bold text-text-primary">Notificaciones</h1>
-      </header>
-
       <!-- Content -->
       <main class="flex-1 px-5 py-4 w-full space-y-6">
 
