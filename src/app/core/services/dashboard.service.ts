@@ -292,17 +292,23 @@ export class DashboardService {
             map(entries => {
                 if (!entries || entries.length === 0) return null;
 
+                const norm = (ts: string): string => {
+                    if (!ts) return ts;
+                    if (/[Zz]$/.test(ts) || /[+-]\d{2}:\d{2}$/.test(ts)) return ts;
+                    return ts + 'Z';
+                };
+
                 // Ordenar por fecha descendente y tomar la más reciente
                 const sorted = entries.sort((a, b) =>
-                    new Date(b.fechaEnvio || b.date || b.fecha || b.createdAt).getTime() -
-                    new Date(a.fechaEnvio || a.date || a.fecha || a.createdAt).getTime()
+                    new Date(norm(b.fechaEnvio || b.date || b.fecha || b.createdAt)).getTime() -
+                    new Date(norm(a.fechaEnvio || a.date || a.fecha || a.createdAt)).getTime()
                 );
 
                 const latest = sorted[0];
                 return {
                     id: latest.id,
                     text: latest.contenido || latest.text || latest.texto || '',
-                    date: latest.fechaEnvio || latest.date || latest.fecha || latest.createdAt || '',
+                    date: norm(latest.fechaEnvio || latest.date || latest.fecha || latest.createdAt || ''),
                     photoUrl: latest.tipo === 'image' ? latest.contenido : null
                 } as DiaryEntry;
             }),
