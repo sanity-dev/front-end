@@ -97,10 +97,8 @@ export class DashboardService {
         * y retorna la próxima cita (la más cercana en el futuro).
      */
     getNextAppointment(userId: number): Observable<Appointment | null> {
-        const removeTz = (ts: any): any => typeof ts === 'string' ? ts.replace(/(Z|[+-]\d{2}:\d{2})$/, '') : ts;
-
         const toDate = (a: any): Date => {
-            const base = removeTz(a.date || a.fecha || a.fechaCita || '');
+            const base = a.date || a.fecha || a.fechaCita || '';
             const time = a.time || a.hora || a.horaCita || '';
             if (!base) return new Date('');
             if (time && typeof base === 'string' && !base.includes('T')) {
@@ -128,7 +126,7 @@ export class DashboardService {
                         id: next.id || next.idCita,
                         therapistName: next.nombreTerapeuta || next.therapistName,
                         serviceType: next.tipoSesion || next.serviceType || next.tipoServicio || 'Consulta',
-                        date: removeTz(next.date || next.fecha),
+                        date: next.date || next.fecha,
                         time: next.time || next.hora || '',
                         modality: next.modality || next.modalidad || 'Online'
                     } as Appointment);
@@ -155,7 +153,7 @@ export class DashboardService {
                             id: next.id || next.idCita,
                             therapistName,
                             serviceType: next.tipoSesion || next.serviceType || next.tipoServicio || 'Consulta',
-                            date: removeTz(next.date || next.fecha),
+                            date: next.date || next.fecha,
                             time: next.time || next.hora || '',
                             modality: next.modality || next.modalidad || 'Online'
                         } as Appointment;
@@ -190,13 +188,12 @@ export class DashboardService {
 
         return this.http.get<any[]>(`${this.gatewayUrl}/api/appointment/my-appointments`, { headers }).pipe(
             map(appointments => {
-                const removeTz = (ts: any): any => typeof ts === 'string' ? ts.replace(/(Z|[+-]\d{2}:\d{2})$/, '') : ts;
                 if (!appointments || appointments.length === 0) return [];
                 return appointments.map(a => ({
                     id: a.id || a.idCita,
                     therapistName: a.therapistName || a.nombreTerapeuta || a.patientName || a.nombrePaciente || '',
                     serviceType: a.serviceType || a.tipoServicio || 'Consulta',
-                    date: removeTz(a.date || a.fecha),
+                    date: a.date || a.fecha,
                     time: a.time || a.hora || '',
                     modality: a.modality || a.modalidad || 'Online',
                     pacienteID: a.pacienteID || a.idPaciente || a.patientId || a.pacienteId || 0
@@ -295,7 +292,7 @@ export class DashboardService {
         return this.http.get<any[]>(`${this.gatewayUrl}/api/diary`).pipe(
             switchMap(diarios => {
                 if (!diarios || diarios.length === 0) return of(null);
-                
+
                 // Encontrar el diario más reciente (podemos ordenarlos)
                 const norm = (ts: string): string => {
                     if (!ts) return ts;
@@ -303,8 +300,8 @@ export class DashboardService {
                     return ts + 'Z';
                 };
 
-                const diariomasReciente = diarios.sort((a, b) => 
-                    new Date(norm(b.fechaActualizacion || b.fechaCreacion)).getTime() - 
+                const diariomasReciente = diarios.sort((a, b) =>
+                    new Date(norm(b.fechaActualizacion || b.fechaCreacion)).getTime() -
                     new Date(norm(a.fechaActualizacion || a.fechaCreacion)).getTime()
                 )[0];
 
