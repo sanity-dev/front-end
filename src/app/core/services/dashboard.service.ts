@@ -292,7 +292,7 @@ export class DashboardService {
         return this.http.get<any[]>(`${this.gatewayUrl}/api/diary`).pipe(
             switchMap(diarios => {
                 if (!diarios || diarios.length === 0) return of(null);
-                
+
                 // Encontrar el diario más reciente (podemos ordenarlos)
                 const norm = (ts: string): string => {
                     if (!ts) return ts;
@@ -300,8 +300,8 @@ export class DashboardService {
                     return ts + 'Z';
                 };
 
-                const diariomasReciente = diarios.sort((a, b) => 
-                    new Date(norm(b.fechaActualizacion || b.fechaCreacion)).getTime() - 
+                const diariomasReciente = diarios.sort((a, b) =>
+                    new Date(norm(b.fechaActualizacion || b.fechaCreacion)).getTime() -
                     new Date(norm(a.fechaActualizacion || a.fechaCreacion)).getTime()
                 )[0];
 
