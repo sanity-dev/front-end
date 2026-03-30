@@ -349,8 +349,7 @@ export class TherapistDashboardComponent implements OnInit {
       const d = new Date(date);
       const h = d.getHours();
       const m = d.getMinutes().toString().padStart(2, '0');
-      const hStr = h === 0 ? 12 : (h > 12 ? h - 12 : h);
-      return `${hStr}:${m}`;
+      return `${h > 12 ? h - 12 : h}:${m}`;
     } catch {
       return '--:--';
     }
