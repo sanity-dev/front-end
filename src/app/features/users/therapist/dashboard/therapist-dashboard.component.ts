@@ -62,8 +62,8 @@ import { PatientToastComponent } from '../../../services/components/patient-info
           >
             <!-- Hora -->
             <div class="flex flex-col items-center w-10 shrink-0">
-              <span class="text-sm font-extrabold text-text-secondary">{{ getHour(appointment.date, appointment.time) }}</span>
-              <span class="text-[10px] text-gray-400 font-medium uppercase">{{ getPeriod(appointment.date, appointment.time) }}</span>
+              <span class="text-sm font-extrabold text-text-secondary">{{ appointment.date | date:'h:mm':'UTC' }}</span>
+              <span class="text-[10px] text-gray-400 font-medium uppercase">{{ appointment.date | date:'a':'UTC' }}</span>
             </div>
 
             <div class="w-px h-8 bg-gray-200 shrink-0"></div>
