@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, of } from 'rxjs';
+import { tap, switchMap, catchError } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+import { NotificacionService } from './notificacion.service';
 
 export interface LoginPayload {
   email: string;
@@ -15,6 +17,8 @@ export interface RegisterPayload {
   telefono?: string;
   cedula?: string;
   tipoUsuario?: string;
+  contactoEmergencia?: string;
+  telefonoContactoEmergencia?: string;
 }
 
 export interface TherapistRegisterPayload {
@@ -28,42 +32,78 @@ export interface TherapistRegisterPayload {
 
 export interface AuthResponse {
   token?: string;
-  user?: {
-    id: string;
-    email: string;
-    name: string;
+  tipo?: string;
+  persona?: {
+    idPersona: number;
+    nombre: string;
+    correo: string;
+    telefono: string;
+    cedula: string;
+    tipoUsuario: string;
+    fotoPerfilUrl: string | null;
+    tarjetaProfesional?: string;
   };
   message?: string;
 }
 
+export interface ForgotPasswordResponse {
+  message?: string;
+  success?: boolean;
+}
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth'; // Cambia la URL según tu backend
+  private apiUrl = `${environment.apiUrl}/api/auth`;
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
 
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private notificacionService: NotificacionService,
+  ) {
+    if (this.hasToken()) {
+      const personaKey = localStorage.getItem('persona');
+      if (personaKey) {
+        try {
+          const p = JSON.parse(personaKey);
+          if (p && p.idPersona) {
+            this.notificacionService.conectarSSE(p.idPersona.toString());
+          }
+        } catch (e) {
+          console.error('Error parsing persona in AuthService', e);
+        }
+      }
+    }
+  }
 
   /**
    * Inicia sesión con email y contraseña
    */
   login(credentials: LoginPayload): Observable<AuthResponse> {
-    // Mapear a los campos que espera el backend: correo, contraseña
     const payload = {
       correo: credentials.email,
-      contraseña: credentials.password
+      contraseña: credentials.password,
     } as any;
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, payload).pipe(
       tap((response) => {
         if (response.token) {
           this.setToken(response.token);
+          if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
+            if (response.persona.tipoUsuario) {
+              localStorage.setItem('userType', response.persona.tipoUsuario);
+            }
+            this.notificacionService.conectarSSE(response.persona.idPersona.toString());
+          }
           this.isAuthenticatedSubject.next(true);
         }
-      })
+      }),
     );
   }
 
@@ -75,19 +115,47 @@ export class AuthService {
     const payload: any = {
       nombre: data.name,
       correo: data.email,
-      contraseña: data.password
+      contraseña: data.password,
     };
 
     if (data.telefono) payload.telefono = data.telefono;
     if (data.cedula) payload.cedula = data.cedula;
     if (data.tipoUsuario) payload.tipoUsuario = data.tipoUsuario;
+    if (data.contactoEmergencia) payload.contactoEmergencia = data.contactoEmergencia;
+    if (data.telefonoContactoEmergencia) payload.telefonoContactoEmergencia = data.telefonoContactoEmergencia;
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload).pipe(
-      tap((response) => {
+      switchMap((response) => {
         if (response.token) {
           this.setToken(response.token);
+          if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
+            if (response.persona.tipoUsuario) {
+              localStorage.setItem('userType', response.persona.tipoUsuario);
+            }
+            this.notificacionService.conectarSSE(response.persona.idPersona.toString());
+
+            // Actualizar emergencia si fueron provistos
+            if (data.contactoEmergencia || data.telefonoContactoEmergencia) {
+              const putPayload = {
+                contactoEmergencia: data.contactoEmergencia,
+                telefonoContactoEmergencia: data.telefonoContactoEmergencia
+              };
+              return this.http.put(`${environment.apiUrl}/api/personas/${response.persona.idPersona}/usuario`, putPayload).pipe(
+                tap(() => this.isAuthenticatedSubject.next(true)),
+                switchMap(() => of(response)),
+                catchError(() => {
+                  this.isAuthenticatedSubject.next(true);
+                  return of(response);
+                })
+              );
+            }
+          }
           this.isAuthenticatedSubject.next(true);
         }
+        return of(response);
       })
     );
   }
@@ -104,16 +172,25 @@ export class AuthService {
       cedula: data.documentNumber,
       tarjetaProfesional: data.professionalLicenseNumber,
       telefono: data.phoneNumber,
-      tipoUsuario: 'terapeuta'
+      tipoUsuario: 'terapeuta',
     };
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register-therapist`, payload).pipe(
       tap((response) => {
         if (response.token) {
           this.setToken(response.token);
+          if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
+            if (response.persona.tipoUsuario) {
+              localStorage.setItem('userType', response.persona.tipoUsuario);
+            }
+            this.notificacionService.conectarSSE(response.persona.idPersona.toString());
+          }
           this.isAuthenticatedSubject.next(true);
         }
-      })
+      }),
     );
   }
 
@@ -125,17 +202,49 @@ export class AuthService {
       tap((response) => {
         if (response.token) {
           this.setToken(response.token);
+          if (response.persona) {
+            localStorage.setItem('userId', String(response.persona.idPersona));
+            localStorage.setItem('userName', response.persona.nombre || '');
+            localStorage.setItem('userEmail', response.persona.correo || '');
+            if (response.persona.tipoUsuario) {
+              localStorage.setItem('userType', response.persona.tipoUsuario);
+            }
+            this.notificacionService.conectarSSE(response.persona.idPersona.toString());
+          }
           this.isAuthenticatedSubject.next(true);
         }
-      })
+      }),
     );
+  }
+  /**
+   * envia enlace para recuperar contraseña
+   */
+  forgotPassword(email: string): Observable<ForgotPasswordResponse> {
+    return this.http.post(`${environment.apiUrl}/api/recovery/forgot-password`, { correo: email });
+  }
+
+  /**
+   * Resetea la contraseña usando un token
+   */
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/api/recovery/reset-password`, {
+      token: token,
+      nuevaPassword: newPassword,
+    });
   }
 
   /**
    * Cierra la sesión
    */
   logout(): void {
-    this.removeToken();
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userType');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('persona');
+    localStorage.removeItem('euphoria_session_id');
+    this.notificacionService.desconectarSSE();
     this.isAuthenticatedSubject.next(false);
   }
 
@@ -158,6 +267,8 @@ export class AuthService {
    */
   private removeToken(): void {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('userType');
+    localStorage.removeItem('persona');
   }
 
   /**
@@ -172,5 +283,26 @@ export class AuthService {
    */
   isAuthenticated(): boolean {
     return this.hasToken();
+  }
+
+  /**
+   * Obtiene el tipo de usuario almacenado
+   */
+  getUserType(): string | null {
+    return localStorage.getItem('userType');
+  }
+
+  /**
+   * Retorna la URL de redirección según el tipo de usuario
+   */
+  getRedirectUrl(): string {
+    const userType = this.getUserType();
+    switch (userType?.toUpperCase()) {
+      case 'TERAPEUTA':
+        return '/users/therapist/dashboard';
+      case 'USUARIO':
+      default:
+        return '/user/dashboard';
+    }
   }
 }

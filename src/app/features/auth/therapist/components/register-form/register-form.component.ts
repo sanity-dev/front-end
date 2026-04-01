@@ -6,13 +6,20 @@ import { ButtonComponent } from '../../../../../shared/components/button/button.
 import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
 import { InputComponent } from '../../../../../shared/components/input/input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { environment } from '../../../../../../environments/environment';
+import { PhoneInputComponent } from "../../../../../shared/components/phone-input/phone-input.component";
 
 @Component({
   selector: 'app-therapist-register-form',
   standalone: true,
-  imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent],
+  imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent, PhoneInputComponent],
   template: `
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4 w-full">
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded text-sm">
+        {{ successMessage }}
+      </div>
+
       <!-- Mensaje de error general -->
       <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
         {{ errorMessage }}
@@ -97,15 +104,30 @@ import { AuthService } from '../../../../../core/services/auth.service';
       
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Número de teléfono</label>
-        <app-input
-          type="number"
+        <app-phone-input
           formControlName="phoneNumber"
           placeholder="Número de teléfono"
-        ></app-input>
+        ></app-phone-input>
         <div *ngIf="registerForm.get('phoneNumber')?.invalid && (registerForm.get('phoneNumber')?.dirty || registerForm.get('phoneNumber')?.touched)" class="text-red-500 text-xs mt-1">
           <div *ngIf="registerForm.get('phoneNumber')?.errors?.['required']">El número de teléfono es requerido.</div>
           <div *ngIf="registerForm.get('phoneNumber')?.errors?.['pattern']">Ingrese un número de teléfono válido.</div>
         </div>
+      </div>
+
+      <!-- Términos y condiciones -->
+      <div class="flex items-start gap-2 pt-2">
+        <input
+          type="checkbox"
+          id="therapistAcceptTerms"
+          formControlName="acceptTerms"
+          class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+        />
+        <label for="therapistAcceptTerms" class="text-sm text-gray-600 cursor-pointer select-none">
+          Acepto los <a href="https://storage.googleapis.com/115305318075-us-central1-blueprint-config/terminos-cond-sanity/Sanity_Terminos_y_Condiciones.pdf" target="_blank" class="text-blue-600 underline hover:text-blue-800 font-medium">términos y condiciones</a> de Sanity
+        </label>
+      </div>
+      <div *ngIf="registerForm.get('acceptTerms')?.invalid && (registerForm.get('acceptTerms')?.dirty || registerForm.get('acceptTerms')?.touched)" class="text-red-500 text-xs -mt-2">
+        <div *ngIf="registerForm.get('acceptTerms')?.errors?.['required']">Debe aceptar los términos y condiciones para registrarse.</div>
       </div>
 
       <div class="pt-4 space-y-3">
@@ -139,6 +161,7 @@ export class TherapistRegisterFormComponent {
   registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -157,7 +180,8 @@ export class TherapistRegisterFormComponent {
       confirmPassword: ['', Validators.required],
       documentNumber: ['', Validators.required],
       professionalLicenseNumber: ['', Validators.required],
-      phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{7,}$/)]]
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?\d{7,15}$/)]],
+      acceptTerms: [false, Validators.requiredTrue]
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -203,13 +227,15 @@ export class TherapistRegisterFormComponent {
       this.isLoading = true;
       this.errorMessage = '';
 
-      const { confirmPassword, ...registerData } = this.registerForm.value;
+      const { confirmPassword, acceptTerms, ...registerData } = this.registerForm.value;
 
       this.authService.registerTherapist(registerData).subscribe({
         next: (response) => {
-          console.log('Registro de terapeuta exitoso', response);
           this.isLoading = false;
-          this.router.navigate(['/dashboard']);
+          this.successMessage = '¡Registro exitoso! Redirigiendo al inicio de sesión...';
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
         },
         error: (error) => {
           console.error('Error en el registro', error);
@@ -225,23 +251,26 @@ export class TherapistRegisterFormComponent {
   handleGoogleLogin() {
     // @ts-ignore
     if (typeof google === 'undefined' || !google.accounts) {
-      console.error('Google Identity Services not loaded');
+      this.errorMessage = 'El servicio de Google no está disponible. Intenta recargar la página.';
       return;
     }
 
     // @ts-ignore
     const client = google.accounts.oauth2.initTokenClient({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID',
+      client_id: environment.googleClientId,
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {
+          this.isLoading = true;
+          this.errorMessage = '';
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
-              console.log('Registro con Google exitoso', authResponse);
-              this.router.navigate(['/dashboard']);
+              this.isLoading = false;
+              this.router.navigate([this.authService.getRedirectUrl()]);
             },
             error: (error) => {
               console.error('Error en registro con Google', error);
+              this.isLoading = false;
               this.errorMessage = 'Error al registrarse con Google. Intenta nuevamente.';
             }
           });

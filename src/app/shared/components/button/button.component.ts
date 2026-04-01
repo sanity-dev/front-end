@@ -21,10 +21,11 @@ import { Router } from '@angular/router';
 export class ButtonComponent {
     @Input() label: string = '';
     @Input() type: 'button' | 'submit' | 'reset' = 'button';
-    @Input() variant: 'primary' | 'outline' | 'ghost' | 'secondary' = 'primary';
+    @Input() variant: 'primary' | 'outline' | 'ghost' | 'secondary' | 'danger' | 'gradient' = 'primary';
     @Input() fullWidth: boolean = false;
     @Input() disabled: boolean = false;
     @Input() route: string | null = null;
+    @Input() customClass: string = '';
 
     constructor(private router: Router) { }
 
@@ -52,10 +53,16 @@ export class ButtonComponent {
             case 'ghost':
                 variantClasses = 'bg-transparent hover:bg-gray-100 focus:ring-gray-500';
                 break;
+            case 'danger':
+                variantClasses = 'border border-red-200 bg-red-50 text-red-500 hover:bg-red-100 focus:ring-red-300';
+                break;
+            case 'gradient':
+                variantClasses = 'bg-linear-to-r from-secondary-background to-third-background text-white hover:opacity-90 focus:ring-sky-400';
+                break;
         }
 
         const widthClass = this.fullWidth ? 'w-full' : '';
 
-        return `${baseClasses} ${variantClasses} ${widthClass}`;
+        return `${baseClasses} ${variantClasses} ${widthClass} ${this.customClass}`;
     }
 }

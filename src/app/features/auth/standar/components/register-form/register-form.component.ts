@@ -5,12 +5,14 @@ import { Router } from '@angular/router';
 import { ButtonComponent } from '../../../../../shared/components/button/button.component';
 import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
 import { InputComponent } from '../../../../../shared/components/input/input.component';
+import { PhoneInputComponent } from '../../../../../shared/components/phone-input/phone-input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-register-form',
   standalone: true,
-  imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent],
+  imports: [CommonModule, ButtonComponent, ReactiveFormsModule, GoogleButtonComponent, InputComponent, PhoneInputComponent],
   template: `
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4 w-full">
       <!-- Mensaje de error general -->
@@ -18,12 +20,17 @@ import { AuthService } from '../../../../../core/services/auth.service';
         {{ errorMessage }}
       </div>
 
+      <!-- Mensaje de éxito -->
+      <div *ngIf="successMessage" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded text-sm font-medium">
+        {{ successMessage }}
+      </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
         <app-input
           type="text"
           formControlName="name"
-          placeholder="Nombre"
+          placeholder="Nombre completo"
         ></app-input>
         <div *ngIf="registerForm.get('name')?.invalid && (registerForm.get('name')?.dirty || registerForm.get('name')?.touched)" class="text-red-500 text-xs mt-1">
           <div *ngIf="registerForm.get('name')?.errors?.['required']">El nombre es requerido.</div>
@@ -68,6 +75,63 @@ import { AuthService } from '../../../../../core/services/auth.service';
         </div>
       </div>
 
+      <div>
+        <app-phone-input
+          formControlName="phoneNumber"
+          label="Número de teléfono"
+          placeholder="3001234567"
+        ></app-phone-input>
+        <div *ngIf="registerForm.get('phoneNumber')?.invalid && (registerForm.get('phoneNumber')?.dirty || registerForm.get('phoneNumber')?.touched)" class="text-red-500 text-xs mt-1">
+          <div *ngIf="registerForm.get('phoneNumber')?.errors?.['required']">El número de teléfono es requerido.</div>
+          <div *ngIf="registerForm.get('phoneNumber')?.errors?.['pattern']">Ingrese un número de teléfono válido (10 dígitos).</div>
+        </div>
+      </div>
+
+      <!-- Contacto de Emergencia -->
+      <div class="border-t border-gray-200 pt-4 mt-2">
+        <h3 class="text-md font-semibold text-text-secondary mb-3">Contacto de Emergencia</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del contacto</label>
+            <app-input
+              type="text"
+              formControlName="emergencyContactName"
+              placeholder="Nombre del contacto de emergencia"
+            ></app-input>
+            <div *ngIf="registerForm.get('emergencyContactName')?.invalid && (registerForm.get('emergencyContactName')?.dirty || registerForm.get('emergencyContactName')?.touched)" class="text-red-500 text-xs mt-1">
+              <div *ngIf="registerForm.get('emergencyContactName')?.errors?.['required']">El nombre del contacto es requerido.</div>
+            </div>
+          </div>
+          <div>
+            <app-phone-input
+              formControlName="emergencyContactPhone"
+              label="Teléfono del contacto"
+              placeholder="3001234567"
+            ></app-phone-input>
+            <div *ngIf="registerForm.get('emergencyContactPhone')?.invalid && (registerForm.get('emergencyContactPhone')?.dirty || registerForm.get('emergencyContactPhone')?.touched)" class="text-red-500 text-xs mt-1">
+              <div *ngIf="registerForm.get('emergencyContactPhone')?.errors?.['required']">El teléfono del contacto es requerido.</div>
+              <div *ngIf="registerForm.get('emergencyContactPhone')?.errors?.['pattern']">Ingrese un número de teléfono válido (10 dígitos).</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Términos y condiciones -->
+      <div class="flex items-start gap-2 pt-2">
+        <input
+          type="checkbox"
+          id="acceptTerms"
+          formControlName="acceptTerms"
+          class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+        />
+        <label for="acceptTerms" class="text-sm text-gray-600 cursor-pointer select-none">
+          Acepto los <a href="https://storage.googleapis.com/115305318075-us-central1-blueprint-config/terminos-cond-sanity/Sanity_Terminos_y_Condiciones.pdf" target="_blank" class="text-blue-600 underline hover:text-blue-800 font-medium">términos y condiciones</a> de Sanity
+        </label>
+      </div>
+      <div *ngIf="registerForm.get('acceptTerms')?.invalid && (registerForm.get('acceptTerms')?.dirty || registerForm.get('acceptTerms')?.touched)" class="text-red-500 text-xs -mt-2">
+        <div *ngIf="registerForm.get('acceptTerms')?.errors?.['required']">Debe aceptar los términos y condiciones para registrarse.</div>
+      </div>
+
       <div class="pt-4 space-y-3">
         <app-button
           type="submit"
@@ -96,6 +160,7 @@ export class RegisterFormComponent {
   registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -111,7 +176,11 @@ export class RegisterFormComponent {
         this.specialCharValidator,
         this.uppercaseValidator
       ]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', Validators.required],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?\d{7,15}$/)]],
+      emergencyContactName: ['', Validators.required],
+      emergencyContactPhone: ['', [Validators.required, Validators.pattern(/^\+?\d{7,15}$/)]],
+      acceptTerms: [false, Validators.requiredTrue]
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -159,14 +228,34 @@ export class RegisterFormComponent {
       this.isLoading = true;
       this.errorMessage = '';
 
-      const { confirmPassword, ...registerData } = this.registerForm.value;
+      const { confirmPassword, acceptTerms, emergencyContactName, emergencyContactPhone, phoneNumber, name, email, password } = this.registerForm.value;
 
-      this.authService.register(registerData).subscribe({
+      const rawPhone = (emergencyContactPhone || '').trim().replace(/\s/g, '');
+      const fullPhone = rawPhone.startsWith('+57')
+        ? rawPhone
+        : '+57' + rawPhone.replace(/^0+/, '');
+
+      const userRawPhone = (phoneNumber || '').trim().replace(/\s/g, '');
+      const fullUserPhone = userRawPhone.startsWith('+57')
+        ? userRawPhone
+        : '+57' + userRawPhone.replace(/^0+/, '');
+
+      const payload = {
+        name,
+        email,
+        password,
+        telefono: fullUserPhone,
+        contactoEmergencia: emergencyContactName,
+        telefonoContactoEmergencia: fullPhone
+      };
+
+      this.authService.register(payload).subscribe({
         next: (response) => {
-          console.log('Registro exitoso', response);
           this.isLoading = false;
-          // Redirige al dashboard o página principal
-          this.router.navigate(['/dashboard']);
+          this.successMessage = '¡Registro exitoso! Redirigiendo al inicio de sesión...';
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
         },
         error: (error) => {
           console.error('Error en el registro', error);
@@ -182,23 +271,26 @@ export class RegisterFormComponent {
   handleGoogleLogin() {
     // @ts-ignore
     if (typeof google === 'undefined' || !google.accounts) {
-      console.error('Google Identity Services not loaded');
+      this.errorMessage = 'El servicio de Google no está disponible. Intenta recargar la página.';
       return;
     }
 
     // @ts-ignore
     const client = google.accounts.oauth2.initTokenClient({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID', // Reemplaza con tu Client ID real
+      client_id: environment.googleClientId,
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {
+          this.isLoading = true;
+          this.errorMessage = '';
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
-              console.log('Registro con Google exitoso', authResponse);
-              this.router.navigate(['/dashboard']);
+              this.isLoading = false;
+              this.router.navigate([this.authService.getRedirectUrl()]);
             },
             error: (error) => {
               console.error('Error en registro con Google', error);
+              this.isLoading = false;
               this.errorMessage = 'Error al registrarse con Google. Intenta nuevamente.';
             }
           });

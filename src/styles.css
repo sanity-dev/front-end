@@ -5,6 +5,7 @@ body {
     background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
 }
 
+
 @theme {
     --color-primary-navbar: #2C3E50;
     --color-secondary-background: #4C9EEB;
@@ -13,4 +14,12 @@ body {
     --color-text-primary: #1d1d1d;
     --color-text-secondary: #4C9EEB;
     --font-sans: "Manrope", sans-serif;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

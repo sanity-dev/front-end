@@ -7,6 +7,7 @@ import { ButtonComponent } from '../../../../../shared/components/button/button.
 import { GoogleButtonComponent } from '../../../../../shared/components/google-button/google-button.component';
 import { InputComponent } from '../../../../../shared/components/input/input.component';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-login-form',
@@ -44,7 +45,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
       </div>
 
       <div class="flex justify-start">
-        <a href="#" class="text-sm text-gray-400 hover:text-gray-600">¿Olvidaste tu contraseña?</a>
+        <a routerLink="/forgot-password" class="text-sm text-text-secondary hover:text-gray-600">¿Olvidaste tu contraseña?</a>
       </div>
 
       <div class="pt-2 space-y-4">
@@ -100,10 +101,9 @@ export class LoginFormComponent {
 
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
-          console.log('Inicio de sesión exitoso', response);
           this.isLoading = false;
-          // Redirige al dashboard o página principal
-          this.router.navigate(['/dashboard']);
+          // Redirige al dashboard según tipo de usuario
+          this.router.navigate([this.authService.getRedirectUrl()]);
         },
         error: (error) => {
           console.error('Error en el inicio de sesión', error);
@@ -119,23 +119,26 @@ export class LoginFormComponent {
   handleGoogleLogin() {
     // @ts-ignore
     if (typeof google === 'undefined' || !google.accounts) {
-      console.error('Google Identity Services not loaded');
+      this.errorMessage = 'El servicio de Google no está disponible. Intenta recargar la página.';
       return;
     }
 
     // @ts-ignore
     const client = google.accounts.oauth2.initTokenClient({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID', // Reemplaza con tu Client ID real
+      client_id: environment.googleClientId,
       scope: 'email profile',
       callback: (response: any) => {
         if (response.access_token) {
+          this.isLoading = true;
+          this.errorMessage = '';
           this.authService.loginWithGoogle(response.access_token).subscribe({
             next: (authResponse) => {
-              console.log('Inicio de sesión con Google exitoso', authResponse);
-              this.router.navigate(['/dashboard']);
+              this.isLoading = false;
+              this.router.navigate([this.authService.getRedirectUrl()]);
             },
             error: (error) => {
               console.error('Error en inicio de sesión con Google', error);
+              this.isLoading = false;
               this.errorMessage = 'Error al iniciar sesión con Google. Intenta nuevamente.';
             }
           });
