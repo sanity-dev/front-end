@@ -83,7 +83,7 @@ import { environment } from '../../../../../environments/environment';
               <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
               </svg>
-              <span>{{ getAppointmentTime(nextAppointment) }}</span>
+              <span>{{ nextAppointment.date | date:'HH:mm':'UTC' }}</span>
               <span class="text-gray-600">·</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
@@ -442,18 +442,22 @@ export class StandardDashboardComponent implements OnInit {
 
   formatDate(dateStr: string): string {
     try {
-      const date = new Date(dateStr);
+      let dStr = dateStr;
+      if (dStr && dStr.length === 10 && dStr.includes('-')) {
+        dStr += 'T00:00:00';
+      }
+      const date = new Date(dStr);
       const now = new Date();
       const tomorrow = new Date(now);
       tomorrow.setDate(tomorrow.getDate() + 1);
 
       if (date.toDateString() === now.toDateString()) {
-        return 'Hoy, ' + date.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+        return 'Hoy, ' + date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
       }
       if (date.toDateString() === tomorrow.toDateString()) {
-        return 'Mañana, ' + date.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+        return 'Mañana, ' + date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
       }
-      return date.toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' });
+      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
     } catch {
       return dateStr;
     }
@@ -462,25 +466,27 @@ export class StandardDashboardComponent implements OnInit {
   /** Devuelve "Hoy · lun 30 mar" o "lun 30 mar 2026" */
   formatAppointmentDate(dateStr: string): string {
     try {
-      const date = new Date(dateStr);
-      const tz   = 'UTC';
+      let dStr = dateStr;
+      if (dStr && dStr.length === 10 && dStr.includes('-')) {
+        dStr += 'T00:00:00'; // Evita problemas de desfase horario obligando a zona local
+      }
+      const date = new Date(dStr);
 
-      // Comparamos fecha en UTC para no desfasar
-      const dateUTCStr = date.toLocaleDateString('es-ES', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
+      const dateLocalStr = date.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
       const now        = new Date();
-      const nowUTCStr  = now.toLocaleDateString('es-ES', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
-      const tom        = new Date(now); tom.setUTCDate(now.getUTCDate() + 1);
-      const tomUTCStr  = tom.toLocaleDateString('es-ES', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
+      const nowLocalStr  = now.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      const tom        = new Date(now); tom.setDate(now.getDate() + 1);
+      const tomLocalStr  = tom.toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
-      const dayLabel   = date.toLocaleDateString('es-ES', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short' });
+      const dayLabel   = date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
 
-      if (dateUTCStr === nowUTCStr)  return `Hoy · ${dayLabel}`;
-      if (dateUTCStr === tomUTCStr)  return `Mañana · ${dayLabel}`;
-      return date.toLocaleDateString('es-ES', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+      if (dateLocalStr === nowLocalStr)  return `Hoy · ${dayLabel}`;
+      if (dateLocalStr === tomLocalStr)  return `Mañana · ${dayLabel}`;
+      return date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
     } catch { return dateStr; }
   }
 
-  /** Extrae la hora HH:mm del campo time o del ISO datestring (siempre en UTC) */
+  /** Extrae la hora HH:mm del campo time o del ISO datestring */
   getAppointmentTime(appointment: any): string {
     try {
       if (appointment.time) {
@@ -489,8 +495,7 @@ export class StandardDashboardComponent implements OnInit {
       if (appointment.date?.includes('T')) {
         return new Date(appointment.date).toLocaleTimeString('es-ES', {
           hour: '2-digit',
-          minute: '2-digit',
-          timeZone: 'UTC',       // ← evita la conversión a hora local
+          minute: '2-digit'
         });
       }
       return '--:--';

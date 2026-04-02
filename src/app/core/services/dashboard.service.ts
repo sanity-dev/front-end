@@ -284,29 +284,55 @@ export class DashboardService {
     // ============================================
 
     /**
-     * Obtiene las entradas del diario del usuario desde /api/diary/user/{userId}/mensajes
+     * Obtiene las entradas del diario del usuario desde /api/diary/{userId}/mensajes
      * Retorna la entrada más reciente
      */
     getLatestDiaryEntry(userId: number): Observable<DiaryEntry | null> {
-        return this.http.get<any[]>(`${this.gatewayUrl}/api/diary/user/${userId}/mensajes`).pipe(
-            map(entries => {
-                if (!entries || entries.length === 0) return null;
+        // 1. Obtener los diarios del usuario autenticado
+        return this.http.get<any[]>(`${this.gatewayUrl}/api/diary`).pipe(
+            switchMap(diarios => {
+                if (!diarios || diarios.length === 0) return of(null);
 
-                // Ordenar por fecha descendente y tomar la más reciente
-                const sorted = entries.sort((a, b) =>
-                    new Date(b.fechaEnvio || b.date || b.fecha || b.createdAt).getTime() -
-                    new Date(a.fechaEnvio || a.date || a.fecha || a.createdAt).getTime()
+                // Encontrar el diario más reciente (podemos ordenarlos)
+                const norm = (ts: string): string => {
+                    if (!ts) return ts;
+                    if (/[Zz]$/.test(ts) || /[+-]\d{2}:\d{2}$/.test(ts)) return ts;
+                    return ts + 'Z';
+                };
+
+                const diariomasReciente = diarios.sort((a, b) =>
+                    new Date(norm(b.fechaActualizacion || b.fechaCreacion)).getTime() -
+                    new Date(norm(a.fechaActualizacion || a.fechaCreacion)).getTime()
+                )[0];
+
+                if (!diariomasReciente) return of(null);
+
+                // 2. Obtener los mensajes de ese diario
+                return this.http.get<any[]>(`${this.gatewayUrl}/api/diary/${diariomasReciente.id}/mensajes`).pipe(
+                    map(entries => {
+                        if (!entries || entries.length === 0) return null;
+
+                        // Ordenar por fecha descendente y tomar la más reciente
+                        const sorted = entries.sort((a, b) =>
+                            new Date(norm(b.fechaEnvio || b.date || b.fecha || b.createdAt)).getTime() -
+                            new Date(norm(a.fechaEnvio || a.date || a.fecha || a.createdAt)).getTime()
+                        );
+
+                        const latest = sorted[0];
+                        const isImage = latest.tipo === 'IMAGEN' || latest.tipo === 'image';
+                        return {
+                            id: latest.id,
+                            text: isImage ? 'Un momento especial guardado en tu diario...' : (latest.contenido || latest.text || latest.texto || ''),
+                            date: norm(latest.fechaEnvio || latest.date || latest.fecha || latest.createdAt || ''),
+                            photoUrl: isImage ? latest.contenido : null
+                        } as DiaryEntry;
+                    })
                 );
-
-                const latest = sorted[0];
-                return {
-                    id: latest.id,
-                    text: latest.contenido || latest.text || latest.texto || '',
-                    date: latest.fechaEnvio || latest.date || latest.fecha || latest.createdAt || '',
-                    photoUrl: latest.tipo === 'image' ? latest.contenido : null
-                } as DiaryEntry;
             }),
-            catchError(() => of(null))
+            catchError((err) => {
+                console.error("Error obteniendo diario:", err);
+                return of(null);
+            })
         );
     }
 }

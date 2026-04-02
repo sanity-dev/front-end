@@ -150,8 +150,8 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   formatFechaCorta(fechaStr: string): string {
-    const fecha = new Date(fechaStr);
-    return fecha.toLocaleDateString('es', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const fecha = new Date(this.normalizarTimestamp(fechaStr));
+    return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   }
 
   enviarMensaje(): void {

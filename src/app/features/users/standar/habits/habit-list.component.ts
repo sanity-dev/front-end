@@ -84,13 +84,6 @@ import { DashboardService, Habit } from '../../../../core/services/dashboard.ser
           </p>
         </article>
       </div>
-
-      <button
-        (click)="goBack()"
-        class="mt-1 text-sm font-semibold text-text-secondary self-start"
-      >
-        Volver al dashboard
-      </button>
     </div>
   `,
   styles: []
