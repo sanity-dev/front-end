@@ -319,11 +319,12 @@ export class DashboardService {
                         );
 
                         const latest = sorted[0];
+                        const isImage = latest.tipo === 'IMAGEN' || latest.tipo === 'image';
                         return {
                             id: latest.id,
-                            text: latest.contenido || latest.text || latest.texto || '',
+                            text: isImage ? 'Un momento especial guardado en tu diario...' : (latest.contenido || latest.text || latest.texto || ''),
                             date: norm(latest.fechaEnvio || latest.date || latest.fecha || latest.createdAt || ''),
-                            photoUrl: latest.tipo === 'image' ? latest.contenido : null
+                            photoUrl: isImage ? latest.contenido : null
                         } as DiaryEntry;
                     })
                 );

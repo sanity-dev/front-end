@@ -16,6 +16,14 @@ import { environment } from '../../../../../environments/environment';
 
       <div class="flex flex-col px-5 pb-10 gap-1">
 
+        <!-- Mensajes globales de éxito y error -->
+        <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm mt-4">
+          {{ errorMessage }}
+        </div>
+        <div *ngIf="successMessage" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded text-sm font-medium mt-4">
+          {{ successMessage }}
+        </div>
+
         <!-- CUENTA -->
         <h2 class="text-base font-bold text-text-primary mt-4 mb-2">Cuenta</h2>
 
@@ -103,6 +111,8 @@ export class ConfiguracionComponent implements OnInit {
   showModal = false;
   isSaving = false;
   modalConfig: EditFieldConfig = { field: '', label: '', value: '', type: 'text' };
+  errorMessage = '';
+  successMessage = '';
 
   private apiUrl = `${environment.apiUrl}/api/personas`;
 
@@ -138,29 +148,33 @@ export class ConfiguracionComponent implements OnInit {
   }
 
   private deleteAccount(password: string): void {
-    const token = localStorage.getItem('authToken');
-    if (!token) return;
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const userId = payload.idPersona;
-      this.isSaving = true;
-
-      this.http.delete(`${this.apiUrl}/${userId}`, {
-        body: { contraseña: password }
-      }).subscribe({
-        next: () => {
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        },
-        error: (err) => {
-          this.isSaving = false;
-          console.error('Error al eliminar cuenta:', err);
-        }
-      });
-    } catch (e) {
-      this.isSaving = false;
-      console.error('Error al procesar token:', e);
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      console.error('No se encontró el ID del usuario en sesión');
+      return;
     }
+
+    this.isSaving = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.http.delete(`${this.apiUrl}/${userId}`, {
+      body: { contraseña: password }
+    }).subscribe({
+      next: () => {
+        this.authService.logout();
+        this.showModal = false;
+        this.successMessage = 'Cuenta eliminada exitosamente. Redirigiendo...';
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 2000);
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.showModal = false;
+        this.errorMessage = err.error?.message || 'Error al eliminar la cuenta. Verifica tu contraseña e inténtalo nuevamente.';
+        console.error('Error al eliminar cuenta:', err);
+      }
+    });
   }
 }
