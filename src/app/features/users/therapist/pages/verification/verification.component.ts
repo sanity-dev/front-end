@@ -22,7 +22,7 @@ interface DocumentItem {
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div class="flex flex-col min-h-screen bg-linear-to-b from-[#cbcbcb] to-[#ffffff]/50">
+    <div class="flex flex-col min-h-screen bg-linear-to-b from-[#ececec] to-[#ffffff]/60">
 
       <!-- Content -->
       <div class="flex-1 px-6 pt-4 pb-8">

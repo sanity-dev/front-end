@@ -10,7 +10,7 @@ import { LoginFormComponent } from '../../components/login-form/login-form.compo
   imports: [CommonModule, HeroComponent, HeaderComponent, LoginFormComponent],
   template: `
     <div class="min-h-screen flex flex-col">
-        <app-header [disableMenuButton]="true" ></app-header>
+        <app-header [hideMenuButton]="true" [showBackButton]="true"></app-header>
         <div class="w-full max-w-md mx-auto flex flex-col justify-center"> 
             <div class="px-4 pb-12">
             <app-hero
