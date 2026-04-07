@@ -176,7 +176,7 @@ export class NotificationPreferencesComponent implements OnInit {
                     if (mensajesIa) mensajesIa.enabled = data.mensajesIa ?? true;
                 }
             },
-            error: (err) => console.error('Error loading preferences', err)
+            error: () => {}
         });
     }
 
@@ -208,18 +208,18 @@ export class NotificationPreferencesComponent implements OnInit {
         };
 
         this.http.put(`${this.apiUrl}/${userId}/preferencias`, payload).subscribe({
-            next: () => console.log('Preferencias guardadas'),
-            error: (err) => console.error('Error saving preferences', err)
+            next: () => {},
+            error: () => {}
         });
     }
 
     onPreferenceChange(): void {
-        console.log(`Preferencia actualizada`);
+
         this.savePreferences();
     }
 
     onMethodChange(): void {
-        console.log(`Método actualizado`);
+
         this.savePreferences();
     }
 
