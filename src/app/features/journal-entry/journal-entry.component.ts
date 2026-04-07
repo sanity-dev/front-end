@@ -1,12 +1,13 @@
 import { Component, OnInit, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { JournalService, Diario, MensajeDiarioDTO, NuevoMensajeDTO } from '../../core/services/journal.service';
 
 @Component({
   selector: 'app-journal-entry',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './journal-entry.component.html',
   styleUrl: './journal-entry.component.css'
 })

@@ -84,11 +84,26 @@ export class JournalService {
   subirImagenMensaje(diarioId: string, file: File): Observable<MensajeDiarioDTO> {
     const formData = new FormData();
     formData.append('file', file);
+    
+    // Obtenemos el userId del local storage para enviarlo al backend
+    const userId = localStorage.getItem('userId') || 'default';
+    formData.append('usuarioId', userId);
+
     return this.http.post<MensajeDiarioDTO>(`${this.apiUrl}/${diarioId}/mensajes/upload`, formData).pipe(
       map(m => ({
         ...m,
         fechaEnvio: this.normalizarTimestamp(m.fechaEnvio)
       }))
+    );
+  }
+
+  // Obtener todas las imágenes guardadas en el Álbum de Recuerdos
+  getRecuerdos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/recuerdos`).pipe(
+      map(recuerdos => recuerdos.map(r => ({
+        ...r,
+        fecha: this.normalizarTimestamp(r.fecha)
+      })))
     );
   }
 }

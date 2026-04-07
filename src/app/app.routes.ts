@@ -100,6 +100,13 @@ export const routes: Routes = [
                         .then(m => m.JournalEntryComponent)
             },
             {
+                path: 'recuerdos',
+                data: { headerText: 'Álbum de Recuerdos' },
+                loadComponent: () =>
+                    import('./features/journal-entry/memories-album/memories-album.component')
+                        .then(m => m.MemoriesAlbumComponent)
+            },
+            {
                 path: 'habits',
                 data: { headerText: 'Habitos' },
                 loadComponent: () =>
