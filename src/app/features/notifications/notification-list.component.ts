@@ -144,7 +144,7 @@ export class NotificationListComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.error = "No se pudieron cargar las notificaciones. Verifica tu conexión.";
         this.loading = false;
-        console.error('Error al cargar notificaciones', err);
+
       }
     });
   }
@@ -155,7 +155,7 @@ export class NotificationListComponent implements OnInit, OnDestroy {
         next: () => {
           // El estado se actualiza automáticamente a través de notificaciones$ en el NotificacionService
         },
-        error: (err) => console.error('Error al marcar como leída', err)
+        error: () => {}
       });
     }
   }
@@ -166,7 +166,7 @@ export class NotificationListComponent implements OnInit, OnDestroy {
       next: () => {
         // La lista se actualiza automáticamente a través de notificaciones$ en el NotificacionService
       },
-      error: (err) => console.error('Error al eliminar', err)
+      error: () => {}
     });
   }
 
