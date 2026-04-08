@@ -100,7 +100,7 @@ interface TherapistProfile {
         <app-button
           variant="gradient"
           [fullWidth]="true"
-          (click)="goToVerification()"
+          (click)="goToVerification('documents')"
         >
           {{ verificationState === 'VERIFICADO' ? 'Ver documentos' : 'Verificar documentos' }}
         </app-button>
@@ -130,7 +130,7 @@ interface TherapistProfile {
         <app-button
           variant="gradient"
           [fullWidth]="true"
-          (click)="goToVerification()"
+          (click)="goToVerification('face')"
         >
           {{ faceVerificationState === 'VERIFICADO' ? 'Verificación completada' : 'Verificar identidad facial' }}
         </app-button>
@@ -422,8 +422,8 @@ export class TherapistProfileComponent implements OnInit {
     });
   }
 
-  goToVerification(): void {
-    this.router.navigate(['/users/therapist/verification']);
+  goToVerification(section: 'documents' | 'face' = 'documents'): void {
+    this.router.navigate(['/users/therapist/verification'], { fragment: section });
   }
 
   logout(): void {

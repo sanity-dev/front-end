@@ -1,10 +1,11 @@
-import { Component, ElementRef, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonComponent } from '../../../../../shared/components/button/button.component';
 import { DocumentService, DocumentUploadResponse } from '../../../../../core/services/document.service';
 import { FaceVerificationComponent } from './face-verification.component';
 import { FaceVerificationService } from '../../../../../core/services/face-verification.service';
+import { Subscription } from 'rxjs';
 
 interface DocumentItem {
   type: string;
@@ -30,7 +31,7 @@ interface DocumentItem {
       <div class="flex-1 px-6 pt-4 pb-8">
 
         <!-- ========== SECCIÓN 1: DOCUMENTOS ========== -->
-        <h2 class="text-2xl font-bold text-text-primary mb-2">Envía tus documentos</h2>
+        <h2 class="text-2xl font-bold text-text-primary mb-2" #documentsSection>Envía tus documentos</h2>
         <p class="text-text-primary text-sm mb-8">
           Para completar tu perfil y empezar a atender pacientes, necesitamos verificar tus credenciales profesionales. Tus documentos serán verificados automáticamente.
         </p>
@@ -102,6 +103,11 @@ interface DocumentItem {
                 <h3 class="font-bold text-gray-900 text-sm">{{ doc.label }}</h3>
                 <p class="text-xs text-gray-600">{{ doc.description }}</p>
 
+                <!-- Format hint for identification document -->
+                @if (doc.type === 'identificacion') {
+                  <p class="text-[11px] text-amber-600 mt-0.5 font-medium">📷 Solo archivos JPEG o PNG (no PDF)</p>
+                }
+
                 <!-- File name display -->
                 @if (doc.fileName) {
                   <p class="text-xs mt-1 truncate"
@@ -157,7 +163,7 @@ interface DocumentItem {
               <input
                 #fileInput
                 type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
+                [attr.accept]="doc.type === 'identificacion' ? 'image/jpeg,image/png,image/jpg' : '.pdf,.jpg,.jpeg,.png'"
                 class="hidden"
                 (change)="onFileSelected($event, i)" />
             </div>
@@ -197,7 +203,7 @@ interface DocumentItem {
 
         <!-- ========== SECCIÓN 2: VERIFICACIÓN FACIAL ========== -->
         <div class="mb-4">
-          <div class="flex items-center gap-3 mb-2">
+        <div class="flex items-center gap-3 mb-2" #faceSection>
             <h2 class="text-2xl font-bold text-text-primary">Verificación Facial</h2>
             @if (faceVerificationState === 'VERIFICADO') {
               <span class="text-xs font-semibold text-white bg-emerald-500 px-2.5 py-0.5 rounded-full">Completada</span>
@@ -236,8 +242,12 @@ interface DocumentItem {
     }
   `]
 })
-export class VerificationComponent implements OnInit {
+export class VerificationComponent implements OnInit, OnDestroy {
   @ViewChildren('fileInput') fileInputs!: QueryList<ElementRef<HTMLInputElement>>;
+  @ViewChild('documentsSection') documentsSection!: ElementRef;
+  @ViewChild('faceSection') faceSection!: ElementRef;
+
+  private fragmentSub?: Subscription;
 
   globalMessage = '';
   globalMessageType: 'success' | 'error' | 'warning' = 'success';
@@ -287,12 +297,41 @@ export class VerificationComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private documentService: DocumentService,
     private faceVerificationService: FaceVerificationService
   ) { }
 
   ngOnInit(): void {
     this.loadFaceVerificationStatus();
+
+    // Subscribe to fragment changes to scroll to the correct section
+    this.fragmentSub = this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        setTimeout(() => this.scrollToSection(fragment), 300);
+      } else {
+        // No fragment: scroll to top
+        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.fragmentSub?.unsubscribe();
+  }
+
+  private scrollToSection(section: string): void {
+    let el: ElementRef | undefined;
+    if (section === 'documents' && this.documentsSection) {
+      el = this.documentsSection;
+    } else if (section === 'face' && this.faceSection) {
+      el = this.faceSection;
+    }
+    if (el) {
+      el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   /**
@@ -339,6 +378,19 @@ export class VerificationComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
+
+      // Validate file type for identification (only JPEG/PNG)
+      if (this.documents[index].type === 'identificacion') {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!allowedTypes.includes(file.type)) {
+          this.documents[index].status = 'error';
+          this.documents[index].errorMessage = 'Solo se permiten archivos JPEG o PNG para el documento de identificación';
+          this.documents[index].file = null;
+          this.documents[index].fileName = '';
+          input.value = '';
+          return;
+        }
+      }
 
       // Validar tamaño (máximo 10MB)
       const maxSize = 10 * 1024 * 1024;
