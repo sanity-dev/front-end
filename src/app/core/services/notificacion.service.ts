@@ -181,54 +181,73 @@ export class NotificacionService {
   // SSE PUSH NOTIFICATIONS
   // ============================================
 
-  private eventSource: EventSource | null = null;
+  private abortController: AbortController | null = null;
 
   /**
    * Conectar al stream de Eventos (SSE) para recibir notificaciones push en tiempo real.
    */
   conectarSSE(usuarioId: string): void {
-    if (this.eventSource) {
-
+    if (this.abortController) {
       return;
     }
 
     const token = localStorage.getItem('authToken');
-    const sseUrl = `${this.apiUrl}/stream/${usuarioId}?token=${token}`;
+    const sseUrl = `${this.apiUrl}/stream/${usuarioId}`;
+    this.abortController = new AbortController();
 
-
-    this.eventSource = new EventSource(sseUrl);
-
-    this.eventSource.onopen = (event) => {
-
-    };
-
-    this.eventSource.addEventListener('notification', (event: MessageEvent) => {
-
-      try {
-        const nuevaNotificacion: Notificacion = JSON.parse(event.data);
-        const current = this.notificacionesSubject.value;
-        this.notificacionesSubject.next([nuevaNotificacion, ...current]);
-        this.actualizarContadorNoLeidas(this.notificacionesSubject.value);
-      } catch (error) {
-
+    fetch(sseUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      signal: this.abortController.signal
+    }).then(async response => {
+      if (!response.body) return;
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      
+      let eventName = 'message';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+           if (line.startsWith('event:')) {
+               eventName = line.replace('event:', '').trim();
+           } else if (line.startsWith('data:')) {
+               const dataStr = line.substring(5).trim();
+               if(dataStr && eventName === 'notification') {
+                   try {
+                     const nuevaNotificacion: Notificacion = JSON.parse(dataStr);
+                     const current = this.notificacionesSubject.value;
+                     this.notificacionesSubject.next([nuevaNotificacion, ...current]);
+                     this.actualizarContadorNoLeidas(this.notificacionesSubject.value);
+                   } catch (error) {
+                     console.error('Error parseando notificación push', error);
+                   }
+               }
+           }
+        }
+      }
+    }).catch(error => {
+      if (error.name !== 'AbortError') {
+        this.desconectarSSE();
+        // Simple exp backoff / retry strategy could be implemented here
       }
     });
 
-    this.eventSource.onerror = (error) => {
-
-      this.desconectarSSE();
-      // Simple exp backoff / retry strategy could be implemented here
-    };
   }
 
   /**
    * Cierra la conexión SSE activa. Útil al hacer logout.
    */
   desconectarSSE(): void {
-    if (this.eventSource) {
-
-      this.eventSource.close();
-      this.eventSource = null;
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
     }
   }
 
