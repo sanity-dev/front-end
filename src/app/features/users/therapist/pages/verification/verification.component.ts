@@ -189,7 +189,7 @@ interface DocumentItem {
             [fullWidth]="true"
             [disabled]="!hasSelectedFiles() || isUploading"
             (click)="uploadAll()">
-            {{ isUploading ? 'Subiendo y verificando...' : 'Subir Documentos' }}
+            {{ isUploading ? 'Subiendo y verificando...' : 'Subir documentos' }}
           </app-button>
         </div>
 
@@ -340,6 +340,7 @@ export class VerificationComponent implements OnInit, OnDestroy {
   loadFaceVerificationStatus(): void {
     this.faceVerificationService.getVerificationStatus().subscribe({
       next: (response) => {
+        // Actualizar estado de verificación facial
         const faceStatus = (response.faceVerification || '').toUpperCase();
         if (faceStatus === 'VERIFICADO') {
           this.faceVerificationState = 'VERIFICADO';
@@ -347,6 +348,29 @@ export class VerificationComponent implements OnInit, OnDestroy {
           this.faceVerificationState = 'PENDIENTE';
         } else {
           this.faceVerificationState = 'NO_VERIFICADO';
+        }
+
+        // Actualizar estado de cada documento según el backend
+        if (response.documents && Array.isArray(response.documents)) {
+          for (const backendDoc of response.documents) {
+            const localDoc = this.documents.find(d => d.type === backendDoc.type);
+            if (localDoc) {
+              const docStatus = (backendDoc.status || '').toLowerCase();
+              if (docStatus === 'verificado') {
+                localDoc.status = 'verified';
+                localDoc.fileName = '';
+                localDoc.errorMessage = '';
+                localDoc.motivoRechazo = '';
+              } else if (docStatus === 'rechazado') {
+                localDoc.status = 'rejected';
+                localDoc.motivoRechazo = backendDoc.motivoRechazo || '';
+                localDoc.errorMessage = '';
+              } else if (docStatus === 'pendiente') {
+                localDoc.status = 'uploaded';
+                localDoc.errorMessage = '';
+              }
+            }
+          }
         }
       },
       error: () => {
