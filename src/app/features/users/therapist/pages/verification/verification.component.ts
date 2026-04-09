@@ -340,9 +340,10 @@ export class VerificationComponent implements OnInit, OnDestroy {
   loadFaceVerificationStatus(): void {
     this.faceVerificationService.getVerificationStatus().subscribe({
       next: (response) => {
-        if (response.faceVerification === 'VERIFICADO') {
+        const faceStatus = (response.faceVerification || '').toUpperCase();
+        if (faceStatus === 'VERIFICADO') {
           this.faceVerificationState = 'VERIFICADO';
-        } else if (response.faceVerification === 'PENDIENTE') {
+        } else if (faceStatus === 'PENDIENTE') {
           this.faceVerificationState = 'PENDIENTE';
         } else {
           this.faceVerificationState = 'NO_VERIFICADO';

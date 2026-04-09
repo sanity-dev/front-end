@@ -331,9 +331,10 @@ export class TherapistProfileComponent implements OnInit {
         }
 
         // Load face verification status from the same response if available
-        if ((response as any).faceVerification === 'VERIFICADO') {
+        const faceStatus = ((response as any).faceVerification || '').toUpperCase();
+        if (faceStatus === 'VERIFICADO') {
           this.faceVerificationState = 'VERIFICADO';
-        } else if ((response as any).faceVerification === 'PENDIENTE') {
+        } else if (faceStatus === 'PENDIENTE') {
           this.faceVerificationState = 'PENDIENTE';
         } else {
           this.faceVerificationState = 'NO_VERIFICADO';
