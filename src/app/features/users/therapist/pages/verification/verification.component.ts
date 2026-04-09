@@ -1,8 +1,11 @@
-import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonComponent } from '../../../../../shared/components/button/button.component';
 import { DocumentService, DocumentUploadResponse } from '../../../../../core/services/document.service';
+import { FaceVerificationComponent } from './face-verification.component';
+import { FaceVerificationService } from '../../../../../core/services/face-verification.service';
+import { Subscription } from 'rxjs';
 
 interface DocumentItem {
   type: string;
@@ -20,13 +23,15 @@ interface DocumentItem {
 @Component({
   selector: 'app-verification',
   standalone: true,
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, ButtonComponent, FaceVerificationComponent],
   template: `
     <div class="flex flex-col min-h-screen bg-linear-to-b from-[#ececec] to-[#ffffff]/60">
 
       <!-- Content -->
       <div class="flex-1 px-6 pt-4 pb-8">
-        <h2 class="text-2xl font-bold text-text-primary mb-2">Envía tus documentos</h2>
+
+        <!-- ========== SECCIÓN 1: DOCUMENTOS ========== -->
+        <h2 class="text-2xl font-bold text-text-primary mb-2" #documentsSection>Envía tus documentos</h2>
         <p class="text-text-primary text-sm mb-8">
           Para completar tu perfil y empezar a atender pacientes, necesitamos verificar tus credenciales profesionales. Tus documentos serán verificados automáticamente.
         </p>
@@ -98,6 +103,11 @@ interface DocumentItem {
                 <h3 class="font-bold text-gray-900 text-sm">{{ doc.label }}</h3>
                 <p class="text-xs text-gray-600">{{ doc.description }}</p>
 
+                <!-- Format hint for identification document -->
+                @if (doc.type === 'identificacion') {
+                  <p class="text-[11px] text-amber-600 mt-0.5 font-medium">📷 Solo archivos JPEG o PNG (no PDF)</p>
+                }
+
                 <!-- File name display -->
                 @if (doc.fileName) {
                   <p class="text-xs mt-1 truncate"
@@ -153,7 +163,7 @@ interface DocumentItem {
               <input
                 #fileInput
                 type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
+                [attr.accept]="doc.type === 'identificacion' ? 'image/jpeg,image/png,image/jpg' : '.pdf,.jpg,.jpeg,.png'"
                 class="hidden"
                 (change)="onFileSelected($event, i)" />
             </div>
@@ -174,14 +184,54 @@ interface DocumentItem {
         }
 
         <!-- Button -->
-        <div class="w-full">
+        <div class="w-full mb-8">
           <app-button
             [fullWidth]="true"
             [disabled]="!hasSelectedFiles() || isUploading"
             (click)="uploadAll()">
-            {{ isUploading ? 'Subiendo y verificando...' : 'Subir Documentos' }}
+            {{ isUploading ? 'Subiendo y verificando...' : 'Subir documentos' }}
           </app-button>
         </div>
+
+        <!-- ========== DIVIDER ========== -->
+        <div class="relative my-8">
+          <div class="h-px bg-linear-to-r from-transparent via-gray-300 to-transparent"></div>
+          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#f3f3f3] px-4">
+            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Paso 2</span>
+          </div>
+        </div>
+
+        <!-- ========== SECCIÓN 2: VERIFICACIÓN FACIAL ========== -->
+        <div class="mb-4">
+        <div class="flex items-center gap-3 mb-2" #faceSection>
+            <h2 class="text-2xl font-bold text-text-primary">Verificación Facial</h2>
+            @if (faceVerificationState === 'VERIFICADO') {
+              <span class="text-xs font-semibold text-white bg-emerald-500 px-2.5 py-0.5 rounded-full">Completada</span>
+            }
+          </div>
+          <p class="text-text-primary text-sm mb-6">
+            Confirma tu identidad tomándote una selfie. Compararemos tu rostro con la foto de tu documento de identificación.
+          </p>
+        </div>
+
+        <!-- Face verification status badge (si ya fue verificado) -->
+        @if (faceVerificationState === 'VERIFICADO') {
+          <div class="flex items-center gap-3 p-4 rounded-xl bg-green-50/80 ring-2 ring-green-300 mb-6">
+            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm shrink-0 text-green-500">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div class="flex-1 text-left">
+              <h3 class="font-bold text-gray-900 text-sm">Identidad verificada</h3>
+              <p class="text-xs text-green-600 font-medium">✅ Tu rostro coincide con tu documento de identidad</p>
+            </div>
+          </div>
+        } @else {
+          <!-- Face verification component -->
+          <app-face-verification (onVerificationComplete)="onFaceVerificationDone()"></app-face-verification>
+        }
+
       </div>
     </div>
   `,
@@ -192,12 +242,19 @@ interface DocumentItem {
     }
   `]
 })
-export class VerificationComponent {
+export class VerificationComponent implements OnInit, OnDestroy {
   @ViewChildren('fileInput') fileInputs!: QueryList<ElementRef<HTMLInputElement>>;
+  @ViewChild('documentsSection') documentsSection!: ElementRef;
+  @ViewChild('faceSection') faceSection!: ElementRef;
+
+  private fragmentSub?: Subscription;
 
   globalMessage = '';
   globalMessageType: 'success' | 'error' | 'warning' = 'success';
   isUploading = false;
+
+  // Face verification
+  faceVerificationState: 'PENDIENTE' | 'VERIFICADO' | 'NO_VERIFICADO' = 'NO_VERIFICADO';
 
   documents: DocumentItem[] = [
     {
@@ -240,8 +297,94 @@ export class VerificationComponent {
 
   constructor(
     private router: Router,
-    private documentService: DocumentService
+    private route: ActivatedRoute,
+    private documentService: DocumentService,
+    private faceVerificationService: FaceVerificationService
   ) { }
+
+  ngOnInit(): void {
+    this.loadFaceVerificationStatus();
+
+    // Subscribe to fragment changes to scroll to the correct section
+    this.fragmentSub = this.route.fragment.subscribe(fragment => {
+      if (fragment) {
+        setTimeout(() => this.scrollToSection(fragment), 300);
+      } else {
+        // No fragment: scroll to top
+        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.fragmentSub?.unsubscribe();
+  }
+
+  private scrollToSection(section: string): void {
+    let el: ElementRef | undefined;
+    if (section === 'documents' && this.documentsSection) {
+      el = this.documentsSection;
+    } else if (section === 'face' && this.faceSection) {
+      el = this.faceSection;
+    }
+    if (el) {
+      el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  /**
+   * Carga el estado de verificación facial desde el backend
+   */
+  loadFaceVerificationStatus(): void {
+    this.faceVerificationService.getVerificationStatus().subscribe({
+      next: (response) => {
+        // Actualizar estado de verificación facial
+        const faceStatus = (response.faceVerification || '').toUpperCase();
+        if (faceStatus === 'VERIFICADO') {
+          this.faceVerificationState = 'VERIFICADO';
+        } else if (faceStatus === 'PENDIENTE') {
+          this.faceVerificationState = 'PENDIENTE';
+        } else {
+          this.faceVerificationState = 'NO_VERIFICADO';
+        }
+
+        // Actualizar estado de cada documento según el backend
+        if (response.documents && Array.isArray(response.documents)) {
+          for (const backendDoc of response.documents) {
+            const localDoc = this.documents.find(d => d.type === backendDoc.type);
+            if (localDoc) {
+              const docStatus = (backendDoc.status || '').toLowerCase();
+              if (docStatus === 'verificado') {
+                localDoc.status = 'verified';
+                localDoc.fileName = '';
+                localDoc.errorMessage = '';
+                localDoc.motivoRechazo = '';
+              } else if (docStatus === 'rechazado') {
+                localDoc.status = 'rejected';
+                localDoc.motivoRechazo = backendDoc.motivoRechazo || '';
+                localDoc.errorMessage = '';
+              } else if (docStatus === 'pendiente') {
+                localDoc.status = 'uploaded';
+                localDoc.errorMessage = '';
+              }
+            }
+          }
+        }
+      },
+      error: () => {
+        this.faceVerificationState = 'NO_VERIFICADO';
+      }
+    });
+  }
+
+  /**
+   * Callback cuando la verificación facial se completa exitosamente
+   */
+  onFaceVerificationDone(): void {
+    this.faceVerificationState = 'VERIFICADO';
+  }
 
   /**
    * Abre el file picker para el documento en el índice dado
@@ -260,6 +403,19 @@ export class VerificationComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
+
+      // Validate file type for identification (only JPEG/PNG)
+      if (this.documents[index].type === 'identificacion') {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!allowedTypes.includes(file.type)) {
+          this.documents[index].status = 'error';
+          this.documents[index].errorMessage = 'Solo se permiten archivos JPEG o PNG para el documento de identificación';
+          this.documents[index].file = null;
+          this.documents[index].fileName = '';
+          input.value = '';
+          return;
+        }
+      }
 
       // Validar tamaño (máximo 10MB)
       const maxSize = 10 * 1024 * 1024;

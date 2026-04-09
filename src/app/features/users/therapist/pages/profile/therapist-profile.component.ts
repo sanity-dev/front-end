@@ -100,9 +100,39 @@ interface TherapistProfile {
         <app-button
           variant="gradient"
           [fullWidth]="true"
-          (click)="goToVerification()"
+          (click)="goToVerification('documents')"
         >
           {{ verificationState === 'VERIFICADO' ? 'Ver documentos' : 'Verificar documentos' }}
+        </app-button>
+      </section>
+
+      <!-- Divider -->
+      <div class="h-px bg-linear-to-r from-transparent via-gray-300 to-transparent my-2"></div>
+
+      <!-- Verificación facial -->
+      <section class="py-3">
+        <h3 class="text-lg font-bold text-text-primary mb-3">Verificación facial</h3>
+
+        <!-- Estado de verificación facial -->
+        <div class="flex items-center gap-2 mt-1 py-2">
+          <div
+            class="w-2.5 h-2.5 rounded-full"
+            [ngClass]="{
+              'bg-emerald-500': faceVerificationState === 'VERIFICADO',
+              'bg-amber-400': faceVerificationState === 'PENDIENTE',
+              'bg-gray-300': faceVerificationState === 'NO_VERIFICADO'
+            }"
+          ></div>
+          <span class="text-sm text-gray-500">{{ faceVerificationLabel }}</span>
+        </div>
+
+        <!-- Botón verificación facial -->
+        <app-button
+          variant="gradient"
+          [fullWidth]="true"
+          (click)="goToVerification('face')"
+        >
+          {{ faceVerificationState === 'VERIFICADO' ? 'Verificación completada' : 'Verificar identidad facial' }}
         </app-button>
       </section>
 
@@ -216,6 +246,9 @@ export class TherapistProfileComponent implements OnInit {
   // Verificación
   verificationState: 'VERIFICADO' | 'PENDIENTE' | 'RECHAZADO' | 'SIN_DOCUMENTOS' = 'SIN_DOCUMENTOS';
 
+  // Face verification
+  faceVerificationState: 'VERIFICADO' | 'PENDIENTE' | 'NO_VERIFICADO' = 'NO_VERIFICADO';
+
   // Edit modal
   showEditModal = false;
   isSaving = false;
@@ -235,6 +268,15 @@ export class TherapistProfileComponent implements OnInit {
       SIN_DOCUMENTOS: 'Documentos sin subir'
     };
     return labels[this.verificationState];
+  }
+
+  get faceVerificationLabel(): string {
+    const labels: Record<string, string> = {
+      VERIFICADO: 'Identidad facial verificada',
+      PENDIENTE: 'Verificación facial pendiente',
+      NO_VERIFICADO: 'Verificación facial pendiente'
+    };
+    return labels[this.faceVerificationState];
   }
 
   ngOnInit(): void {
@@ -287,8 +329,21 @@ export class TherapistProfileComponent implements OnInit {
           default:
             this.verificationState = 'SIN_DOCUMENTOS';
         }
+
+        // Load face verification status from the same response if available
+        const faceStatus = ((response as any).faceVerification || '').toUpperCase();
+        if (faceStatus === 'VERIFICADO') {
+          this.faceVerificationState = 'VERIFICADO';
+        } else if (faceStatus === 'PENDIENTE') {
+          this.faceVerificationState = 'PENDIENTE';
+        } else {
+          this.faceVerificationState = 'NO_VERIFICADO';
+        }
       },
-      error: () => this.verificationState = 'SIN_DOCUMENTOS'
+      error: () => {
+        this.verificationState = 'SIN_DOCUMENTOS';
+        this.faceVerificationState = 'NO_VERIFICADO';
+      }
     });
   }
 
@@ -368,8 +423,8 @@ export class TherapistProfileComponent implements OnInit {
     });
   }
 
-  goToVerification(): void {
-    this.router.navigate(['/users/therapist/verification']);
+  goToVerification(section: 'documents' | 'face' = 'documents'): void {
+    this.router.navigate(['/users/therapist/verification'], { fragment: section });
   }
 
   logout(): void {
