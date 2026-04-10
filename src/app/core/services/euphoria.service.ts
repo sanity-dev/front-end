@@ -229,22 +229,22 @@ export class EuphoriaService {
   }
 
   triggerEmergencyCall(): Observable<any> {
-  return this.obtenerUserIdDelToken().pipe(
-    switchMap(userId => {
-      const body = {
-        mensaje: 'emergency',
-        session_id: this.sessionId,
-        ...(userId ? { user_id: userId } : {})
-      };
-      return this.http.post(
-        `${this.apiUrl}/emergency-call`,
-        body,
-        { headers: this.getAuthHeaders() }
-      );
-    }),
-    catchError(this.manejarError.bind(this))
-  );
-}
+    return this.obtenerUserIdDelToken().pipe(
+      switchMap(userId => {
+        const body = {
+          mensaje: 'emergency',
+          session_id: this.sessionId,
+          ...(userId ? { user_id: userId } : {})
+        };
+        return this.http.post(
+          `${this.apiUrl}/emergency-call`,
+          body,
+          { headers: this.getAuthHeaders() }
+        );
+      }),
+      catchError(this.manejarError.bind(this))
+    );
+  }
 
   checkMood(mood: string): Observable<MoodCheckResponse> {
 
@@ -316,24 +316,60 @@ export class EuphoriaService {
   }
 
   uploadMoment(file: File, userId: number): Observable<MomentUploadResponse> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('userId', userId.toString());
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    });
+
+    const diaryApiUrl = `${environment.apiUrl}/api/diary`;
 
     console.log(`[EuphoriaService] Subiendo momento para usuario ${userId}`);
 
-    // Nota: Usamos el endpoint de la API de personas o uno específico para diario si existe.
-    // Según instrucciones, seguimos la lógica de foto-perfil.
-    return this.http.post<MomentUploadResponse>(
-      `${environment.apiUrl}/api/diary/moments/upload`,
-      formData,
-      { headers: new HttpHeaders({ 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }) }
-    ).pipe(
+    // 1. Obtener los diarios del usuario para encontrar un UUID válido
+    return this.http.get<any[]>(diaryApiUrl, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+      })
+    }).pipe(
+      switchMap(diarios => {
+        // Buscar un diario existente del álbum, o usar el primero disponible
+        const diarioAlbum = diarios?.find((d: any) => d.titulo?.includes('Álbum')) || diarios?.[0];
+
+        if (diarioAlbum?.id) {
+          // Ya existe un diario → usarlo directamente
+          return of(diarioAlbum.id as string);
+        }
+
+        // No hay diarios → crear uno nuevo
+        return this.http.post<any>(diaryApiUrl, {
+          titulo: `Álbum – Euphoria ${userId}`,
+          contenido: 'Diario del álbum creado automáticamente desde Euphoria'
+        }, {
+          headers: new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          })
+        }).pipe(
+          map(nuevo => nuevo.id as string)
+        );
+      }),
+      switchMap(diarioId => {
+        // 2. Subir la imagen al endpoint correcto con el UUID real
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('usuarioId', userId.toString());
+
+        return this.http.post<MomentUploadResponse>(
+          `${diaryApiUrl}/${diarioId}/archivos/upload`,
+          formData,
+          { headers }
+        );
+      }),
       tap(() => this.conexionEstado.next(true)),
       catchError(this.manejarError.bind(this))
     );
   }
-
+  
   verificarConexion(): Observable<any> {
     return this.http.get(`${this.apiUrl}/health`);
   }
