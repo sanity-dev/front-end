@@ -316,27 +316,20 @@ export class EuphoriaService {
   }
 
   uploadMoment(file: File, userId: number): Observable<MomentUploadResponse> {
-    const headers = new HttpHeaders({
+    const diaryApiUrl = `${environment.apiUrl}/api/diary`;
+    const authHeaders = new HttpHeaders({
       'Authorization': `Bearer ${localStorage.getItem('authToken')}`
     });
-
-    const diaryApiUrl = `${environment.apiUrl}/api/diary`;
 
     console.log(`[EuphoriaService] Subiendo momento para usuario ${userId}`);
 
     // 1. Obtener los diarios del usuario para encontrar un UUID válido
-    return this.http.get<any[]>(diaryApiUrl, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      })
-    }).pipe(
+    return this.http.get<any[]>(diaryApiUrl, { headers: this.getAuthHeaders() }).pipe(
       switchMap(diarios => {
         // Buscar un diario existente del álbum, o usar el primero disponible
         const diarioAlbum = diarios?.find((d: any) => d.titulo?.includes('Álbum')) || diarios?.[0];
 
         if (diarioAlbum?.id) {
-          // Ya existe un diario → usarlo directamente
           return of(diarioAlbum.id as string);
         }
 
@@ -344,27 +337,29 @@ export class EuphoriaService {
         return this.http.post<any>(diaryApiUrl, {
           titulo: `Álbum – Euphoria ${userId}`,
           contenido: 'Diario del álbum creado automáticamente desde Euphoria'
-        }, {
-          headers: new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-          })
-        }).pipe(
+        }, { headers: this.getAuthHeaders() }).pipe(
           map(nuevo => nuevo.id as string)
         );
       }),
       switchMap(diarioId => {
-        // 2. Subir la imagen al endpoint correcto con el UUID real
+        // 2. Subir imagen usando el mismo patrón que JournalService.subirImagenMensaje
         const formData = new FormData();
         formData.append('file', file);
         formData.append('usuarioId', userId.toString());
 
-        return this.http.post<MomentUploadResponse>(
-          `${diaryApiUrl}/${diarioId}/archivos/upload`,
+        // Endpoint correcto: /{diarioId}/mensajes/upload (no /archivos/upload)
+        return this.http.post<any>(
+          `${diaryApiUrl}/${diarioId}/mensajes/upload`,
           formData,
-          { headers }
+          { headers: authHeaders }  // Sin Content-Type para que el browser ponga multipart/form-data
         );
       }),
+      // 3. Mapear respuesta del backend (MensajeDiarioDTO) a MomentUploadResponse
+      map(respuesta => ({
+        success: true,
+        message: 'Momento guardado exitosamente',
+        url: respuesta.contenido || respuesta.url || ''
+      } as MomentUploadResponse)),
       tap(() => this.conexionEstado.next(true)),
       catchError(this.manejarError.bind(this))
     );
