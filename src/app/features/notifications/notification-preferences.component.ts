@@ -224,6 +224,10 @@ export class NotificationPreferencesComponent implements OnInit {
     }
 
     goBack(): void {
-        this.router.navigate(['/user/settings']);
+        if (this.router.url.includes('/users/therapist')) {
+            this.router.navigate(['/users/therapist/settings']);
+        } else {
+            this.router.navigate(['/user/settings']);
+        }
     }
 }

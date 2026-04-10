@@ -76,6 +76,20 @@ export const THERAPIST_ROUTES: Routes = [
                         .then(m => m.PatientHistoryComponent)
             },
             {
+                path: 'notifications',
+                data: { headerText: 'Notificaciones' },
+                children: [
+                    {
+                        path: '',
+                        loadComponent: () => import('../../notifications/notification-list.component').then(m => m.NotificationListComponent)
+                    },
+                    {
+                        path: 'preferences',
+                        loadComponent: () => import('../../notifications/notification-preferences.component').then(m => m.NotificationPreferencesComponent)
+                    }
+                ]
+            },
+            {
                 path: '',
                 redirectTo: 'welcome',
                 pathMatch: 'full'

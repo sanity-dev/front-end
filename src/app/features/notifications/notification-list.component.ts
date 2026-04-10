@@ -191,11 +191,19 @@ export class NotificationListComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['/user/dashboard']);
+    if (this.router.url.includes('/users/therapist')) {
+      this.router.navigate(['/users/therapist/dashboard']);
+    } else {
+      this.router.navigate(['/user/dashboard']);
+    }
   }
 
   goToPreferences(): void {
-    this.router.navigate(['/user/notifications/preferences']);
+    if (this.router.url.includes('/users/therapist')) {
+      this.router.navigate(['/users/therapist/notifications/preferences']);
+    } else {
+      this.router.navigate(['/user/notifications/preferences']);
+    }
   }
 
   private getUsuarioId(): string {

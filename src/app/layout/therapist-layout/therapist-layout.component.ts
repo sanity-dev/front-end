@@ -56,6 +56,7 @@ export class TherapistLayoutComponent {
   onRightIconClick(): void {
     const actionMap: Record<string, string> = {
       settings: '/users/therapist/settings',
+      notification: '/users/therapist/notifications',
     };
     const route = actionMap[this.headerRightIcon];
     if (route) this.router.navigate([route]);
